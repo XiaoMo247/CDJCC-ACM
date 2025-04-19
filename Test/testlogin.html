@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <title>管理员操作测试</title>
+</head>
+
+<body>
+  <h2>管理员登录</h2>
+  <label>用户名：</label><input id="username" value="admin"><br>
+  <label>密码：</label><input id="password" value="admin123"><br>
+  <button onclick="login()">登录</button>
+
+  <h2>获取管理员信息</h2>
+  <button onclick="getInfo()">获取 /admin/me</button>
+
+  <h2>添加新管理员</h2>
+  <label>新管理员用户名：</label><input id="newUsername" value="newadmin"><br>
+  <label>新管理员密码：</label><input id="newPassword" value="newadmin123"><br>
+  <button onclick="addAdmin()">提交新管理员</button>
+
+  <h2>查看管理员列表</h2>
+  <button onclick="listAdmins()">获取管理员列表</button>
+
+  <h2>删除管理员（仅初代管理员可用）</h2>
+  <label>要删除的管理员 ID：</label><input id="deleteId" value="2"><br>
+  <button onclick="deleteAdmin()">删除管理员</button>
+
+  <pre id="result" style="margin-top:20px; background:#f0f0f0; padding:10px;"></pre>
+
+  <script>
+    let token = ''
+
+    // 登录函数
+    function login() {
+      const username = document.getElementById("username").value
+      const password = document.getElementById("password").value
+
+      fetch('http://localhost:8081/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.token) {
+            token = data.token
+            show(`登录成功，Token: ${token}`)
+          } else {
+            show(JSON.stringify(data, null, 2))
+          }
+        })
+        .catch(err => show("请求失败：" + err))
+    }
+
+    // 获取管理员信息
+    function getInfo() {
+      fetch('http://localhost:8081/api/admin/me', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+        .then(res => res.json())
+        .then(data => show(JSON.stringify(data, null, 2)))
+        .catch(err => show("请求失败：" + err))
+    }
+
+    // 添加新管理员
+    function addAdmin() {
+      const newUsername = document.getElementById("newUsername").value
+      const newPassword = document.getElementById("newPassword").value
+
+      fetch('http://localhost:8081/api/admin/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ username: newUsername, password: newPassword })
+      })
+        .then(res => res.json())
+        .then(data => show(JSON.stringify(data, null, 2)))
+        .catch(err => show("请求失败：" + err))
+    }
+
+    // 删除管理员
+    function deleteAdmin() {
+      const deleteId = document.getElementById("deleteId").value
+
+      fetch(`http://localhost:8081/api/admin/delete/${deleteId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      })
+        .then(res => res.json())
+        .then(data => show(JSON.stringify(data, null, 2)))
+        .catch(err => show("请求失败：" + err))
+    }
+
+    // 显示内容
+    function show(content) {
+      document.getElementById("result").textContent = content
+    }
+    function listAdmins() {
+      fetch('http://localhost:8081/api/admin/list', {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      })
+        .then(res => res.json())
+        .then(data => show(JSON.stringify(data, null, 2)))
+        .catch(err => show("请求失败：" + err))
+    }
+  </script>
+</body>
+
+</html>
