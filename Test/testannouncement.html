@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>公告管理测试</title>
+</head>
+
+<body>
+    <h2>管理员登录</h2>
+    <label>用户名：</label><input id="username" value="admin"><br>
+    <label>密码：</label><input id="password" value="admin123"><br>
+    <button onclick="login()">登录</button>
+
+    <h2>发布新公告</h2>
+    <label>标题：</label><input id="title"><br>
+    <label>内容：</label><br><textarea id="content" rows="4" cols="50"></textarea><br>
+    <button onclick="createAnnouncement()">发布公告</button>
+
+    <h2>公告列表</h2>
+    <button onclick="loadAnnouncements()">获取公告列表</button>
+    <ul id="announcementList"></ul>
+
+    <pre id="result" style="margin-top:20px; background:#f0f0f0; padding:10px;"></pre>
+
+    <script>
+        let token = ''
+
+        function login() {
+            const username = document.getElementById("username").value
+            const password = document.getElementById("password").value
+
+            fetch('http://localhost:8081/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.token) {
+                        token = data.token
+                        show('登录成功')
+                    } else {
+                        show('登录失败：' + JSON.stringify(data))
+                    }
+                })
+                .catch(err => show("登录请求失败：" + err))
+        }
+
+        function createAnnouncement() {
+            const title = document.getElementById("title").value
+            const content = document.getElementById("content").value
+
+            fetch('http://localhost:8081/api/announcement/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ title, content })
+            })
+                .then(res => res.json())
+                .then(data => show(JSON.stringify(data, null, 2)))
+                .catch(err => show("发布失败：" + err))
+        }
+
+        function loadAnnouncements() {
+            fetch('http://localhost:8081/api/announcement/list')
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);  // 打印返回的数据，检查它的结构
+                    const ul = document.getElementById("announcementList");
+                    ul.innerHTML = '';
+
+                    if (Array.isArray(data.announcements)) {
+                        data.announcements.forEach(item => {
+                            console.log(item);  // 打印每个 item
+                            const li = document.createElement("li");
+                            li.innerHTML = `<b>${item.title}</b> - ${item.content} 
+            <button onclick="deleteAnnouncement(${item.id})">删除</button>
+            <button onclick="editAnnouncement(${item.id})">修改</button>`;
+                            ul.appendChild(li);
+                        });
+                    } else {
+                        show("获取公告失败：" + JSON.stringify(data));
+                    }
+                })
+                .catch(err => show("获取失败：" + err));
+        }
+
+        function deleteAnnouncement(id) {
+            console.log('删除公告 ID:', id);  // 打印出传递的 id，确保其值正确
+            fetch(`http://localhost:8081/api/announcement/delete/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                },
+            })
+                .then(res => res.json())
+                .then(data => show(JSON.stringify(data, null, 2)))
+                .catch(err => show("请求失败：" + err));
+        }
+
+        function editAnnouncement(id) {
+            console.log('修改公告 ID:', id)  // 调试输出 ID
+            if (id) {
+                const newTitle = prompt("请输入新标题：")
+                const newContent = prompt("请输入新内容：")
+
+                fetch(`http://localhost:8081/api/announcement/update/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ title: newTitle, content: newContent })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        show(JSON.stringify(data, null, 2))
+                        loadAnnouncements()
+                    })
+                    .catch(err => show("修改失败：" + err))
+            } else {
+                show('无效的公告 ID')
+            }
+        }
+
+        function show(content) {
+            document.getElementById("result").textContent = content
+        }
+    </script>
+</body>
+
+</html>
