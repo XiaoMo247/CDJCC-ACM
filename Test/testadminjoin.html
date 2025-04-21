@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>管理员查看加入申请</title>
+</head>
+<body>
+  <h2>管理员登录</h2>
+  <form id="admin-login-form">
+    <label for="admin-username">用户名：</label>
+    <input type="text" id="admin-username" required><br><br>
+
+    <label for="admin-password">密码：</label>
+    <input type="password" id="admin-password" required><br><br>
+
+    <button type="submit">登录</button>
+  </form>
+
+  <h3>登录状态</h3>
+  <pre id="login-status"></pre>
+
+  <hr>
+
+  <h2>所有加入申请列表</h2>
+  <button id="load-applies">加载申请数据</button>
+  <table border="1" id="apply-table" style="margin-top: 10px; display: none;">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>用户ID</th>
+        <th>QQ号</th>
+        <th>申请职位</th>
+        <th>姓名</th>
+        <th>自我介绍</th>
+        <th>提交时间</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="apply-body"></tbody>
+  </table>
+
+  <h3>申请详情查看</h3>
+  <form id="detail-form">
+    <label for="apply-id">输入申请 ID：</label>
+    <input type="number" id="apply-id" required>
+    <button type="submit">查看详情</button>
+  </form>
+  <pre id="apply-detail"></pre>
+
+  <script>
+    let adminToken = '';
+
+    // 管理员登录
+    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('admin-username').value;
+      const password = document.getElementById('admin-password').value;
+      const res = await fetch('http://localhost:8081/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+      const statusBox = document.getElementById('login-status');
+
+      if (res.ok) {
+        adminToken = data.token;
+        statusBox.textContent = `登录成功！Token: ${adminToken}`;
+      } else {
+        adminToken = '';
+        statusBox.textContent = `登录失败：${data.error || JSON.stringify(data)}`;
+      }
+    });
+
+    // 加载申请列表
+    document.getElementById('load-applies').addEventListener('click', async () => {
+      if (!adminToken) {
+        alert('请先登录管理员账号！');
+        return;
+      }
+
+      const res = await fetch('http://localhost:8081/api/join/get', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${adminToken}`
+        }
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const tbody = document.getElementById('apply-body');
+        tbody.innerHTML = '';
+
+        data.data.forEach(item => {
+          const row = `
+            <tr>
+              <td>${item.id}</td>
+              <td>${item.user_id}</td>
+              <td>${item.qq_number}</td>
+              <td>${item.apply}</td>
+              <td>${item.name}</td>
+              <td>${item.text}</td>
+              <td>${item.created_at}</td>
+              <td>
+                <button onclick="viewDetail(${item.id})">查看详情</button>
+                <button onclick="approve(${item.id})">审核通过</button>
+              </td>
+            </tr>
+          `;
+          tbody.insertAdjacentHTML('beforeend', row);
+        });
+
+        document.getElementById('apply-table').style.display = 'table';
+      } else {
+        alert(`获取失败：${data.error || JSON.stringify(data)}`);
+      }
+    });
+
+    // 查看详情表单
+    document.getElementById('detail-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('apply-id').value;
+      viewDetail(id);
+    });
+
+    // 查看详情函数
+    async function viewDetail(id) {
+      const detailBox = document.getElementById('apply-detail');
+      if (!adminToken) {
+        detailBox.textContent = '请先登录管理员账号！';
+        return;
+      }
+
+      const res = await fetch(`http://localhost:8081/api/join/${id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${adminToken}`
+        }
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        detailBox.textContent = JSON.stringify(data.data, null, 2);
+      } else {
+        detailBox.textContent = `获取失败：${data.error || JSON.stringify(data)}`;
+      }
+    }
+
+    // 审核通过函数
+    async function approve(id) {
+      if (!adminToken) {
+        alert('请先登录管理员账号！');
+        return;
+      }
+
+      const confirm = window.confirm(`确定要将申请 ID=${id} 审核通过吗？`);
+      if (!confirm) return;
+
+      const res = await fetch(`http://localhost:8081/api/join/ac/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${adminToken}`
+        }
+      });
+
+      const data = await res.json();
+      alert(data.msg || '审核完成');
+
+      // 审核完成后可自动刷新申请列表
+      document.getElementById('load-applies').click();
+    }
+  </script>
+</body>
+</html>

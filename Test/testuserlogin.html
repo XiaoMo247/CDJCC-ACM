@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>用户登录测试</title>
+</head>
+<body>
+  <h2>用户登录</h2>
+  <form id="login-form">
+    <label for="studentNumber">学号：</label>
+    <input type="text" id="studentNumber" required><br><br>
+
+    <label for="password">密码：</label>
+    <input type="password" id="password" required><br><br>
+
+    <button type="submit">登录</button>
+  </form>
+
+  <h3>Token</h3>
+  <pre id="token-result"></pre>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const result = document.getElementById('token-result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const studentNumber = document.getElementById('studentNumber').value;
+      const password = document.getElementById('password').value;
+
+      const response = await fetch('http://localhost:8081/api/user/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_number: studentNumber, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        result.textContent = `登录成功！\nToken:\n${data.token}`;
+      } else {
+        result.textContent = `登录失败：${data.error || JSON.stringify(data)}`;
+      }
+    });
+  </script>
+</body>
+</html>

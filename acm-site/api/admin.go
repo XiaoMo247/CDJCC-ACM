@@ -3,6 +3,7 @@ package api
 import (
 	"acm-site/database"
 	"acm-site/model"
+	"acm-site/service"
 	"acm-site/utils"
 	"acm-site/utils/jwt"
 	"fmt"
@@ -146,4 +147,30 @@ func DeleteAdmin(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"msg": "管理员删除成功"})
+}
+
+type BatchRegisterRequest struct {
+	Start int `json:"start"`
+	End   int `json:"end"`
+}
+
+// 批量注册
+func AdminBatchRegisterHandler(c *gin.Context) {
+	var req BatchRegisterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "参数格式错误"})
+		return
+	}
+
+	created, err := service.RegisterUserBatch(req.Start, req.End)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":     "批量注册成功",
+		"createdList": created,
+		"count":       len(created),
+	})
 }

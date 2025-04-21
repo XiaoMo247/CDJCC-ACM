@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>用户登录 + 提交申请测试</title>
+</head>
+<body>
+  <h2>用户登录</h2>
+  <form id="login-form">
+    <label for="studentNumber">学号：</label>
+    <input type="text" id="studentNumber" required><br><br>
+
+    <label for="password">密码：</label>
+    <input type="password" id="password" required><br><br>
+
+    <button type="submit">登录</button>
+  </form>
+
+  <h3>Token</h3>
+  <pre id="token-result"></pre>
+
+  <hr>
+
+  <h2>提交加入申请</h2>
+  <form id="apply-form">
+    <label for="qqNumber">QQ号：</label>
+    <input type="text" id="qqNumber" required><br><br>
+
+    <label for="apply">申请职位（数字）：</label>
+    <input type="number" id="apply" required><br><br>
+
+    <label for="realName">真实姓名：</label>
+    <input type="text" id="realName" required><br><br>
+
+    <label for="intro">自我介绍：</label><br>
+    <textarea id="intro" rows="5" cols="50" required></textarea><br><br>
+
+    <button type="submit">提交申请</button>
+  </form>
+
+  <h3>申请结果</h3>
+  <pre id="apply-result"></pre>
+
+  <hr>
+
+  <h2>查看我的申请</h2>
+  <button id="get-my-apply">获取我的申请</button>
+  <h3>我的申请信息</h3>
+  <pre id="my-apply-info"></pre>
+
+  <script>
+    let userToken = "";
+
+    // 登录逻辑
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const studentNumber = document.getElementById('studentNumber').value;
+      const password = document.getElementById('password').value;
+
+      const res = await fetch('http://localhost:8081/api/user/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_number: studentNumber, password })
+      });
+
+      const data = await res.json();
+      const resultBox = document.getElementById('token-result');
+
+      if (res.ok) {
+        userToken = data.token;
+        resultBox.textContent = `登录成功！\nToken:\n${userToken}`;
+      } else {
+        userToken = "";
+        resultBox.textContent = `登录失败：${data.error || JSON.stringify(data)}`;
+      }
+    });
+
+    // 提交申请逻辑
+    document.getElementById('apply-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const resultBox = document.getElementById('apply-result');
+
+      if (!userToken) {
+        resultBox.textContent = "请先登录再提交申请！";
+        return;
+      }
+
+      const body = {
+        qq_number: document.getElementById('qqNumber').value,
+        apply: parseInt(document.getElementById('apply').value),
+        name: document.getElementById('realName').value,
+        text: document.getElementById('intro').value
+      };
+
+      const res = await fetch('http://localhost:8081/api/join/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userToken}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        resultBox.textContent = `提交成功：${data.message}`;
+      } else {
+        resultBox.textContent = `提交失败：${data.error || JSON.stringify(data)}`;
+      }
+    });
+
+    // 查看我的申请逻辑
+    document.getElementById('get-my-apply').addEventListener('click', async () => {
+      const resultBox = document.getElementById('my-apply-info');
+
+      if (!userToken) {
+        resultBox.textContent = "请先登录再查看！";
+        return;
+      }
+
+      const res = await fetch('http://localhost:8081/api/join/my', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${userToken}`
+        }
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        resultBox.textContent = JSON.stringify(data.data, null, 2);
+      } else {
+        resultBox.textContent = `获取失败：${data.error || JSON.stringify(data)}`;
+      }
+    });
+  </script>
+</body>
+</html>
