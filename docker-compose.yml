@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./acm-site
+    ports:
+      - "8081:8081"
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=123456
+      - DB_NAME=acm_site
+
+  frontend:
+    build: ./jingcheng-acm-web
+    ports:
+      - "80:80"
+    restart: always
+
+  mysql:
+    image: mysql:8.0
+    container_name: acm-mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: acm_site
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:

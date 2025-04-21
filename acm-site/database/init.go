@@ -23,16 +23,18 @@ func InitDB() {
 		panic("数据库连接失败: " + err.Error())
 	}
 
-	err = DB.AutoMigrate(&model.Admin{})
+	// 自动迁移所有模型
+	err = DB.AutoMigrate(
+		&model.Admin{},
+		&model.Announcement{},
+		&model.User{},
+		&model.JoinApply{},
+	)
 	if err != nil {
 		panic("数据库迁移失败: " + err.Error())
 	}
 
-	err = DB.AutoMigrate(&model.Announcement{})
-	if err != nil {
-		panic("数据库迁移失败: " + err.Error())
-	}
-
+	// 初始化默认管理员
 	var count int64
 	DB.Model(&model.Admin{}).Where("username = ?", "admin").Count(&count)
 	if count == 0 {

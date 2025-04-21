@@ -164,9 +164,9 @@ docker-compose up -d
    登录远端服务器后，使用 `docker load` 命令加载上传的 `.tar` 文件：
 
    ```bash
-   docker load -i /path/to/your/folder/cdjccacm-backend.tar
-   docker load -i /path/to/your/folder/cdjccacm-frontend.tar
-   docker load -i /path/to/your/folder/mysql.tar
+   docker load -i cdjccacm-backend.tar
+   docker load -i cdjccacm-frontend.tar
+   docker load -i mysql.tar
    ```
 
 4. **启动 Docker 容器**
