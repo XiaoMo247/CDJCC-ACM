@@ -8,6 +8,7 @@ import (
 	"acm-site/utils/jwt"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -150,8 +151,8 @@ func DeleteAdmin(c *gin.Context) {
 }
 
 type BatchRegisterRequest struct {
-	Start int `json:"start"`
-	End   int `json:"end"`
+	Start string `json:"start"`
+	End   string `json:"end"`
 }
 
 // 批量注册
@@ -173,4 +174,68 @@ func AdminBatchRegisterHandler(c *gin.Context) {
 		"createdList": created,
 		"count":       len(created),
 	})
+}
+
+// 获取所有用户
+func AdminGetAllUserHandler(c *gin.Context) {
+	users, err := service.GetAllUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取用户失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "获取成功",
+		"data":    users,
+		"count":   len(users),
+	})
+}
+
+// 获取用户列表（分页 + 搜索）
+func AdminGetUsersHandler(c *gin.Context) {
+	keyword := c.Query("keyword")
+	pageStr := c.Query("page")
+	limitStr := c.Query("limit")
+
+	page, _ := strconv.Atoi(pageStr)
+	limit, _ := strconv.Atoi(limitStr)
+	if page <= 0 {
+		page = 1
+	}
+	if limit <= 0 {
+		limit = 10
+	}
+
+	users, total, err := service.GetUsers(keyword, page, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取用户列表失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":  users,
+		"total": total,
+	})
+}
+
+// 删除用户
+func AdminDeleteUserHandler(c *gin.Context) {
+	id := c.Param("id")
+	err := service.DeleteUserByID(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除用户失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
+}
+
+// 重置密码（重置为默认密码）
+func AdminResetPasswordHandler(c *gin.Context) {
+	id := c.Param("id")
+	err := service.ResetUserPassword(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "重置密码失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "密码已重置为默认密码"})
 }

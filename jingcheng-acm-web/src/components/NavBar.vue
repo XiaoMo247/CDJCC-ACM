@@ -9,11 +9,7 @@
   >
     <!-- 左侧Logo区域 -->
     <div class="navbar-brand" @click="$router.push('/')">
-      <img 
-        src="@/assets/acm-logo.jpg" 
-        alt="ACM集训队Logo"
-        class="brand-logo"
-      >
+      <img src="@/assets/acm-logo.jpg" alt="ACM集训队Logo" class="brand-logo">
       <div class="brand-text">
         <div class="school-name">成都锦城学院</div>
         <div class="team-name">ACM集训队</div>

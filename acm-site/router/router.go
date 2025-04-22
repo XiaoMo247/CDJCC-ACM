@@ -16,7 +16,12 @@ func RouterInit(r *gin.Engine) {
 		admin := apiGroup.Group("/admin")
 		admin.Use(middleware.AdminAuthMiddleware()) // 管理员验证中间件
 		{
-			admin.POST("/register", api.AdminBatchRegisterHandler)
+			admin.POST("/register", api.AdminBatchRegisterHandler)      // 区间批量注册用户
+			admin.GET("/get/all-user", api.AdminGetAllUserHandler)      // 得到所有用户
+			admin.GET("/get/user", api.AdminGetUsersHandler)            // 查询用户(分页查询 + 模糊搜索)
+			admin.DELETE("/user/:id", api.AdminDeleteUserHandler)       // 删除用户
+			admin.PUT("/user/reset/:id", api.AdminResetPasswordHandler) // 重置用户
+
 			admin.GET("/me", api.GetAdminInfo)
 			admin.POST("/add", api.AddAdmin)
 			admin.DELETE("/delete/:id", api.DeleteAdmin)
@@ -26,11 +31,12 @@ func RouterInit(r *gin.Engine) {
 		// 用户模块：普通用户登录
 		apiGroup.POST("/user/login", api.UserLoginHandler)
 
-		user := apiGroup.Group("/user")
-		user.Use(middleware.UserAuthMiddleware()) // 用户验证中间件
+		userGroup := apiGroup.Group("/user")
+		userGroup.Use(middleware.UserAuthMiddleware()) // 用户验证中间件
 		{
-			// 如果你之后有用户信息接口，比如 `/user/me`，可以放这里
-			// user.GET("/me", api.GetUserInfo)
+			userGroup.POST("/change-username", api.ChangeUsername) // 修改用户名
+			userGroup.POST("/change-password", api.ChangePassword) // 修改密码
+			userGroup.GET("/info", api.GetUserInfo)
 		}
 
 		// 公告模块
