@@ -23,13 +23,17 @@ export default {
 
 <style>
 #app {
-  padding-top: 20px; /* 留出顶部导航栏高度 */
-  padding-bottom: 20px; /* 留出底部 Footer 高度 */
   min-height: 100vh;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
+/* 主体内容区，避免被导航栏遮住 */
 .main-content {
-  padding: 20px;
+  flex: 1;
+  padding-top: 72px; /* 与 NavBar 高度一致 */
+  padding-bottom: 40px; /* 留出 Footer 的空间 */
+  box-sizing: border-box;
 }
 </style>

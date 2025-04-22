@@ -65,7 +65,7 @@ func GetAllJoinAppliesHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": applies,
+		"applies": applies,
 	})
 }
 
@@ -85,7 +85,7 @@ func GetJoinApplyByIDHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": apply,
+		"apply": apply,
 	})
 }
 

@@ -3,6 +3,7 @@ package api
 import (
 	"acm-site/database"
 	"acm-site/model"
+	"acm-site/service"
 	"acm-site/utils"
 	"acm-site/utils/jwt"
 	"net/http"
@@ -48,5 +49,74 @@ func UserLoginHandler(c *gin.Context) {
 			"student_number": user.StudentNumber,
 			"username":       user.Username,
 		},
+	})
+}
+
+// 修改用户名
+func ChangeUsername(c *gin.Context) {
+	var req struct {
+		NewUsername string `json:"new_username"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil || req.NewUsername == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "请求参数错误"})
+		return
+	}
+
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "未授权"})
+		return
+	}
+
+	if err := service.ChangeUsername(userID.(uint), req.NewUsername); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "修改失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "用户名修改成功"})
+}
+
+// 修改密码
+func ChangePassword(c *gin.Context) {
+	var req struct {
+		OldPassword string `json:"old_password"`
+		NewPassword string `json:"new_password"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil || req.OldPassword == "" || req.NewPassword == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "请求参数错误"})
+		return
+	}
+
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "未授权"})
+		return
+	}
+
+	err := service.ChangePassword(userID.(uint), req.OldPassword, req.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "密码修改成功"})
+}
+
+func GetUserInfo(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"msg": "未登录"})
+		return
+	}
+
+	userInfo, err := service.GetUserInfo(userID.(uint))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "获取用户信息失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"msg":  "获取成功",
+		"data": userInfo,
 	})
 }
