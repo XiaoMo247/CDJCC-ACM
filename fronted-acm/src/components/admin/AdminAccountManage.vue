@@ -221,4 +221,46 @@ export default {
 .cancel-delete-btn:hover {
   color: #606266;
 }
+
+@media (max-width: 768px) {
+  .admin-card {
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .admin-card h1 {
+    font-size: 20px;
+    flex-wrap: wrap;
+  }
+
+  .form-inline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-item {
+    width: 100%;
+  }
+
+  .add-btn {
+    width: 100%;
+    font-size: 15px;
+  }
+
+  .admin-table {
+    font-size: 14px;
+    overflow-x: auto;
+  }
+
+  .delete-btn {
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .admin-table :deep(td), 
+  .admin-table :deep(th) {
+    padding: 10px 5px;
+  }
+}
+
 </style>

@@ -239,3 +239,191 @@ func AdminResetPasswordHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "密码已重置为默认密码"})
 }
+
+type RegisterStudentRequest struct {
+	StudentID string `json:"student_id" binding:"required"`
+}
+
+func AdminRegisterStudent(c *gin.Context) {
+	var req RegisterStudentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "msg": "参数错误"})
+		return
+	}
+
+	// 学号长度检查
+	if len(req.StudentID) != 9 {
+
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "msg": "学号格式错误"})
+		return
+	}
+
+	// 截取后六位
+	suffix := req.StudentID[len(req.StudentID)-6:]
+	initPw := "JCACM" + suffix
+	hashedPw := utils.HashPassword(initPw)
+
+	student := model.TeamMember{
+		StudentID: req.StudentID,
+		Password:  hashedPw,
+		Username:  req.StudentID, // 初始用户名用学号
+	}
+
+	if err := database.DB.Create(&student).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "注册失败，可能该用户已存在"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"msg":     "注册成功",
+		"data":    student,
+		"raw_pwd": initPw, // 可选返回初始密码（前端提醒管理员记得通知）
+	})
+}
+
+func GetAllTeamMembers(c *gin.Context) {
+	var members []model.TeamMember
+
+	// 查询所有成员，不包括密码和更新时间
+	if err := database.DB.Select("id", "student_id", "username", "cf_name", "cf_rating", "at_name", "at_rating", "nc_id", "nc_rating", "rating", "count", "created_at").Find(&members).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "查询失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "查询成功",
+		"data": members,
+	})
+}
+
+// 根据学号查询学生
+func GetStudentByID(c *gin.Context) {
+	studentID := c.DefaultQuery("student_id", "") // 获取查询参数中的学号
+	if studentID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "学号不能为空"})
+		return
+	}
+
+	student, err := service.GetTeamMemberByStudentID(studentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "查询学生信息失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": student})
+}
+
+// 删除学生
+func DeleteStudent(c *gin.Context) {
+	studentID := c.DefaultQuery("student_id", "")
+	if studentID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "学号不能为空"})
+		return
+	}
+
+	err := service.DeleteStudent(studentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "删除学生失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
+}
+
+// 重置密码
+func ResetPassword(c *gin.Context) {
+	studentID := c.DefaultQuery("student_id", "")
+	if studentID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "学号不能为空"})
+		return
+	}
+
+	// 根据学号生成新密码
+	newPassword := "JCACM" + studentID[len(studentID)-6:] // 取学号后6位生成密码
+
+	// 更新密码
+	err := service.UpdatePassword(studentID, newPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "重置密码失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "密码重置成功", "new_password": newPassword})
+}
+
+func UpdateRatingsHandler(c *gin.Context) {
+	// 从请求中获取学生 ID 和相应的用户名
+	var request struct {
+		StudentID  string `json:"student_id"` // 学生 ID
+		Codeforces string `json:"codeforces"` // Codeforces 用户名
+		Atcoder    string `json:"atcoder"`    // AtCoder 用户名
+		Nowcoder   string `json:"nowcoder"`   // Nowcoder 用户名
+	}
+
+	// 解析请求的 JSON 数据
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "请求数据格式不正确", "error": err.Error()})
+		return
+	}
+
+	// 调用外部 API 获取分数
+	codeforcesRating, err := utils.FetchCodeforcesRating(request.Codeforces)
+	if err != nil {
+		codeforcesRating = ""
+	}
+
+	atcoderRating, err := utils.FetchAtCoderRating(request.Atcoder)
+	if err != nil {
+		atcoderRating = ""
+	}
+
+	nowcoderRating, err := utils.FetchNowcoderRating(request.Nowcoder)
+	if err != nil {
+		nowcoderRating = ""
+	}
+
+	// 更新数据库中的评分
+	err = service.UpdateRatings(request.StudentID, codeforcesRating, atcoderRating, nowcoderRating)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "更新评分失败", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"msg": "评分更新成功"})
+}
+
+func getAllTeamMembers() ([]model.TeamMember, error) {
+	var members []model.TeamMember
+	if err := database.DB.Find(&members).Error; err != nil {
+		return nil, err
+	}
+	return members, nil
+}
+
+func UpdateAllRatingsHandler(c *gin.Context) {
+	members, err := getAllTeamMembers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "获取成员列表失败",
+		})
+		return
+	}
+
+	var successCount, failCount int
+
+	for _, member := range members {
+		err := service.UpdateRatingsByMember(&member)
+		if err != nil {
+			failCount++
+			continue
+		}
+		successCount++
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":      "所有成员分数更新完成",
+		"successCount": successCount,
+		"failCount":    failCount,
+	})
+}

@@ -5,7 +5,12 @@
     <!-- 通用申请表格组件 -->
     <template v-for="(data, idx) in tableGroups" :key="idx">
       <h2>{{ data.title }}</h2>
-      <el-table :data="data.items" style="width: 100%; margin-top: 20px;" class="apply-table">
+      <el-table 
+        :data="data.items" 
+        style="width: 100%; margin-top: 20px;" 
+        class="apply-table"
+        :row-class-name="'mobile-table-row'"
+      >
         <el-table-column prop="name" label="姓名" width="120" />
         <el-table-column prop="student_number" label="学号" width="150" />
         <el-table-column prop="qq_number" label="QQ号" width="150" />
@@ -26,13 +31,13 @@
           <template #default="scope">
             <div class="action-buttons">
               <button class="custom-btn detail-btn" @click="viewDetails(scope.row)">
-                <i class="fas fa-eye"></i> 详情
+                <i class="fas fa-eye"></i> <span class="btn-text">详情</span>
               </button>
               <button v-if="scope.row.state === 0" class="custom-btn approve-btn" @click="confirmApprove(scope.row)">
-                <i class="fas fa-check"></i> 批准
+                <i class="fas fa-check"></i> <span class="btn-text">批准</span>
               </button>
               <button v-if="scope.row.state === 0" class="custom-btn reject-btn" @click="confirmReject(scope.row)">
-                <i class="fas fa-times"></i> 拒绝
+                <i class="fas fa-times"></i> <span class="btn-text">拒绝</span>
               </button>
             </div>
           </template>
@@ -41,7 +46,7 @@
     </template>
 
     <!-- 申请详情弹窗 -->
-    <el-dialog v-model="dialogVisible" :title="`${selectedApply.name}的申请详情`" width="50%" center>
+    <el-dialog v-model="dialogVisible" :title="`${selectedApply.name}的申请详情`" width="90%" center>
       <template #default>
         <div class="detail-content">
           <p><strong>姓名：</strong>{{ selectedApply.name }}</p>
@@ -198,82 +203,87 @@ export default {
 <style scoped>
 .admin-card {
   background: linear-gradient(135deg, #e0f2fe, #c7d2fe);
-  padding: 25px;
+  padding: 15px;
   border-radius: 15px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
   color: #1e293b;
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 20px;
 }
 
 .admin-card h1 {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
-  margin: 0 0 15px 0;
+  margin: 0 0 10px 0;
   display: flex;
   align-items: center;
   color: #1a365d;
 }
 
 .admin-card h1 i {
-  margin-right: 20px;
-  width: 20px;
-  height: 20px;
+  margin-right: 15px;
+  width: 18px;
+  height: 18px;
   color: #4a5568;
 }
 
 .admin-card h2 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
-  margin: 20px 0 10px 0;
+  margin: 15px 0 8px 0;
   color: #2d3748;
   border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 8px;
+  padding-bottom: 6px;
 }
 
 .apply-table {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .detail-content {
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .detail-content p {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .intro-card {
-  margin-top: 10px;
-  padding: 15px;
+  margin-top: 8px;
+  padding: 12px;
   background-color: #f8fafc;
   border-radius: 8px;
   white-space: pre-line;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .custom-btn {
-  padding: 8px 12px;
+  padding: 8px 10px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.3s;
   border: none;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
+  min-height: 36px;
 }
 
 .custom-btn i {
   font-size: 12px;
+}
+
+.btn-text {
+  display: inline-block;
 }
 
 .detail-btn {
@@ -317,6 +327,58 @@ export default {
 }
 
 .el-tag {
-  font-size: 14px;
+  font-size: 13px;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .admin-card {
+    padding: 12px;
+  }
+  
+  .admin-card h1 {
+    font-size: 18px;
+  }
+  
+  .admin-card h2 {
+    font-size: 16px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .custom-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 8px;
+  }
+  
+  .el-table.mobile-table-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    border: 1px solid #ebeef5;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .el-table.mobile-table-row .el-table__cell {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid #ebeef5;
+  }
+  
+  .el-table.mobile-table-row .el-table__cell:before {
+    content: attr(data-label);
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  .el-table.mobile-table-row .el-table__cell:last-child {
+    border-bottom: none;
+  }
 }
 </style>

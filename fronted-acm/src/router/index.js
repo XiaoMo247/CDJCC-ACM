@@ -9,6 +9,8 @@ import FaqPage from '../pages/FaqPage.vue'
 import LoginPage from '../pages/LoginPage.vue'
 import AdminDashboard from '../pages/admin/Dashboard.vue'
 import StudentDashboard from '../pages/student/Dashboard.vue'
+import ForgotPasswordPage from '../pages/ForgotPassword.vue'
+import MemberDashboard from '../pages/member/Dashboard.vue'
 
 const routes = [
   { path: '/', component: HomePage },
@@ -18,7 +20,9 @@ const routes = [
   { path: '/faq', component: FaqPage },
   { path: '/login', component: LoginPage },
   { path: '/admin/dashboard', component: AdminDashboard },
-  { path: '/student/dashboard', component: StudentDashboard }
+  { path: '/student/dashboard', component: StudentDashboard },
+  { path: '/forgot-password', component: ForgotPasswordPage },
+  { path: '/member/dashboard', component: MemberDashboard },
 ]
 
 const router = createRouter({
