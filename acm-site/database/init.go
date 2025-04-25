@@ -29,7 +29,11 @@ func InitDB() {
 		&model.Announcement{},
 		&model.User{},
 		&model.JoinApply{},
+		&model.Folder{},
+		&model.File{},
+		&model.TeamMember{},
 	)
+
 	if err != nil {
 		panic("数据库迁移失败: " + err.Error())
 	}

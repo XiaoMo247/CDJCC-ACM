@@ -9,3 +9,7 @@ export default {
     name: 'CompetitionPage'
 }
 </script>
+
+<style>
+
+</style>

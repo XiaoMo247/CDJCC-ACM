@@ -23,11 +23,31 @@ export default {
   line-height: 60px;
   z-index: 1000;
   box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 0 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .footer p {
   margin: 0;
   font-size: 14px;
   font-weight: 500;
+  text-align: center;
+  word-break: break-word;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .footer {
+    height: auto;
+    padding: 0.5rem 1rem;
+    line-height: 1.4;
+  }
+
+  .footer p {
+    font-size: 13px;
+  }
 }
 </style>

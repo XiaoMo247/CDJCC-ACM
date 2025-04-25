@@ -33,6 +33,10 @@
 </template>
 
 <script>
+import request from '@/utils/request'
+import { ElMessage } from 'element-plus'
+import emitter from '@/utils/eventBus'
+
 export default {
   name: 'MemberLogin',
   data() {
@@ -42,17 +46,39 @@ export default {
     }
   },
   methods: {
-    handleLogin() {
-      // 处理队员登录逻辑
-      console.log('队员登录', this.memberId, this.password)
-      // 这里可以添加API调用
+    async handleLogin() {
+      if (!this.memberId || !this.password) {
+        ElMessage.warning('请填写完整信息')
+        return
+      }
+
+      try {
+        const res = await request.post('/student/login', {
+          student_id: this.memberId,
+          password: this.password
+        })
+
+        const { token, user } = res.data
+
+        // 存储 token 和用户信息
+        localStorage.setItem('member_token', token)
+        localStorage.setItem('member_info', JSON.stringify(user))
+
+        // 触发登录事件
+        emitter.emit('loginChange', { role: 'member', user: user })
+
+        ElMessage.success('登录成功')
+        this.$router.push('/member/dashboard')
+      } catch (err) {
+        ElMessage.error(err.response?.data?.message || '登录失败')
+      }
     }
   }
 }
 </script>
 
+
 <style scoped>
-/* 样式与StudentLogin相同，保持一致性 */
 .auth-form {
   padding: 0 10px;
 }

@@ -216,9 +216,7 @@ export default {
           limit: pagination.pageSize,
           keyword: searchKeyword.value
         }
-        console.log(params)
         const response = await request.get('/admin/get/user', { params })
-        console.log(response.data.data)
         userList.value = response.data.data.map(user => ({
           ...user,
           resetting: false,
