@@ -32,6 +32,8 @@ func InitDB() {
 		&model.Folder{},
 		&model.File{},
 		&model.TeamMember{},
+		&model.Contest{},
+		&model.FAQ{},
 	)
 
 	if err != nil {
