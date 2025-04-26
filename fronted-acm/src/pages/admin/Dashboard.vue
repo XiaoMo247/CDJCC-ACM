@@ -31,7 +31,12 @@
         <li :class="{ active: currentTab === 'student' }" @click="changeTab('student')">
           <i class="fas fa-user-graduate"></i> 学生管理
         </li>
-
+        <li :class="{ active: currentTab === 'contest' }" @click="changeTab('contest')">
+          <i class="fas fa-trophy"></i> 比赛管理
+        </li>
+        <li :class="{ active: currentTab === 'faq' }" @click="changeTab('faq')">
+          <i class="fas fa-question-circle"></i> FAQ管理
+        </li>
       </ul>
     </div>
 
@@ -44,12 +49,15 @@
       <UserManage v-if="currentTab === 'user'" />
       <FolderManage v-if="currentTab === 'folder'" />
       <StudentManage v-if="currentTab === 'student'" />
+      <ContestManage v-if="currentTab === 'contest'" />
+      <FAQManage v-if="currentTab === 'faq'" />
     </div>
 
     <!-- 移动端遮罩层 -->
     <div class="sidebar-overlay" v-if="isMobile && sidebarActive" @click="sidebarActive = false"></div>
   </div>
 </template>
+
 
 <script>
 import AnnouncementManage from '@/components/admin/AnnouncementManage.vue'
@@ -58,6 +66,8 @@ import JoinFormManage from '@/components/admin/JoinFormManage.vue'
 import UserManage from '@/components/admin/UserManage.vue'
 import FolderManage from '@/components/admin/FolderManage.vue'
 import StudentManage from '@/components/admin/StudentManage.vue'
+import ContestManage from '@/components/admin/ContestManage.vue'  // 新增
+import FAQManage from '@/components/admin/FAQManage.vue'          // 新增
 
 export default {
   name: 'AdminDashboard',
@@ -68,6 +78,8 @@ export default {
     UserManage,
     FolderManage,
     StudentManage,
+    ContestManage,   
+    FAQManage,  
   },
   data() {
     return {
@@ -122,6 +134,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .admin-dashboard {
