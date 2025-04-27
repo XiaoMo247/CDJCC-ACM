@@ -18,7 +18,6 @@ func RouterInit(r *gin.Engine) {
 		{
 			// -------- 学生账号管理 --------
 			admin.POST("/register-student", api.AdminRegisterStudent)      // 注册团队成员
-			admin.GET("/team-members", api.GetAllTeamMembers)              // 获取所有团队成员信息
 			admin.GET("/team-member", api.GetStudentByID)                  // 获取指定成员信息（通过 ID）
 			admin.DELETE("/delete-student", api.DeleteStudent)             // 删除成员
 			admin.POST("/reset-password", api.ResetPassword)               // 重置成员密码
@@ -130,7 +129,8 @@ func RouterInit(r *gin.Engine) {
 		}
 
 		// ======================== 比赛与FAQ公共接口 ========================
-		apiGroup.GET("/contest/list", api.GetAllContests) // 获取比赛列表
-		apiGroup.GET("/faq/list", api.GetFAQList)         // 获取 FAQ 列表
+		apiGroup.GET("/contest/list", api.GetAllContests)          // 获取比赛列表
+		apiGroup.GET("/faq/list", api.GetFAQList)                  // 获取 FAQ 列表
+		apiGroup.GET("/admin/team-members", api.GetAllTeamMembers) // 获取所有团队成员信息
 	}
 }

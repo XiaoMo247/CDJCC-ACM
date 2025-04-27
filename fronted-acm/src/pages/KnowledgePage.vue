@@ -2,134 +2,227 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <div class="knowledge-container">
         <!-- 博客弹窗 -->
-        <el-dialog v-model="blogDialogVisible" title="团队成员博客" width="90%" class="blog-dialog">
-            <ul class="blog-list">
-                <li class="blog-item" v-for="(blog, index) in teamBlogs" :key="index">
-                    <i class="fas fa-blog" :style="{ color: blogColors[index % 4] }"></i>
-                    <div class="blog-info">
-                        <span class="author">{{ blog.author }}</span>
-                        <a :href="blog.url" target="_blank" class="blog-link">{{ blog.title }}</a>
-                    </div>
-                </li>
-            </ul>
+        <el-dialog v-model="blogDialogVisible" title="团队成员博客" width="90%" class="blog-dialog" :fullscreen="isMobile">
+            <div class="dialog-content">
+                <ul class="blog-list">
+                    <li class="blog-item" v-for="(blog, index) in teamBlogs" :key="index" @click="openBlog(blog.url)">
+                        <div class="blog-icon-container">
+                            <i class="fas fa-blog" :style="{ color: blogColors[index % 4] }"></i>
+                        </div>
+                        <div class="blog-info">
+                            <span class="author">{{ blog.author }}</span>
+                            <a :href="blog.url" target="_blank" class="blog-link">{{ blog.title }}</a>
+                            <div class="blog-url">{{ formatUrl(blog.url) }}</div>
+                        </div>
+                        <i class="fas fa-external-link-alt link-arrow"></i>
+                    </li>
+                </ul>
+            </div>
         </el-dialog>
 
-        <h1 class="knowledge-title">📚 知识库</h1>
+        <!-- 页面标题区域 -->
+        <div class="header-section">
+            <h1 class="knowledge-title">
+                <span class="title-icon">📚</span>
+                <span class="title-text">知识库</span>
+                <span class="title-decoration"></span>
+            </h1>
+            <p class="knowledge-subtitle">汇聚优质资源，助力学习成长</p>
+        </div>
 
-        <!-- 垂直布局导航 -->
-        <div class="vertical-links">
-            <div class="link-card" @click="openBlogDialog">
-                <div class="link-icon blog">
+        <!-- 快速链接卡片 -->
+        <div class="quick-links-section">
+            <div class="link-card blog-card" @click="openBlogDialog">
+                <div class="link-icon-container">
                     <i class="fas fa-users"></i>
                 </div>
-                <h3>团队博客</h3>
-                <p>点击查看成员技术博客</p>
+                <div class="link-content">
+                    <h3>团队博客</h3>
+                    <p>探索成员技术分享</p>
+                    <div class="link-hover-effect">
+                        <span>立即查看</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
             </div>
 
             <a href="https://space.bilibili.com/3546651937475184?spm_id_from=333.337.search-card.all.click"
-                target="_blank" class="link-card">
-                <div class="link-icon bilibili">
+                target="_blank" class="link-card bilibili-card">
+                <div class="link-icon-container">
                     <i class="fab fa-bilibili"></i>
                 </div>
-                <h3>B站频道</h3>
-                <p>观看团队视频教程</p>
+                <div class="link-content">
+                    <h3>B站频道</h3>
+                    <p>观看视频教程</p>
+                    <div class="link-hover-effect">
+                        <span>前往观看</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
             </a>
 
-            <a href="https://hydro.ac/d/cdjcc_acm_2333/" target="_blank" class="link-card">
-                <div class="link-icon oj">
+            <a href="https://hydro.ac/d/cdjcc_acm_2333/" target="_blank" class="link-card oj-card">
+                <div class="link-icon-container">
                     <i class="fas fa-code"></i>
                 </div>
-                <h3>OJ平台</h3>
-                <p>在线编程训练</p>
+                <div class="link-content">
+                    <h3>OJ平台</h3>
+                    <p>在线编程训练</p>
+                    <div class="link-hover-effect">
+                        <span>开始练习</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
             </a>
         </div>
 
         <!-- 课件资源部分 -->
         <div class="courseware-section">
-            <h2><i class="fas fa-book"></i> 课件资源</h2>
-
-            <div class="breadcrumb">
-                <el-breadcrumb separator="/">
-                    <el-breadcrumb-item @click="goToRoot">
-                        <i class="fas fa-home"></i> 根目录
-                    </el-breadcrumb-item>
-                    <el-breadcrumb-item v-for="(folder, index) in breadcrumbFolders" :key="index"
-                        @click="goToBreadcrumb(index)">
-                        {{ folder.name }}
-                    </el-breadcrumb-item>
-                </el-breadcrumb>
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-book-open"></i>
+                    <span>课件资源</span>
+                </h2>
+                <div class="section-actions">
+                    <el-tooltip content="刷新数据" placement="top">
+                        <el-button circle @click="refreshData">
+                            <i class="fas fa-sync-alt"></i>
+                        </el-button>
+                    </el-tooltip>
+                </div>
             </div>
 
-            <div class="search-bar">
-                <el-input v-model="searchQuery" placeholder="搜索课件..." clearable size="large" style="width: 100%"
-                    @clear="resetSearch">
-                    <template #prefix>
-                        <i class="el-icon-search"></i>
-                    </template>
-                </el-input>
+            <div class="navigation-controls">
+                <div class="breadcrumb-container">
+                    <el-breadcrumb separator="/">
+                        <el-breadcrumb-item @click="goToRoot" class="breadcrumb-item">
+                            <i class="fas fa-home"></i>
+                            <span>根目录</span>
+                        </el-breadcrumb-item>
+                        <el-breadcrumb-item v-for="(folder, index) in breadcrumbFolders" :key="index"
+                            @click="goToBreadcrumb(index)" class="breadcrumb-item">
+                            <i class="fas fa-folder"></i>
+                            <span>{{ folder.name }}</span>
+                        </el-breadcrumb-item>
+                    </el-breadcrumb>
+                </div>
+
+                <div class="search-container">
+                    <el-input v-model="searchQuery" placeholder="搜索课件..." clearable size="large" class="search-input"
+                        @clear="resetSearch">
+                        <template #prefix>
+                            <i class="el-icon-search"></i>
+                        </template>
+                        <template #append>
+                            <el-button @click="searchFiles">
+                                <i class="fas fa-search"></i>
+                            </el-button>
+                        </template>
+                    </el-input>
+                </div>
             </div>
 
             <!-- 文件夹列表 -->
             <el-table :data="filteredFolders" style="width: 100%; margin-bottom: 20px;" stripe v-loading="loading"
-                empty-text="暂无文件夹" @row-click="openFolder" class="clickable-table">
-                <el-table-column prop="name" label="文件夹名称">
+                empty-text="暂无文件夹" @row-click="openFolder" class="clickable-table folder-table">
+                <el-table-column prop="name" label="文件夹名称" width="400">
                     <template #default="scope">
                         <div class="folder-item">
-                            <i class="fas fa-folder" style="color: #FFD700; margin-right: 10px;"></i>
-                            <span>{{ scope.row.name }}</span>
+                            <div class="folder-icon">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                            <div class="folder-info">
+                                <span class="folder-name">{{ scope.row.name }}</span>
+                                <span class="folder-items" v-if="scope.row.item_count">
+                                    {{ scope.row.item_count }}个项目
+                                </span>
+                            </div>
                         </div>
                     </template>
                 </el-table-column>
                 <el-table-column prop="created_at" label="创建时间" width="220" align="center">
                     <template #default="scope">
-                        <span class="create-time">
-                            <i class="far fa-calendar-alt" style="margin-right: 5px;"></i>
-                            {{ formatDate(scope.row.created_at) }}
-                        </span>
+                        <div class="create-time">
+                            <i class="far fa-calendar-alt"></i>
+                            <span>{{ formatDate(scope.row.created_at) }}</span>
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" width="120" align="center">
+                    <template #default="scope">
+                        <el-button type="text" @click.stop="previewFolder(scope.row)">
+                            <i class="fas fa-eye"></i>
+                        </el-button>
                     </template>
                 </el-table-column>
             </el-table>
 
             <!-- 文件列表 -->
-            <el-table :data="filteredFiles" style="width: 100%" stripe v-loading="loading" empty-text="暂无课件资源">
-                <el-table-column prop="name" label="课件名称">
+            <el-table :data="filteredFiles" style="width: 100%" stripe v-loading="loading" empty-text="暂无课件资源"
+                class="file-table">
+                <el-table-column prop="name" label="课件名称" width="400">
                     <template #default="scope">
                         <div class="file-item">
-                            <i :class="getFileIcon(scope.row.name)" style="margin-right: 10px;"></i>
-                            <span>{{ scope.row.name }}</span>
+                            <div class="file-icon" :class="getFileType(scope.row.name)">
+                                <i :class="getFileIcon(scope.row.name)"></i>
+                            </div>
+                            <div class="file-info">
+                                <span class="file-name">{{ scope.row.name }}</span>
+                                <span class="file-type">{{ getFileExtension(scope.row.name) }}</span>
+                            </div>
                         </div>
                     </template>
                 </el-table-column>
                 <el-table-column prop="size" label="文件大小" width="150" align="center">
                     <template #default="scope">
-                        <span class="file-size">
-                            <i class="fas fa-weight-hanging" style="margin-right: 5px;"></i>
-                            {{ formatFileSize(scope.row.size) }}
-                        </span>
+                        <div class="file-size">
+                            <i class="fas fa-weight-hanging"></i>
+                            <span>{{ formatFileSize(scope.row.size) }}</span>
+                        </div>
                     </template>
                 </el-table-column>
                 <el-table-column prop="created_at" label="上传时间" width="220" align="center">
                     <template #default="scope">
-                        <span class="upload-time">
-                            <i class="far fa-clock" style="margin-right: 5px;"></i>
-                            {{ formatDate(scope.row.created_at) }}
-                        </span>
+                        <div class="upload-time">
+                            <i class="far fa-clock"></i>
+                            <span>{{ formatDate(scope.row.created_at) }}</span>
+                        </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="150" align="center" fixed="right">
+                <el-table-column label="操作" width="180" align="center" fixed="right">
                     <template #default="scope">
-                        <el-button type="primary" size="small" @click.stop="downloadFile(scope.row)" plain>
-                            <i class="fas fa-download"></i> 下载
-                        </el-button>
+                        <el-button-group>
+                            <el-tooltip content="预览" placement="top">
+                                <el-button type="primary" size="small" @click.stop="previewFile(scope.row)" circle>
+                                    <i class="fas fa-eye"></i>
+                                </el-button>
+                            </el-tooltip>
+                            <el-tooltip content="下载" placement="top">
+                                <el-button type="success" size="small" @click.stop="downloadFile(scope.row)" circle>
+                                    <i class="fas fa-download"></i>
+                                </el-button>
+                            </el-tooltip>
+                            <el-tooltip content="分享" placement="top">
+                                <el-button type="info" size="small" @click.stop="shareFile(scope.row)" circle>
+                                    <i class="fas fa-share-alt"></i>
+                                </el-button>
+                            </el-tooltip>
+                        </el-button-group>
                     </template>
                 </el-table-column>
             </el-table>
+
+            <!-- 分页控件 -->
+            <div class="pagination-container" v-if="showPagination">
+                <el-pagination background layout="prev, pager, next" :total="totalItems" :page-size="pageSize"
+                    :current-page="currentPage" @current-change="handlePageChange" />
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import request from '@/utils/request'
 
@@ -137,6 +230,7 @@ export default {
     name: 'KnowledgePage',
     data() {
         return {
+            isMobile: window.innerWidth < 768,
             blogDialogVisible: false,
             teamBlogs: [
                 { author: 'Martian148', title: '锦城学院ACM学习地图', url: 'https://www.cnblogs.com/martian148/p/18221024' },
@@ -149,7 +243,10 @@ export default {
             folderList: [],
             fileList: [],
             currentFolder: null,
-            folderStack: []
+            folderStack: [],
+            currentPage: 1,
+            pageSize: 10,
+            totalItems: 0
         }
     },
     computed: {
@@ -169,14 +266,43 @@ export default {
         },
         breadcrumbFolders() {
             return this.folderStack
+        },
+        showPagination() {
+            return this.totalItems > this.pageSize
         }
     },
     mounted() {
         this.fetchFolders()
+        window.addEventListener('resize', this.handleResize)
+    },
+    beforeUnmount() {
+        window.removeEventListener('resize', this.handleResize)
     },
     methods: {
         openBlogDialog() {
-            this.blogDialogVisible = true
+            this.blogDialogVisible = true;
+        },
+        handleResize() {
+            this.isMobile = window.innerWidth < 768
+        },
+        openBlog(url) {
+            window.open(url, '_blank')
+        },
+        formatUrl(url) {
+            try {
+                const urlObj = new URL(url)
+                return urlObj.hostname.replace('www.', '')
+            } catch {
+                return url.length > 30 ? url.substring(0, 30) + '...' : url
+            }
+        },
+        async refreshData() {
+            if (this.currentFolder) {
+                await this.fetchFolders(this.currentFolder.id)
+            } else {
+                await this.fetchFolders()
+            }
+            ElMessage.success('数据已刷新')
         },
         async fetchFolders(folderId = null) {
             this.loading = true
@@ -188,8 +314,10 @@ export default {
                 if (folderId) {
                     const filesRes = await request.get(`/folder/files?folder_id=${folderId}`)
                     this.fileList = filesRes.data.files || []
+                    this.totalItems = filesRes.data.total || 0
                 } else {
                     this.fileList = []
+                    this.totalItems = 0
                 }
 
                 if (folderId) {
@@ -208,7 +336,8 @@ export default {
             }
         },
         openFolder(row) {
-            this.folderStack = []
+            this.currentPage = 1
+            this.folderStack.pop()
             this.folderStack.push({
                 id: row.id,
                 name: row.name
@@ -216,24 +345,38 @@ export default {
             this.fetchFolders(row.id)
         },
         goToRoot() {
+            this.currentPage = 1
             this.folderStack = []
             this.fetchFolders()
         },
         goToBreadcrumb(index) {
+            this.currentPage = 1
             this.folderStack = this.folderStack.slice(0, index + 1)
             const folder = this.folderStack[index]
             this.fetchFolders(folder.id)
         },
         getFileIcon(filename) {
-            const extension = filename.split('.').pop().toLowerCase()
+            const extension = this.getFileExtension(filename).toLowerCase()
             switch (extension) {
-                case 'pdf': return 'fas fa-file-pdf text-red-500'
-                case 'ppt': case 'pptx': return 'fas fa-file-powerpoint text-orange-500'
-                case 'doc': case 'docx': return 'fas fa-file-word text-blue-500'
-                case 'xls': case 'xlsx': return 'fas fa-file-excel text-green-500'
-                case 'zip': case 'rar': return 'fas fa-file-archive text-purple-500'
-                default: return 'fas fa-file text-gray-500'
+                case 'pdf': return 'fas fa-file-pdf'
+                case 'ppt': case 'pptx': return 'fas fa-file-powerpoint'
+                case 'doc': case 'docx': return 'fas fa-file-word'
+                case 'xls': case 'xlsx': return 'fas fa-file-excel'
+                case 'zip': case 'rar': return 'fas fa-file-archive'
+                case 'jpg': case 'jpeg': case 'png': case 'gif': return 'fas fa-file-image'
+                case 'mp4': case 'avi': case 'mov': return 'fas fa-file-video'
+                case 'mp3': case 'wav': return 'fas fa-file-audio'
+                case 'txt': return 'fas fa-file-alt'
+                case 'html': case 'htm': return 'fas fa-file-code'
+                default: return 'fas fa-file'
             }
+        },
+        getFileType(filename) {
+            const extension = this.getFileExtension(filename).toLowerCase()
+            return `file-type-${extension}`
+        },
+        getFileExtension(filename) {
+            return filename.split('.').pop()
         },
         formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes'
@@ -269,256 +412,626 @@ export default {
                 console.error(error)
             }
         },
+        previewFile(file) {
+            ElMessageBox.alert('文件预览功能正在开发中，敬请期待！', '预览提示', {
+                confirmButtonText: '确定'
+            })
+        },
+        previewFolder(folder) {
+            ElMessageBox.alert(`即将查看文件夹: ${folder.name}`, '文件夹预览', {
+                confirmButtonText: '确定'
+            })
+        },
+        shareFile(file) {
+            const shareUrl = `${window.location.origin}/share/file/${file.id}`
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                ElMessage.success('分享链接已复制到剪贴板')
+            }).catch(() => {
+                ElMessage.warning('无法复制到剪贴板，请手动复制链接')
+            })
+        },
+        searchFiles() {
+            if (this.searchQuery.trim()) {
+                ElMessage.info(`正在搜索: ${this.searchQuery}`)
+            }
+        },
         resetSearch() {
             this.searchQuery = ''
+        },
+        handlePageChange(page) {
+            this.currentPage = page
+            // 这里可以添加分页加载数据的逻辑
         }
     }
 }
 </script>
 
 <style scoped>
-/* 基础样式 */
+/* 基础变量 */
 :root {
     --primary-color: #4361ee;
+    --primary-light: #eef2ff;
     --secondary-color: #3f37c9;
     --accent-color: #4895ef;
-    --light-color: #f8f9fa;
-    --dark-color: #212529;
     --success-color: #4cc9f0;
     --warning-color: #f72585;
     --info-color: #7209b7;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --gray-color: #6c757d;
+    --light-gray: #e9ecef;
+    --border-radius: 12px;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    min-height: 100vh;
-}
-
+/* 基础样式 */
 .knowledge-container {
-    padding: 2rem;
+    max-width: 1400px;
     margin: 0 auto;
+    padding: 2rem 1.5rem;
     min-height: 100vh;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+}
+
+/* 头部区域 */
+.header-section {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
 }
 
 .knowledge-title {
     font-size: 3rem;
+    font-weight: 800;
     color: var(--dark-color);
-    margin-bottom: 2rem;
-    text-align: center;
-    letter-spacing: 2px;
-    font-weight: 700;
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
 }
 
-/* 链接卡片样式 */
-.vertical-links {
+.knowledge-title .title-icon {
+    display: inline-block;
+    margin-right: 15px;
+    transform: rotate(-10deg);
+}
+
+.knowledge-title .title-text {
+    position: relative;
+    z-index: 2;
+}
+
+.knowledge-title .title-decoration {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 100%;
+    height: 15px;
+    background: linear-gradient(90deg, rgba(67, 97, 238, 0.2), transparent);
+    z-index: 1;
+    border-radius: 10px;
+}
+
+.knowledge-subtitle {
+    font-size: 1.2rem;
+    color: var(--gray-color);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* 快速链接区域 */
+.quick-links-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
 }
 
 .link-card {
     background: white;
-    border-radius: 15px;
-    padding: 2rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: var(--transition);
+    box-shadow: var(--box-shadow);
+    position: relative;
+    z-index: 1;
+    border: none;
     text-decoration: none;
     color: inherit;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+}
+
+.link-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
     backdrop-filter: blur(5px);
+    z-index: -1;
 }
 
 .link-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
 
-.link-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin: 0 auto 1.5rem;
+.link-icon-container {
+    height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
+    font-size: 3.5rem;
     color: white;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-}
-
-.link-card:hover .link-icon {
-    transform: scale(1.1);
-}
-
-.link-icon.blog {
-    background: linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%);
-}
-
-.link-icon.bilibili {
-    background: linear-gradient(135deg, #00A1D6 0%, #0066CC 100%);
-}
-
-.link-icon.oj {
-    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
-}
-
-.link-card h3 {
-    margin: 1rem 0;
-    font-size: 1.8rem;
-    color: var(--dark-color);
-    font-weight: 600;
-}
-
-.link-card p {
-    color: #6c757d;
-    font-size: 1.1rem;
-    margin: 0;
-    line-height: 1.6;
-}
-
-/* 课件部分样式 */
-.courseware-section {
-    background: white;
-    border-radius: 15px;
-    padding: 2.5rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    margin-top: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(5px);
-}
-
-.courseware-section h2 {
-    font-size: 2.2rem;
-    color: var(--dark-color);
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.courseware-section h2 i {
-    color: var(--accent-color);
-}
-
-.breadcrumb {
-    margin-bottom: 25px;
-    padding: 15px;
-    background-color: #f8fafc;
-    border-radius: 10px;
-    font-size: 1.1rem;
-}
-
-.search-bar {
-    margin-bottom: 25px;
-}
-
-/* 博客弹窗样式 */
-.blog-dialog {
-    border-radius: 15px;
+    position: relative;
     overflow: hidden;
 }
 
-.blog-dialog .el-dialog__header {
-    background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
-    margin: 0;
+.link-icon-container::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+    transform: rotate(30deg);
+    transition: var(--transition);
+}
+
+.link-card:hover .link-icon-container::after {
+    transform: rotate(30deg) translateX(20%);
+}
+
+.link-content {
     padding: 1.5rem;
+    position: relative;
 }
 
-.blog-dialog .el-dialog__title {
-    color: white;
+.link-content h3 {
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--dark-color);
 }
 
-.blog-item {
+.link-content p {
+    color: var(--gray-color);
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+.link-hover-effect {
     display: flex;
     align-items: center;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-    border-radius: 10px;
-    margin: 5px 0;
+    color: var(--primary-color);
+    font-weight: 600;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: var(--transition);
 }
 
-.blog-item:hover {
-    background: #f8f9fa;
+.link-card:hover .link-hover-effect {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.link-hover-effect i {
+    margin-left: 8px;
+    transition: var(--transition);
+}
+
+.link-card:hover .link-hover-effect i {
     transform: translateX(5px);
 }
 
-.blog-item i {
-    font-size: 2rem;
-    margin-right: 1.5rem;
-    flex-shrink: 0;
+/* 卡片特定样式 */
+.blog-card .link-icon-container {
+    background: linear-gradient(135deg, #4ECDC4, #45B7D1);
 }
 
-.blog-info {
-    display: flex;
-    flex-direction: column;
+.bilibili-card .link-icon-container {
+    background: linear-gradient(135deg, #00A1D6, #0066CC);
 }
 
-.author {
-    font-weight: 600;
-    color: var(--dark-color);
-    margin-bottom: 0.5rem;
-    font-size: 1.2rem;
+.oj-card .link-icon-container {
+    background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
 }
 
-.blog-link {
-    color: #6c757d;
-    text-decoration: none;
-    transition: color 0.3s ease;
-    font-size: 1.1rem;
-}
-
-.blog-link:hover {
-    color: var(--accent-color);
-    text-decoration: underline;
-}
-
-/* 表格样式优化 */
-.el-table {
-    border-radius: 10px;
+/* 课件区域 */
+.courseware-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 2.5rem;
+    box-shadow: var(--box-shadow);
+    margin-top: 2rem;
+    position: relative;
     overflow: hidden;
-    font-size: 1.1rem;
 }
 
-.el-table th {
-    font-size: 1.2rem;
-    font-weight: 600;
-    background-color: #f8fafc !important;
+.courseware-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
 }
 
-::v-deep(.clickable-table .el-table__row) {
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.section-header h2 i {
+    color: var(--primary-color);
+    margin-right: 12px;
+    font-size: 1.5rem;
+}
+
+.section-actions .el-button {
+    background: var(--primary-light);
+    color: var(--primary-color);
+    border: none;
+    font-size: 1rem;
+    width: 40px;
+    height: 40px;
+}
+
+.section-actions .el-button:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* 导航控制 */
+.navigation-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.breadcrumb-container {
+    flex: 1;
+    min-width: 300px;
+}
+
+.breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition);
 }
 
-::v-deep(.clickable-table .el-table__row:hover) {
-    background-color: #f0f7ff !important;
-    transform: scale(1.01);
+.breadcrumb-item:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb-item i {
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+.search-container {
+    min-width: 300px;
+    flex: 1;
+}
+
+.search-input {
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.search-input :deep(.el-input-group__append) {
+    background: var(--primary-color);
+    border: none;
+    color: white;
+}
+
+.search-input :deep(.el-input-group__append:hover) {
+    background: var(--secondary-color);
+}
+
+/* 表格样式 */
+.clickable-table {
+    --el-table-border-color: var(--light-gray);
+    --el-table-header-bg-color: var(--light-color);
+}
+
+.clickable-table :deep(.el-table__row) {
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.clickable-table :deep(.el-table__row:hover) {
+    background-color: var(--primary-light) !important;
+    transform: scale(1.005);
+}
+
+.folder-table :deep(.el-table__cell) {
+    padding: 15px 0;
+}
+
+.file-table :deep(.el-table__cell) {
+    padding: 12px 0;
 }
 
 .folder-item,
 .file-item {
     display: flex;
     align-items: center;
-    font-size: 1.1rem;
+    padding: 0 15px;
+}
+
+.folder-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: #FFD700;
+    font-size: 1.2rem;
+}
+
+.file-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.file-type-pdf {
+    background: #FF6B6B;
+}
+
+.file-type-ppt,
+.file-type-pptx {
+    background: #FF9E3F;
+}
+
+.file-type-doc,
+.file-type-docx {
+    background: #4A89DC;
+}
+
+.file-type-xls,
+.file-type-xlsx {
+    background: #48CFAD;
+}
+
+.file-type-zip,
+.file-type-rar {
+    background: #AC92EC;
+}
+
+.file-type-jpg,
+.file-type-jpeg,
+.file-type-png,
+.file-type-gif {
+    background: #ED5565;
+}
+
+.file-type-mp4,
+.file-type-avi,
+.file-type-mov {
+    background: #5D9CEC;
+}
+
+.file-type-mp3,
+.file-type-wav {
+    background: #A0D468;
+}
+
+.file-type-txt {
+    background: #656D78;
+}
+
+.file-type-html,
+.file-type-htm {
+    background: #E9573F;
+}
+
+.file-type-default {
+    background: #AAB2BD;
+}
+
+.folder-info,
+.file-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.folder-name,
+.file-name {
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+
+.folder-items,
+.file-type {
+    font-size: 0.8rem;
+    color: var(--gray-color);
 }
 
 .create-time,
 .upload-time,
 .file-size {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.create-time i,
+.upload-time i,
+.file-size i {
+    color: var(--gray-color);
+}
+
+.el-button-group {
+    display: flex;
+    gap: 5px;
+}
+
+.el-button-group .el-button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 分页样式 */
+.pagination-container {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination-container :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
+    background: var(--primary-color);
+}
+
+.pagination-container :deep(.el-pagination.is-background .el-pager li:not(.is-disabled):hover) {
+    color: var(--primary-color);
+}
+
+/* 博客弹窗样式 */
+.blog-dialog :deep(.el-dialog) {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    max-width: 800px;
+}
+
+.blog-dialog :deep(.el-dialog__header) {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    margin: 0;
+    padding: 1.5rem;
+}
+
+.blog-dialog :deep(.el-dialog__title) {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.blog-dialog :deep(.el-dialog__headerbtn .el-dialog__close) {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.dialog-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 0 20px;
+}
+
+.blog-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.blog-item {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    transition: var(--transition);
+    border-radius: 8px;
+    margin: 5px 0;
+    border: 1px solid var(--light-gray);
+    cursor: pointer;
+}
+
+.blog-item:hover {
+    background: var(--light-color);
+    border-color: var(--primary-light);
+    transform: translateX(5px);
+}
+
+.blog-icon-container {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.blog-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.author {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.blog-link {
+    color: var(--dark-color);
+    text-decoration: none;
+    transition: var(--transition);
     font-size: 1rem;
-    color: #6c757d;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.blog-item:hover .blog-link {
+    color: var(--primary-color);
+}
+
+.blog-url {
+    font-size: 0.8rem;
+    color: var(--gray-color);
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.link-arrow {
+    color: var(--gray-color);
+    margin-left: 1rem;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.blog-item:hover .link-arrow {
+    opacity: 1;
+    color: var(--primary-color);
 }
 
 /* 响应式设计 */
@@ -530,80 +1043,93 @@ body {
 
 @media (max-width: 992px) {
     .knowledge-title {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
     }
 
-    .link-card h3 {
+    .section-header h2 {
         font-size: 1.6rem;
     }
 
-    .courseware-section h2 {
-        font-size: 2rem;
+    .quick-links-section {
+        grid-template-columns: 1fr 1fr;
     }
 }
 
 @media (max-width: 768px) {
-    .vertical-links {
+    .knowledge-title {
+        font-size: 2.2rem;
+    }
+
+    .knowledge-subtitle {
+        font-size: 1rem;
+    }
+
+    .quick-links-section {
         grid-template-columns: 1fr;
     }
 
-    .link-card {
-        padding: 1.5rem;
+    .navigation-controls {
+        flex-direction: column;
+        gap: 1rem;
     }
 
-    .knowledge-title {
-        font-size: 2rem;
+    .breadcrumb-container,
+    .search-container {
+        min-width: 100%;
     }
 
     .courseware-section {
         padding: 1.5rem;
     }
 
-    .el-table-column--fixed-right {
-        position: static !important;
+    .folder-item,
+    .file-item {
+        padding: 0 10px;
     }
 
-    .el-table th,
-    .el-table td {
-        padding: 12px 5px;
+    .folder-icon,
+    .file-icon {
+        margin-right: 10px;
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
     }
 }
 
 @media (max-width: 576px) {
-    .knowledge-container {
-        padding: 1rem;
-    }
-
     .knowledge-title {
         font-size: 1.8rem;
     }
 
-    .link-icon {
-        width: 60px;
-        height: 60px;
-        font-size: 2rem;
+    .header-section {
+        margin-bottom: 2rem;
     }
 
-    .link-card h3 {
-        font-size: 1.4rem;
+    .link-content h3 {
+        font-size: 1.3rem;
     }
 
-    .courseware-section h2 {
-        font-size: 1.6rem;
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
     }
 
-    .folder-item,
-    .file-item {
-        font-size: 1rem;
+    .section-actions {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
     }
 
-    .el-table th {
-        font-size: 1rem;
+    .blog-item {
+        padding: 1rem;
     }
 
-    .el-button {
-        padding: 8px 12px;
-        font-size: 0.9rem;
+    .blog-icon-container {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        margin-right: 1rem;
     }
 }
 </style>
