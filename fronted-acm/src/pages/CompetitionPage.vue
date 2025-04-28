@@ -11,7 +11,7 @@
             <!-- 即将开始的比赛 -->
             <div class="section">
                 <h2 class="section-title">
-                    <i class="el-icon-alarm-clock"></i> 即将开始
+                    <el-icon><AlarmClock /></el-icon> 即将开始
                     <span class="badge">{{ upcomingContests.length }}</span>
                 </h2>
 
@@ -33,13 +33,10 @@
                             <template v-if="upcomingContests.length > 0">
                                 <div v-for="contest in upcomingContests" :key="contest.id"
                                     class="competition-item upcoming" @click="openContestDialog(contest)">
-                                    <div class="competition-image"
-                                        :style="{ backgroundImage: `url(${getUpcomingImage(contest.id)})` }">
-                                        <div class="time-badge">
-                                            <i class="el-icon-time"></i> {{ formatTime(contest.time) }}
-                                        </div>
-                                    </div>
                                     <div class="competition-content">
+                                        <div class="time-badge">
+                                            <el-icon><Timer /></el-icon> {{ formatTime(contest.time) }}
+                                        </div>
                                         <h3 class="competition-name">{{ contest.title }}</h3>
                                         <div class="competition-description">
                                             {{ contest.text }}
@@ -52,8 +49,12 @@
                                 </div>
                             </template>
                             <div v-else class="empty-state">
-                                <i class="el-icon-warning-outline"></i>
-                                <p>暂无即将开始的比赛</p>
+                                <el-empty :image-size="200" description="暂无即将开始的比赛">
+                                    <template #description>
+                                        <p>暂无即将开始的比赛</p>
+                                        <p class="empty-subtitle">敬请期待更多精彩赛事</p>
+                                    </template>
+                                </el-empty>
                             </div>
                         </template>
                     </el-skeleton>
@@ -63,7 +64,7 @@
             <!-- 已结束的比赛 -->
             <div class="section">
                 <h2 class="section-title">
-                    <i class="el-icon-finished"></i> 已结束
+                    <el-icon><CircleCheck /></el-icon> 已结束
                     <span class="badge">{{ endedContests.length }}</span>
                 </h2>
 
@@ -71,14 +72,11 @@
                     <template v-if="endedContests.length > 0">
                         <div v-for="contest in endedContests" :key="contest.id" class="competition-item ended"
                             @click="openContestDialog(contest)">
-                            <div class="competition-image"
-                                :style="{ backgroundImage: `url(${getEndedImage(contest.id)})` }">
-                                <div class="ended-overlay">已结束</div>
-                                <div class="time-badge">
-                                    <i class="el-icon-time"></i> {{ formatTime(contest.time) }}
-                                </div>
-                            </div>
                             <div class="competition-content">
+                                <div class="time-badge">
+                                    <el-icon><Timer /></el-icon> {{ formatTime(contest.time) }}
+                                </div>
+                                <div class="ended-overlay">已结束</div>
                                 <h3 class="competition-name">{{ contest.title }}</h3>
                                 <div class="competition-description">
                                     {{ contest.text }}
@@ -90,8 +88,12 @@
                         </div>
                     </template>
                     <div v-else class="empty-state">
-                        <i class="el-icon-warning-outline"></i>
-                        <p>暂无已结束的比赛</p>
+                        <el-empty :image-size="200" description="暂无已结束的比赛">
+                            <template #description>
+                                <p>暂无已结束的比赛</p>
+                                <p class="empty-subtitle">历史比赛记录将在这里显示</p>
+                            </template>
+                        </el-empty>
                     </div>
                 </div>
             </div>
@@ -100,15 +102,11 @@
         <!-- 比赛详情弹窗 -->
         <el-dialog v-model="dialogVisible" :title="selectedContest.title" width="90%" :fullscreen="isMobile">
             <div class="contest-detail">
-                <div class="detail-image"
-                    :style="{ backgroundImage: `url(${isContestEnded(selectedContest) ? getEndedImage(selectedContest.id) : getUpcomingImage(selectedContest.id)})` }">
-                </div>
-
                 <div class="detail-meta">
-                    <p><i class="el-icon-time"></i> <strong>比赛时间：</strong> {{ formatTime(selectedContest.time) }}</p>
+                    <p><el-icon><Timer /></el-icon> <strong>比赛时间：</strong> {{ formatTime(selectedContest.time) }}</p>
+                    <p v-if="!isContestEnded(selectedContest)"><strong>倒计时：</strong> {{ selectedContest.timeRemaining }}</p>
                     <p><strong>比赛简介：</strong></p>
                     <p>{{ selectedContest.text || '暂无比赛详情描述' }}</p>
-
                     <div v-if="selectedContest.link" class="detail-link">
                         <el-button type="primary" @click="openLink(selectedContest.link)">
                             {{ isContestEnded(selectedContest) ? '查看回顾' : '前往比赛' }}
@@ -127,9 +125,21 @@
 <script>
 import request from '@/utils/request'
 import dayjs from 'dayjs'
+import { ElMessage } from 'element-plus'
+import { AlarmClock, Timer, Warning, CircleCheck } from '@element-plus/icons-vue'
+import 'dayjs/locale/zh-cn'
+
+// 设置 dayjs 语言为中文
+dayjs.locale('zh-cn')
 
 export default {
     name: 'CompetitionPage',
+    components: {
+        AlarmClock,
+        Timer,
+        Warning,
+        CircleCheck
+    },
     data() {
         return {
             contests: [],
@@ -137,77 +147,118 @@ export default {
             dialogVisible: false,
             selectedContest: {},
             isMobile: window.innerWidth < 768,
-            upcomingImages: [
-                'https://img.freepik.com/free-vector/gradient-hackathon-logo_23-2149324865.jpg',
-                'https://img.freepik.com/free-vector/hand-drawn-science-education-background_23-2148499325.jpg',
-                'https://img.freepik.com/free-vector/gradient-coding-company-logo_23-2148821801.jpg'
-            ],
-            endedImages: [
-                'https://img.freepik.com/free-vector/gradient-hackathon-background_23-2149324866.jpg',
-                'https://img.freepik.com/free-vector/gradient-coding-background_23-2149159430.jpg',
-                'https://img.freepik.com/free-vector/gradient-coding-logo-template_23-2148807059.jpg'
-            ]
+            retryCount: 0,
+            refreshInterval: null
         }
     },
     computed: {
         upcomingContests() {
-            const now = new Date();
-            return this.contests.filter(contest => {
-                return new Date(contest.time) > now;
-            }).sort((a, b) => new Date(a.time) - new Date(b.time));
+            const now = dayjs();
+            return this.contests
+                .filter(contest => dayjs(contest.time).isAfter(now))
+                .sort((a, b) => dayjs(a.time).diff(dayjs(b.time)));
         },
         endedContests() {
-            const now = new Date();
-            return this.contests.filter(contest => {
-                return new Date(contest.time) <= now;
-            }).sort((a, b) => new Date(b.time) - new Date(a.time));
+            const now = dayjs();
+            return this.contests
+                .filter(contest => dayjs(contest.time).isSameOrBefore(now))
+                .sort((a, b) => dayjs(b.time).diff(dayjs(a.time)));
         }
     },
     created() {
         this.fetchContests();
         window.addEventListener('resize', this.handleResize);
+        // 添加定时刷新
+        this.refreshInterval = setInterval(this.fetchContests, 300000); // 每5分钟刷新一次
     },
     beforeUnmount() {
         window.removeEventListener('resize', this.handleResize);
+        // 清除定时器
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+        }
     },
     methods: {
         openLink(url) {
             if (url) {
                 window.open(url, '_blank');
             } else {
-                this.$message.warning('暂无比赛链接');
+                ElMessage({
+                    message: '暂无比赛链接',
+                    type: 'warning'
+                });
             }
         },
         async fetchContests() {
             try {
                 this.loading = true;
                 const res = await request.get('/contest/list');
-                this.contests = res.data.data || [];
+                if (res.data && res.data.data) {
+                    this.contests = res.data.data;
+                    this.retryCount = 0; // 重置重试计数器
+                } else {
+                    throw new Error('返回数据格式错误');
+                }
             } catch (error) {
-                this.$message.error('获取比赛信息失败');
+                console.error('获取比赛列表错误:', error);
+                // 如果是网络错误且重试次数小于3次，尝试重试
+                if (error.message.includes('Network Error') && this.retryCount < 3) {
+                    this.retryCount++;
+                    setTimeout(() => {
+                        this.fetchContests();
+                    }, 3000); // 3秒后重试
+                    ElMessage({
+                        message: `网络连接失败，正在进行第 ${this.retryCount} 次重试...`,
+                        type: 'warning',
+                        duration: 2000
+                    });
+                } else {
+                    // 添加更详细的错误信息
+                    const errorMessage = error.response?.data?.message 
+                        || (error.response?.status === 404 ? 'API接口不存在' 
+                        : error.response?.status === 500 ? '服务器内部错误'
+                        : '获取比赛信息失败');
+                    
+                    ElMessage({
+                        message: errorMessage,
+                        type: 'error',
+                        duration: 5000
+                    });
+                }
             } finally {
                 this.loading = false;
             }
         },
         formatTime(timeStr) {
             if (!timeStr) return '时间待定';
-            return dayjs(timeStr).format('YYYY年MM月DD日 HH:mm');
+            const time = dayjs(timeStr);
+            return time.format('YYYY年MM月DD日 HH:mm');
+        },
+        formatTimeRemaining(timeStr) {
+            const time = dayjs(timeStr);
+            const now = dayjs();
+            const diff = time.diff(now);
+            
+            if (diff < 0) return '已结束';
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (days > 0) return `还有 ${days} 天`;
+            if (hours > 0) return `还有 ${hours} 小时`;
+            return `还有 ${minutes} 分钟`;
         },
         openContestDialog(contest) {
-            this.selectedContest = contest;
+            this.selectedContest = {
+                ...contest,
+                timeRemaining: this.formatTimeRemaining(contest.time)
+            };
             this.dialogVisible = true;
         },
         isContestEnded(contest) {
             if (!contest.time) return false;
-            return new Date(contest.time) <= new Date();
-        },
-        getUpcomingImage(id) {
-            // 根据ID选择不同的即将开始比赛图片
-            return this.upcomingImages[id % this.upcomingImages.length];
-        },
-        getEndedImage(id) {
-            // 根据ID选择不同的已结束比赛图片
-            return this.endedImages[id % this.endedImages.length];
+            return dayjs(contest.time).isBefore(dayjs());
         },
         handleResize() {
             this.isMobile = window.innerWidth < 768;
@@ -297,96 +348,102 @@ export default {
 /* 比赛列表 */
 .competition-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 30px;
+    padding: 10px;
 }
 
 /* 比赛项 */
 .competition-item {
     background-color: #fff;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     cursor: pointer;
     border: 1px solid #ebeef5;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
 }
 
 .competition-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border-color: #409EFF;
 }
 
-.competition-item.upcoming .competition-image {
-    border-bottom: 4px solid #67C23A;
+.competition-item.upcoming {
+    border-left: 4px solid #67C23A;
 }
 
-.competition-item.ended .competition-image {
-    border-bottom: 4px solid #909399;
-    filter: grayscale(20%);
-}
-
-.competition-image {
-    height: 160px;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    transition: all 0.3s;
-}
-
-.competition-item:hover .competition-image {
-    transform: scale(1.02);
+.competition-item.ended {
+    border-left: 4px solid #909399;
 }
 
 .time-badge {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
+    background: linear-gradient(135deg, #409EFF, #67C23A);
     color: white;
-    padding: 6px 12px;
+    padding: 8px 16px;
     border-radius: 20px;
-    font-size: 0.8rem;
-    backdrop-filter: blur(2px);
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
 }
 
 .ended-overlay {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
+    background: linear-gradient(135deg, #909399, #606266);
     color: white;
-    padding: 6px 12px;
+    padding: 8px 16px;
     border-radius: 20px;
-    font-size: 0.8rem;
-    backdrop-filter: blur(2px);
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 12px;
+    box-shadow: 0 2px 8px rgba(144, 147, 153, 0.2);
 }
 
 .competition-content {
-    padding: 20px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .competition-name {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 600;
-    margin-bottom: 12px;
     color: #303133;
     line-height: 1.4;
+    margin: 8px 0;
 }
 
 .competition-description {
-    font-size: 0.95rem;
+    font-size: 1rem;
     color: #606266;
-    margin-bottom: 15px;
+    line-height: 1.6;
+    margin-bottom: 16px;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.6;
 }
 
 .competition-link {
-    margin-top: 15px;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #f0f2f5;
+}
+
+.competition-link .el-link {
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
 /* 空状态 */
@@ -415,38 +472,41 @@ export default {
 .contest-detail {
     max-height: 70vh;
     overflow-y: auto;
-}
-
-.detail-image {
-    width: 100%;
-    height: 250px;
-    border-radius: 8px;
-    background-size: cover;
-    background-position: center;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    background: #f8fafc;
+    border-radius: 16px;
 }
 
 .detail-meta {
-    font-size: 1rem;
+    font-size: 1.05rem;
     line-height: 1.8;
     color: #606266;
-    padding: 0 10px;
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 .detail-meta p {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .detail-meta i {
-    margin-right: 10px;
     color: #409EFF;
-    font-size: 1.1em;
+    font-size: 1.2em;
 }
 
 .detail-link {
-    margin-top: 30px;
+    margin-top: 32px;
     text-align: center;
+}
+
+.detail-link .el-button {
+    padding: 12px 24px;
+    font-size: 1.05rem;
 }
 
 /* 骨架屏 */
@@ -469,26 +529,39 @@ export default {
 
     .competition-list {
         grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 5px;
     }
 
     .section-title {
         font-size: 1.3rem;
     }
 
-    .detail-image {
-        height: 180px;
+    .competition-item {
+        padding: 20px;
     }
-    
-    .competition-image {
-        height: 140px;
+
+    .time-badge, .ended-overlay {
+        padding: 6px 12px;
+        font-size: 0.85rem;
     }
-    
-    .empty-state {
-        padding: 40px 20px;
+
+    .competition-name {
+        font-size: 1.2rem;
     }
-    
-    .empty-state i {
-        font-size: 2.5rem;
+
+    .competition-description {
+        font-size: 0.95rem;
     }
+
+    .detail-meta {
+        padding: 20px;
+    }
+}
+
+.empty-subtitle {
+    font-size: 0.9rem;
+    color: #909399;
+    margin-top: 8px;
 }
 </style>
