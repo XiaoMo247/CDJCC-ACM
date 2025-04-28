@@ -195,7 +195,7 @@
                 class="thumbnail-item"
                 v-for="(photo, index) in photos"
                 :key="'thumb-' + index"
-                @click="activePhotoIndex = index"
+                @click="switchPhoto(index)"
                 :class="{ active: activePhotoIndex === index }"
               >
                 <img :src="photo.url" :alt="photo.title" />
@@ -227,282 +227,110 @@
     </div>
   </template>
   
-  <script setup>
-  import { ref, computed } from 'vue'
-  import {
-    Bell, User, Trophy, Camera, ArrowRight,
-    School, Flag, Medal, Coin, Aim, Menu
-  } from '@element-plus/icons-vue'
-  
-  // 公告数据
-  const notices = ref([
+  <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { Bell, User, Trophy, Camera, School, Flag, Medal, Coin, Aim } from '@element-plus/icons-vue'
+import request from '@/utils/request'
+
+// 类型定义
+interface Announcement {
+  id: number
+  title: string
+  content: string
+  created_at: string
+  updated_at: string
+}
+
+// 状态管理
+const notices = ref<Announcement[]>([])
+const loading = ref({
+  announcements: false,
+  honors: false,
+  photos: false
+})
+
+// 团队信息配置
+const teamInfo = ref({
+  name: 'ACM竞赛团队',
+  college: '成都锦城学院计算机与软件学院',
+  established: '2015年9月',
+  avatar: '/images/team-logo.png',
+  description: '本团队致力于算法学习与ACM竞赛训练，培养团队协作精神与编程能力。',
+  awards: 28,
+  mission: '培养优秀的程序设计人才，在竞赛中展现锦城风采。',
+  features: [
     {
-      title: '2025年春季学期训练计划发布',
-      date: '2025-03-01',
-      content: '新学期训练计划已经制定完成，请各位队员查看并按时参加训练。每周三晚上7点至9点为固定训练时间。',
-      type: 'primary',
-      color: '#409EFF',
-      tag: '重要',
-      tagType: 'danger',
-      hasDetail: true,
-      detailContent: `
-        <h3>2025年春季学期训练计划详情</h3>
-        <p>本学期我们将重点训练以下内容：</p>
-        <ul>
-          <li>动态规划进阶训练</li>
-          <li>图论算法实战</li>
-          <li>数据结构综合应用</li>
-          <li>团队协作解题技巧</li>
-        </ul>
-        <p><strong>训练时间安排：</strong></p>
-        <p>每周三晚上7:00-9:00 固定训练</p>
-        <p>每周六下午2:00-5:00 模拟比赛</p>
-        <p><strong>训练地点：</strong>计算机学院305实验室</p>
-      `
+      icon: 'User',
+      title: '专业指导',
+      desc: '由资深算法竞赛指导老师带队'
     },
     {
-      title: '寒假算法训练营圆满结束',
-      date: '2025-02-20',
-      content: '为期两周的寒假算法训练营已圆满结束，感谢所有参与的队员和指导老师的辛勤付出。',
-      type: 'success',
-      color: '#67C23A',
-      tag: '活动回顾',
-      tagType: 'success',
-      hasDetail: true,
-      detailContent: `
-        <h3>寒假算法训练营回顾</h3>
-        <p>本次寒假训练营共有25名队员参加，完成了以下内容：</p>
-        <ul>
-          <li>基础算法复习与强化</li>
-          <li>专题算法讲座（动态规划、图论）</li>
-          <li>5场模拟比赛</li>
-          <li>团队协作解题训练</li>
-        </ul>
-        <p><strong>优秀学员：</strong>张三、李四、王五</p>
-        <p><strong>特别感谢：</strong>李教授、王老师的专业指导</p>
-      `
+      icon: 'Clock',
+      title: '系统训练',
+      desc: '每周固定训练时间，循序渐进提升能力'
     },
     {
-      title: 'ICPC区域赛报名开始',
-      date: '2025-01-10',
-      content: '2025年ICPC亚洲区域赛报名已开始，有意参赛的队员请于1月25日前提交报名信息。',
-      type: 'warning',
-      color: '#E6A23C',
-      tag: '比赛通知',
-      tagType: 'warning',
-      hasDetail: true,
-      detailContent: `
-        <h3>ICPC亚洲区域赛报名详情</h3>
-        <p><strong>比赛时间：</strong>2025年4月15日-16日</p>
-        <p><strong>比赛地点：</strong>西安电子科技大学</p>
-        <p><strong>报名要求：</strong></p>
-        <ul>
-          <li>在校本科生</li>
-          <li>至少参加过3次团队训练</li>
-          <li>熟悉基础算法和数据结构</li>
-        </ul>
-        <p><strong>报名方式：</strong>发送邮件至acm@jincheng.edu.cn，包含姓名、学号、联系方式</p>
-      `
+      icon: 'Trophy',
+      title: '竞赛实战',
+      desc: '定期参加各类高水平程序设计竞赛'
     },
     {
-      title: '新队员欢迎会通知',
-      date: '2024-12-15',
-      content: '欢迎本学期新加入的15名队员，本周五下午3点将举行新队员欢迎会，请准时参加。',
-      type: '',
-      color: '#909399',
-      tag: '团队活动',
-      tagType: '',
-      hasDetail: true,
-      detailContent: `
-        <h3>新队员欢迎会安排</h3>
-        <p><strong>时间：</strong>2024年12月18日 15:00-17:00</p>
-        <p><strong>地点：</strong>计算机学院报告厅</p>
-        <p><strong>活动流程：</strong></p>
-        <ul>
-          <li>团队介绍与历史回顾</li>
-          <li>指导老师讲话</li>
-          <li>老队员经验分享</li>
-          <li>新队员自我介绍</li>
-          <li>分组交流活动</li>
-        </ul>
-      `
+      icon: 'Promotion',
+      title: '成长空间',
+      desc: '提供广阔的技术发展和就业机会'
     }
-  ])
-  
-  // 团队信息
-  const teamInfo = ref({
-    name: 'ACM竞赛团队',
-    college: '成都锦城学院计算机与软件学院',
-    established: '2015年9月',
-    awards: 28,
-    avatar: 'https://via.placeholder.com/120',
-    description: '本团队隶属于成都锦城学院计算机与软件学院，成立于2015年，致力于算法学习与ACM竞赛训练，培养团队协作精神与编程能力。我们拥有一支经验丰富的指导老师队伍和充满激情的学生团队。',
-    mission: '我们的使命是通过系统的算法训练和比赛实践，提升队员的编程能力、算法思维和团队协作能力，为学校争光，为个人发展奠定坚实基础。',
-    features: [
-      {
-        icon: 'User',
-        title: '专业指导',
-        desc: '由资深算法竞赛指导老师带队，提供专业训练指导'
-      },
-      {
-        icon: 'Clock',
-        title: '系统训练',
-        desc: '每周固定训练时间，系统提升算法与编程能力'
-      },
-      {
-        icon: 'Trophy',
-        title: '丰富比赛',
-        desc: '定期参加ICPC、CCPC等各类算法竞赛'
-      },
-      {
-        icon: 'Teamwork',
-        title: '团队协作',
-        desc: '注重团队合作，培养沟通与协作能力'
-      }
-    ]
-  })
-  
-  // 荣誉数据
-  const activeHonorTab = ref('all')
-  const honors = ref([
-    {
-      title: 'ICPC亚洲区域赛西安站银奖',
-      year: '2024',
-      type: 'icpc',
-      typeText: 'ICPC',
-      level: 'silver',
-      description: '第48届ACM国际大学生程序设计竞赛亚洲区域赛西安站，团队获得银奖',
-      members: [
-        { name: '张三', class: '计科2022', avatar: 'https://via.placeholder.com/32' },
-        { name: '李四', class: '软件2021', avatar: 'https://via.placeholder.com/32' },
-        { name: '王五', class: '大数据2021', avatar: 'https://via.placeholder.com/32' }
-      ]
-    },
-    {
-      title: 'CCPC中国大学生程序设计竞赛金奖',
-      year: '2023',
-      type: 'ccpc',
-      typeText: 'CCPC',
-      level: 'gold',
-      description: '2023年中国大学生程序设计竞赛总决赛，团队获得金奖',
-      members: [
-        { name: '赵六', class: '计科2021', avatar: 'https://via.placeholder.com/32' },
-        { name: '钱七', class: '计科2021', avatar: 'https://via.placeholder.com/32' },
-        { name: '孙八', class: '软件2020', avatar: 'https://via.placeholder.com/32' }
-      ]
-    },
-    {
-      title: '四川省大学生程序设计竞赛一等奖',
-      year: '2023',
-      type: 'provincial',
-      typeText: '省级',
-      level: 'gold',
-      description: '2023年四川省大学生程序设计竞赛，获得一等奖',
-      members: [
-        { name: '张三', class: '计科2022', avatar: 'https://via.placeholder.com/32' },
-        { name: '李四', class: '软件2021', avatar: 'https://via.placeholder.com/32' },
-        { name: '周九', class: '大数据2021', avatar: 'https://via.placeholder.com/32' }
-      ]
-    },
-    {
-      title: 'ICPC亚洲区域赛南京站铜奖',
-      year: '2022',
-      type: 'icpc',
-      typeText: 'ICPC',
-      level: 'bronze',
-      description: '第47届ACM国际大学生程序设计竞赛亚洲区域赛南京站，团队获得铜奖',
-      members: [
-        { name: '赵六', class: '计科2021', avatar: 'https://via.placeholder.com/32' },
-        { name: '钱七', class: '计科2021', avatar: 'https://via.placeholder.com/32' },
-        { name: '吴十', class: '软件2020', avatar: 'https://via.placeholder.com/32' }
-      ]
-    },
-    {
-      title: 'CCPC中国大学生程序设计竞赛银奖',
-      year: '2022',
-      type: 'ccpc',
-      typeText: 'CCPC',
-      level: 'silver',
-      description: '2022年中国大学生程序设计竞赛分站赛，团队获得银奖',
-      members: [
-        { name: '郑十一', class: '计科2020', avatar: 'https://via.placeholder.com/32' },
-        { name: '王五', class: '大数据2021', avatar: 'https://via.placeholder.com/32' },
-        { name: '孙八', class: '软件2020', avatar: 'https://via.placeholder.com/32' }
-      ]
-    },
-    {
-      title: '四川省大学生程序设计竞赛二等奖',
-      year: '2021',
-      type: 'provincial',
-      typeText: '省级',
-      level: 'silver',
-      description: '2021年四川省大学生程序设计竞赛，获得二等奖',
-      members: [
-        { name: '郑十一', class: '计科2020', avatar: 'https://via.placeholder.com/32' },
-        { name: '周九', class: '大数据2021', avatar: 'https://via.placeholder.com/32' },
-        { name: '吴十', class: '软件2020', avatar: 'https://via.placeholder.com/32' }
-      ]
+  ]
+})
+
+// 获取公告列表
+const fetchAnnouncements = async () => {
+  loading.value.announcements = true
+  try {
+    const res = await request.get('/announcement/list')
+    if (res.data && res.data.announcements) {
+      notices.value = res.data.announcements.map((item: Announcement) => ({
+        ...item,
+        date: formatDate(item.created_at),
+        type: 'primary',
+        tag: '公告',
+        tagType: 'info'
+      }))
     }
-  ])
-  
-  // 照片数据
-  const activePhotoIndex = ref(0)
-  const photos = ref([
-    {
-      url: 'https://via.placeholder.com/800x500/409EFF/FFFFFF?text=ICPC比赛现场',
-      title: '2024 ICPC西安站比赛',
-      description: '团队参加2024年ICPC亚洲区域赛西安站比赛，最终获得银奖',
-      date: '2024-11-15',
-      location: '西安电子科技大学'
-    },
-    {
-      url: 'https://via.placeholder.com/800x500/67C23A/FFFFFF?text=团队训练日常',
-      title: '周末训练营',
-      description: '团队每周六下午进行集中训练，提升算法解题能力',
-      date: '2024-10-12',
-      location: '计算机学院305实验室'
-    },
-    {
-      url: 'https://via.placeholder.com/800x500/E6A23C/FFFFFF?text=颁奖典礼',
-      title: 'CCPC金奖颁奖',
-      description: '团队在2023年CCPC中国大学生程序设计竞赛中获得金奖',
-      date: '2023-12-05',
-      location: '杭州电子科技大学'
-    },
-    {
-      url: 'https://via.placeholder.com/800x500/909399/FFFFFF?text=新队员欢迎会',
-      title: '新队员欢迎会',
-      description: '2023年新学期新队员欢迎会，15名新成员加入团队',
-      date: '2023-09-10',
-      location: '计算机学院报告厅'
-    }
-  ])
-  
-  // 公告对话框
-  const noticeDialogVisible = ref(false)
-  const currentNotice = ref({})
-  
-  // 计算属性
-  const filteredHonors = computed(() => {
-    if (activeHonorTab.value === 'all') return honors.value
-    return honors.value.filter(honor => honor.type === activeHonorTab.value)
-  })
-  
-  // 方法
-  const showNoticeDetail = (notice) => {
-    currentNotice.value = notice
-    noticeDialogVisible.value = true
+  } catch (err) {
+    console.error('获取公告失败:', err)
+    ElMessage.error('获取公告列表失败，请稍后重试')
+  } finally {
+    loading.value.announcements = false
   }
-  
-  const getHonorTagType = (type) => {
-    const map = {
-      icpc: 'danger',
-      ccpc: 'warning',
-      provincial: 'success'
-    }
-    return map[type] || ''
-  }
-  </script>
+}
+
+// 格式化日期
+const formatDate = (timestamp: string) => {
+  const date = new Date(timestamp)
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// 公告详情相关
+const noticeDialogVisible = ref(false)
+const currentNotice = ref<Announcement & { date?: string }>({} as Announcement)
+
+const showNoticeDetail = (notice: Announcement & { date?: string }) => {
+  currentNotice.value = notice
+  noticeDialogVisible.value = true
+}
+
+// 生命周期钩子
+onMounted(() => {
+  fetchAnnouncements()
+})
+</script>
   
   <style scoped>
   /* 基础样式 */
