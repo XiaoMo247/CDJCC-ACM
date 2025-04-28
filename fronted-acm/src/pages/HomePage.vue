@@ -240,6 +240,35 @@ interface Announcement {
   content: string
   created_at: string
   updated_at: string
+  date?: string
+  type?: string
+  color?: string
+  tag?: string
+  tagType?: string
+  hasDetail?: boolean
+  detailContent?: string
+}
+
+interface Honor {
+  level: string
+  title: string
+  year: string
+  type: string
+  typeText: string
+  description: string
+  members: Array<{
+    name: string
+    avatar: string
+    class?: string
+  }>
+}
+
+interface Photo {
+  url: string
+  title: string
+  description: string
+  date: string
+  location: string
 }
 
 // 状态管理
@@ -254,8 +283,8 @@ const loading = ref({
 const teamInfo = ref({
   name: 'ACM竞赛团队',
   college: '成都锦城学院计算机与软件学院',
-  established: '2015年9月',
-  avatar: '/images/team-logo.png',
+  established: '2020年',
+  avatar: '/src/assets/acm-logo.jpg',
   description: '本团队致力于算法学习与ACM竞赛训练，培养团队协作精神与编程能力。',
   awards: 28,
   mission: '培养优秀的程序设计人才，在竞赛中展现锦城风采。',
@@ -282,6 +311,34 @@ const teamInfo = ref({
     }
   ]
 })
+
+// 荣誉墙相关
+const activeHonorTab = ref('all')
+const filteredHonors = ref<Honor[]>([])
+
+// 照片展示相关
+const photos = ref<Photo[]>([])
+const activePhotoIndex = ref(0)
+
+// 公告详情相关
+const noticeDialogVisible = ref(false)
+const currentNotice = ref<Announcement>({} as Announcement)
+
+// 方法定义
+const getHonorTagType = (type: string) => {
+  switch (type) {
+    case 'icpc':
+      return 'success'
+    case 'ccpc':
+      return 'warning'
+    default:
+      return 'info'
+  }
+}
+
+const switchPhoto = (index: number) => {
+  activePhotoIndex.value = index
+}
 
 // 获取公告列表
 const fetchAnnouncements = async () => {
@@ -316,10 +373,6 @@ const formatDate = (timestamp: string) => {
     minute: '2-digit'
   })
 }
-
-// 公告详情相关
-const noticeDialogVisible = ref(false)
-const currentNotice = ref<Announcement & { date?: string }>({} as Announcement)
 
 const showNoticeDetail = (notice: Announcement & { date?: string }) => {
   currentNotice.value = notice
