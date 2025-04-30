@@ -1,219 +1,311 @@
 <template>
-    <div class="settings-card">
-        <h1>
-            <i class="fas fa-user-cog"></i> 账户设置
-        </h1>
+    <div class="settings-container">
+        <!-- 用户信息展示卡片 -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="avatar-container">
+                    <el-avatar :size="120" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAllBMVEW/2OvF4vra5+shISFCQkLH4vnA2u7T5fDN5PXF3/O+1+vI5v5SW2IbGRgNBACZrsAHAADN6/+rxNkeHRw1OT02My/W5u7i7/OosrUXFBI4OjumvMyUp7WKmaU7OTdRU1N4hI1kbHIzMzNreIEuLStKUlexy+AqLTDI3euQo7GGlKBMTEsuKCHY6/Z/jJV2gYokHxpDRkrDp6E3AAACnklEQVR4nO3d0VbaQABF0ahVCUHBAFosRUAJVKm0//9z/YJ7H+7KWNt1znsyswN5yaxJqvMCDc50g/Cc9+acl+7AKhzQhjAJoQxhFMIkhDKEUQiTEMoQRiFMQihDGIUwCaEMYRTCJIQyhFEIkz5e+GBywutwvDLCSldvto+ql3FjZpNmhGdmolUsHC2mqokTFqmM8OZCdYsQIUKECBEiRIgQIUKECBEiRIgQIUKECP8n4W6iKyK80zVWWJvcMkL7TdddZdUG2O1Gsk1jJlqll9TN1F5S05UermknN6rF7M5MNBemjFgo7/spQoQIESJEiBAhQoQIESJEiBAhQoQIESL8lMKhzgtvVZO9FV6bSjy5P7gBTYcfS13tJhquPaUN4z0z8eX+Z4TDdEiEPYcQYRDCnkOIMAhhzyFEGISw5xAiDELYcwgRBiHsOYQIg9xZ7cPysEMs1MXCh++6185t1DANTO73vTcLHodY+LaSHdsC+2LSN52d21/RCZ++yOZt/0CECBEiRIgQIUKECBEiRIgQIUKECBEiRPjXhO6Zd9foigjN9zS80Gxx+Pm+lp2WY10XCodfw+w6kRvRvSRrZ/awhO/6asbHrezFvFtsX6dCc1iJ97U147m+8R/lcBfTGUKECBEiRIgQIUKECBEiRIgQIUKECBEiLClcyG8V+GfeZr3DCVd6vMXWCt2Te3fYSX9uYrTs2qjlxmTG21ihW+5xxzXmmyHr41z2y6w/PF+G21TcRGOh+dZ5877S/7atvp8Wz36qYQgRIkSIECFChAgRIkSIECFChAgRIkSIsJxw7YRT2WcT6prXtyfZ75lsf/pwYdrArGm43FJQjCgj1P9gG0KECBEiRIgQIUKECBEiRIgQIUKECBEiRIjQ9AeceaXi/L2vVwAAAABJRU5ErkJggg==" />
+                </div>
+                <div class="user-info">
+                    <h2 class="username">{{ studentInfo.username }}</h2>
+                    <p class="student-id">UID: {{ studentInfo.student_id }}</p>
+                </div>
+            </div>
+        </div>
 
-        <div class="form-container">
-            <el-tabs v-model="activeTab">
-                <el-tab-pane label="基本信息" name="info">
-                    <el-form :model="studentInfo" label-width="120px" class="form-inline">
-                        <el-form-item label="学号">
-                            <el-input v-model="studentInfo.student_id" disabled></el-input>
-                        </el-form-item>
-                        <el-form-item label="用户名">
-                            <el-input v-model="studentInfo.username"></el-input>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" class="submit-btn" @click="updateUsername">
-                                <i class="fas fa-save"></i> 更新用户名
-                            </el-button>
-                        </el-form-item>
-                    </el-form>
-                </el-tab-pane>
+        <!-- 设置卡片 -->
+        <div class="settings-card">
+            <h1>
+                <i class="fas fa-user-cog"></i> 账户设置
+            </h1>
 
-                <el-tab-pane label="修改密码" name="password">
-                    <el-form :model="passwordForm" :rules="passwordRules" ref="passwordForm" label-width="120px" class="form-inline">
-                        <el-form-item label="原密码" prop="old_password">
-                            <el-input v-model="passwordForm.old_password" type="password" show-password></el-input>
-                        </el-form-item>
-                        <el-form-item label="新密码" prop="new_password">
-                            <el-input v-model="passwordForm.new_password" type="password" show-password></el-input>
-                        </el-form-item>
-                        <el-form-item label="确认密码" prop="confirm">
-                            <el-input v-model="passwordForm.confirm" type="password" show-password></el-input>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" class="submit-btn" @click="updatePassword">
-                                <i class="fas fa-key"></i> 修改密码
-                            </el-button>
-                        </el-form-item>
-                    </el-form>
-                </el-tab-pane>
+            <div class="form-container">
+                <el-tabs v-model="activeTab" class="custom-tabs">
+                    <el-tab-pane label="用户名设置" name="info">
+                        <el-form :model="studentInfo" label-width="120px" class="form-inline">
+                            <el-form-item label="用户名">
+                                <el-input v-model="studentInfo.username"></el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" class="submit-btn" @click="updateUsername">
+                                    <i class="fas fa-save"></i> 更新用户名
+                                </el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-tab-pane>
 
-                <el-tab-pane label="OJ账号" name="oj">
-                    <el-form :model="ojInfo" label-width="120px" class="form-inline">
-                        <el-form-item label="Codeforces">
-                            <el-input v-model="ojInfo.cf_name" placeholder="输入Codeforces用户名"></el-input>
-                        </el-form-item>
-                        <el-form-item label="AtCoder">
-                            <el-input v-model="ojInfo.at_name" placeholder="输入AtCoder用户名"></el-input>
-                        </el-form-item>
-                        <el-form-item label="Nowcoder">
-                            <el-input v-model="ojInfo.nc_id" placeholder="输入Nowcoder用户ID"></el-input>
-                        </el-form-item>
-                        <el-form-item>
-                            <el-button type="primary" class="submit-btn" @click="updateOJInfo">
-                                <i class="fas fa-code"></i> 更新OJ信息
-                            </el-button>
-                        </el-form-item>
-                    </el-form>
-                </el-tab-pane>
-            </el-tabs>
+                    <el-tab-pane label="密码设置" name="password">
+                        <el-form :model="passwordForm" :rules="passwordRules" ref="passwordForm" label-width="120px" class="form-inline">
+                            <el-form-item label="原密码" prop="old_password">
+                                <el-input v-model="passwordForm.old_password" type="password" show-password></el-input>
+                            </el-form-item>
+                            <el-form-item label="新密码" prop="new_password">
+                                <el-input v-model="passwordForm.new_password" type="password" show-password></el-input>
+                            </el-form-item>
+                            <el-form-item label="确认密码" prop="confirm">
+                                <el-input v-model="passwordForm.confirm" type="password" show-password></el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" class="submit-btn" @click="updatePassword">
+                                    <i class="fas fa-key"></i> 修改密码
+                                </el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-tab-pane>
+
+                    <el-tab-pane label="OJ用户名设置" name="oj"> <el-form :model="ojInfo" label-width="120px" class="form-inline">
+                            <el-form-item label="Codeforces">
+                                <el-input v-model="ojInfo.cf_name" placeholder="输入Codeforces用户名"></el-input>
+                            </el-form-item>
+                            <el-form-item label="AtCoder">
+                                <el-input v-model="ojInfo.at_name" placeholder="输入AtCoder用户名"></el-input>
+                            </el-form-item>
+                            <el-form-item label="Nowcoder">
+                                <el-input v-model="ojInfo.nc_id" placeholder="输入Nowcoder用户ID"></el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" class="submit-btn" @click="updateOJInfo">
+                                    <i class="fas fa-code"></i> 更新OJ信息
+                                </el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-tab-pane>
+                </el-tabs>
+            </div>
         </div>
     </div>
 </template>
-  <script>
-  import { ElMessage } from 'element-plus';
-  import request from '@/utils/request'; // 确保你有这个封装的request工具
-  
-  export default {
+
+<script>
+import { ElMessage } from 'element-plus';
+import request from '@/utils/request';
+
+export default {
     data() {
-      const validatePassword = (rule, value, callback) => {
-        if (value !== this.passwordForm.new_password) {
-          callback(new Error('两次输入密码不一致!'));
-        } else {
-          callback();
-        }
-      };
-  
-      return {
-        activeTab: 'info',
-        studentInfo: {
-          student_id: '',
-          username: '',
-        },
-        passwordForm: {
-          old_password: '',
-          new_password: '',
-          confirm: '',
-        },
-        passwordRules: {
-          old_password: [
-            { required: true, message: '请输入原密码', trigger: 'blur' },
-            { min: 6, message: '密码长度不能少于6位', trigger: 'blur' },
-          ],
-          new_password: [
-            { required: true, message: '请输入新密码', trigger: 'blur' },
-            { min: 6, message: '密码长度不能少于6位', trigger: 'blur' },
-          ],
-          confirm: [
-            { required: true, message: '请再次输入新密码', trigger: 'blur' },
-            { validator: validatePassword, trigger: 'blur' },
-          ],
-        },
-        ojInfo: {
-          cf_name: '',
-          at_name: '',
-          nc_id: '',
-        },
-      };
+        const validatePassword = (rule, value, callback) => {
+            if (value !== this.passwordForm.new_password) {
+                callback(new Error('两次输入密码不一致!'));
+            } else {
+                callback();
+            }
+        };
+
+        return {
+            activeTab: 'info',
+            studentInfo: {
+                student_id: '',
+                username: '',
+            },
+            passwordForm: {
+                old_password: '',
+                new_password: '',
+                confirm: '',
+            },
+            passwordRules: {
+                old_password: [
+                    { required: true, message: '请输入原密码', trigger: 'blur' },
+                    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' },
+                ],
+                new_password: [
+                    { required: true, message: '请输入新密码', trigger: 'blur' },
+                    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' },
+                ],
+                confirm: [
+                    { required: true, message: '请再次输入新密码', trigger: 'blur' },
+                    { validator: validatePassword, trigger: 'blur' },
+                ],
+            },
+            ojInfo: {
+                cf_name: '',
+                at_name: '',
+                nc_id: '',
+            }
+        };
     },
     created() {
-      this.fetchStudentInfo();
+        this.fetchStudentInfo();
     },
     methods: {
-      // 获取学生信息
-      async fetchStudentInfo() {
-        try {
-          const response = await request.get('/student/info', {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('member_token')}`, // 假设你保存在localStorage中
-            },
-          });
-          console.log(response.data.data)
-          this.studentInfo = {
-            student_id: response.data.data.StudentID,
-            username: response.data.data.Username,
-          };
-          this.ojInfo = {
-            cf_name: response.data.data.CfName || '',
-            at_name: response.data.data.AtName || '',
-            nc_id: response.data.data.NcID || '',
-          };
-        } catch (error) {
-          ElMessage.error('获取用户信息失败: ' + (error.response?.data?.msg || error.message));
-        }
-      },
-  
-      // 更新用户名
-      async updateUsername() {
-        try {
-          await request.post(
-            '/student/update-username',
-            { username: this.studentInfo.username },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('member_token')}`, // 使用请求头传递token
-              },
+        async fetchStudentInfo() {
+            try {
+                const response = await request.get('/student/info', {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('member_token')}`,
+                    },
+                });
+                this.studentInfo = {
+                    student_id: response.data.data.StudentID,
+                    username: response.data.data.Username,
+                };
+                this.ojInfo = {
+                    cf_name: response.data.data.CfName || '',
+                    at_name: response.data.data.AtName || '',
+                    nc_id: response.data.data.NcID || '',
+                };
+            } catch (error) {
+                ElMessage.error('获取用户信息失败: ' + (error.response?.data?.msg || error.message));
             }
-          );
-          ElMessage.success('用户名更新成功');
-        } catch (error) {
-          ElMessage.error('更新用户名失败: ' + (error.response?.data?.msg || error.message));
-        }
-      },
-  
-      // 更新密码
-      async updatePassword() {
-        try {
-          await this.$refs.passwordForm.validate();
-          await request.post(
-            '/student/update-password',
-            this.passwordForm,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('member_token')}`, // 使用请求头传递token
-              },
+        },
+
+        async updateUsername() {
+            try {
+                await request.post(
+                    '/student/update-username',
+                    { username: this.studentInfo.username },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('member_token')}`,
+                        },
+                    }
+                );
+                ElMessage.success('用户名更新成功');
+            } catch (error) {
+                ElMessage.error('更新用户名失败: ' + (error.response?.data?.msg || error.message));
             }
-          );
-          ElMessage.success('密码更新成功，请重新登录');
-          this.$refs.passwordForm.resetFields();
-          // 这里可以添加重新登录的逻辑
-        } catch (error) {
-          if (error.name !== 'ValidationError') {
-            ElMessage.error('更新密码失败: ' + (error.response?.data?.msg || error.message));
-          }
-        }
-      },
-  
-      // 更新OJ账号信息
-      async updateOJInfo() {
-        try {
-          await request.post(
-            '/student/update-info',
-            this.ojInfo,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('member_token')}`, // 使用请求头传递token
-              },
+        },
+
+        async updatePassword() {
+            try {
+                await this.$refs.passwordForm.validate();
+                await request.post(
+                    '/student/update-password',
+                    this.passwordForm,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('member_token')}`,
+                        },
+                    }
+                );
+                ElMessage.success('密码更新成功，请重新登录');
+                this.$refs.passwordForm.resetFields();
+            } catch (error) {
+                if (error.name !== 'ValidationError') {
+                    ElMessage.error('更新密码失败: ' + (error.response?.data?.msg || error.message));
+                }
             }
-          );
-          ElMessage.success('OJ账号信息更新成功');
-        } catch (error) {
-          ElMessage.error('更新OJ账号信息失败: ' + (error.response?.data?.msg || error.message));
-        }
-      },
+        },
+
+        async updateOJInfo() {
+            try {
+                await request.post(
+                    '/student/update-info',
+                    this.ojInfo,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('member_token')}`,
+                        },
+                    }
+                );
+                ElMessage.success('OJ账号信息更新成功');
+            } catch (error) {
+                ElMessage.error('更新OJ账号信息失败: ' + (error.response?.data?.msg || error.message));
+            }
+        },
     },
-  };
-  </script>
+};
+</script>
 
 <style scoped>
-.settings-card {
-    background: linear-gradient(135deg, #e0f2fe, #c7d2fe);
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
-    color: #1e293b;
+.settings-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 30px;
+}
+
+.profile-card {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    padding: 30px;
+    border-radius: 20px;
+    color: white;
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+}
+
+.avatar-container {
+    position: relative;
+    margin-right: 30px;
+}
+
+.avatar-uploader {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+}
+
+.avatar-edit {
+    width: 30px;
+    height: 30px;
+    background: #4f46e5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.avatar-edit:hover {
+    transform: scale(1.1);
+    background: #4338ca;
+}
+
+.avatar-edit i {
+    color: white;
+    font-size: 14px;
+}
+
+/* 隐藏上传组件的默认样式 */
+:deep(.el-upload) {
+    border: none;
+    background: none;
+}
+
+:deep(.el-upload:hover) {
+    border: none;
+}
+
+.user-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-info {
+    flex: 1;
+}
+
+.username {
+    font-size: 2rem;
+    margin: 0;
+    font-weight: bold;
+}
+
+.student-id {
+    font-size: 1.2rem;
+    opacity: 0.8;
+    margin: 5px 0 0;
+}
+
+.settings-card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .settings-card h1 {
     font-size: 24px;
     font-weight: bold;
-    margin: 0 0 15px 0;
+    margin: 0 0 25px 0;
     display: flex;
     align-items: center;
     color: #1a365d;
@@ -221,31 +313,67 @@
 
 .settings-card h1 i {
     color: #4a5568;
-    margin-right: 20px;
-    width: 20px;
-    height: 20px;
+    margin-right: 15px;
 }
 
 .form-container {
-    background-color: rgba(255, 255, 255, 0.85);
-    padding: 20px;
-    border-radius: 10px;
+    background-color: #f8fafc;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+.custom-tabs {
+    background: transparent;
 }
 
 .form-inline {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
 .submit-btn {
     font-size: 16px;
-    padding: 12px 20px;
+    padding: 12px 25px;
     border-radius: 8px;
     width: fit-content;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .submit-btn i {
     margin-right: 8px;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 15px;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .avatar-container {
+        margin: 0 0 20px 0;
+    }
+
+    .settings-card {
+        padding: 20px;
+    }
+
+    .form-container {
+        padding: 15px;
+    }
+
+    .submit-btn {
+        width: 100%;
+    }
 }
 </style>

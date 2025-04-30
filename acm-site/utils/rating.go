@@ -132,9 +132,22 @@ func FetchNowcoderRating(userID string) (string, error) {
 	}
 
 	var rating string
-	doc.Find("a.rate-score4").Each(func(i int, s *goquery.Selection) {
-		rating = strings.TrimSpace(s.Text())
-	})
+	found := false
+	for i := 1; i <= 7; i++ {
+		selector := fmt.Sprintf("a.state-num.rate-score%d", i) // 精准匹配
+		doc.Find(selector).EachWithBreak(func(_ int, s *goquery.Selection) bool {
+			text := strings.TrimSpace(s.Text())
+			if text != "" {
+				rating = text
+				found = true
+				return false // 停止遍历
+			}
+			return true
+		})
+		if found {
+			break
+		}
+	}
 
 	if rating == "" {
 		return "", fmt.Errorf("未能找到 Nowcoder Rating")
