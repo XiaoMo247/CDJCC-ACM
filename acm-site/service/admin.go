@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"sync"
 
 	"acm-site/database"
 	"acm-site/model"
@@ -163,12 +164,30 @@ func UpdateRatings(studentID, codeforcesRating, atcoderRating, nowcoderRating st
 	return nil
 }
 
-func UpdateRatingsByMember(member *model.TeamMember) error {
-	// 示例：可调用爬虫、API 等来获取 rating
-	// 这里只是模拟，按你实际更新逻辑来处理
+func GetCodeForcesRating(member *model.TeamMember, wg *sync.WaitGroup) {
+	defer wg.Done()
 	member.CfRating, _ = utils.FetchCodeforcesRating(member.CfName)
+}
+
+func GetAtCoderRating(member *model.TeamMember, wg *sync.WaitGroup) {
+	defer wg.Done()
 	member.AtRating, _ = utils.FetchAtCoderRating(member.AtName)
+}
+
+func GetNowCoderRating(member *model.TeamMember, wg *sync.WaitGroup) {
+	defer wg.Done()
 	member.NcRating, _ = utils.FetchNowcoderRating(member.NcID)
+}
+
+func UpdateRatingsByMember(member *model.TeamMember) error {
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	go GetCodeForcesRating(member, &wg)
+	go GetAtCoderRating(member, &wg)
+	go GetNowCoderRating(member, &wg)
+
+	wg.Wait() // 等待所有评分更新完成
 
 	return database.DB.Save(member).Error
 }
