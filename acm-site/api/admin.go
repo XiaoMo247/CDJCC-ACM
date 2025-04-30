@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
@@ -410,16 +411,27 @@ func UpdateAllRatingsHandler(c *gin.Context) {
 		return
 	}
 
-	var successCount, failCount int
+	var wg sync.WaitGroup
+	var mu sync.Mutex // 用于线程安全统计 success/fail
+	successCount := 0
+	failCount := 0
 
-	for _, member := range members {
-		err := service.UpdateRatingsByMember(&member)
-		if err != nil {
-			failCount++
-			continue
-		}
-		successCount++
+	for i := range members {
+		wg.Add(1)
+		go func(member *model.TeamMember) {
+			defer wg.Done()
+			err := service.UpdateRatingsByMember(member)
+			mu.Lock()
+			if err != nil {
+				failCount++
+			} else {
+				successCount++
+			}
+			mu.Unlock()
+		}(&members[i]) // 注意必须传指针 &members[i]
 	}
+
+	wg.Wait() // 等待所有协程完成
 
 	c.JSON(http.StatusOK, gin.H{
 		"message":      "所有成员分数更新完成",
