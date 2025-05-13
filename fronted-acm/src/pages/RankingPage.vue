@@ -4,7 +4,9 @@
             <h1 class="header-title">📈 排行榜中心</h1>
             <p class="header-subtitle">追踪队员们在各大平台的精彩表现！</p>
             <el-button type="primary" :loading="loading" @click="refreshData" class="refresh-btn">
-                <el-icon><Refresh /></el-icon>
+                <el-icon>
+                    <Refresh />
+                </el-icon>
                 刷新数据
             </el-button>
         </div>
@@ -117,6 +119,9 @@ export default {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     color: white;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .refresh-btn {
@@ -150,18 +155,22 @@ export default {
 }
 
 .button-group {
-    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
     margin-bottom: 3rem;
-    position: relative;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .platform-btn {
     position: relative;
-    margin: 0 1rem;
     padding: 0.8rem 2rem;
     border-radius: 50px;
     transition: all 0.3s ease;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .platform-btn:hover {
@@ -219,25 +228,36 @@ export default {
     transform: translateY(-10px);
 }
 
+/* ✅ 移动端适配优化 */
 @media (max-width: 768px) {
     .header-title {
         font-size: 2rem;
     }
 
+    .header {
+        padding: 2rem 1rem 1rem;
+    }
+
+    .refresh-btn {
+        position: relative;
+        margin-top: 1.5rem;
+        right: auto;
+        top: auto;
+        width: 100%;
+        max-width: 200px;
+        align-self: center;
+    }
+
     .button-group {
-        display: grid;
+        flex-direction: column;
+        align-items: center;
         gap: 1rem;
     }
 
     .platform-btn {
-        margin: 0;
-        width: 100%;
-    }
-
-    .refresh-btn {
-        position: static;
-        margin-top: 1rem;
-        width: 100%;
+        width: 300px;
+        margin: 0 10px;
+        text-align: center;
     }
 }
 </style>

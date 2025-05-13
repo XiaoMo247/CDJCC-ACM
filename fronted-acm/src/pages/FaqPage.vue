@@ -4,53 +4,34 @@
       <h1 class="title">💡常见问题</h1>
       <p class="subtitle">传递集训文化，在解答中融入经验分享，促进成员交流</p>
       <div class="search-box">
-        <el-input
-          v-model="searchText"
-          placeholder="输入关键词快速查找问题..."
-          clearable
-          class="search-input"
-        >
+        <el-input v-model="searchText" placeholder="输入关键词快速查找问题..." clearable class="search-input">
           <template #prefix>
-            <el-icon><Search /></el-icon>
+            <el-icon>
+              <Search />
+            </el-icon>
           </template>
         </el-input>
       </div>
     </div>
     <transition-group name="fade-slide" tag="div" class="category-tabs">
-      <div
-        v-for="tab in tabs"
-        :key="tab.value"
+      <div v-for="tab in tabs" :key="tab.value"
         :class="{ 'active-tab': activeTab === tab.value, 'hover-tab': hoveringTab === tab.value }"
-        @mouseenter="hoveringTab = tab.value"
-        @mouseleave="hoveringTab = null"
-        @click="activeTab = tab.value"
-      >
+        @mouseenter="hoveringTab = tab.value" @mouseleave="hoveringTab = null" @click="activeTab = tab.value">
         {{ tab.label }}
       </div>
     </transition-group>
     <transition name="fade-stagger" mode="out-in">
       <div v-if="filteredFaqs.length > 0" key="content">
         <div class="faq-list">
-          <div
-            v-for="(faq, index) in filteredFaqs"
-            :key="faq.id"
-          >
-            <div
-              class="faq-question"
-              @click="toggleAnswer(index)"
-              @mouseenter="handleQuestionHover(index)"
-              @mouseleave="handleQuestionLeave(index)"
-            >
+          <div v-for="(faq, index) in filteredFaqs" :key="faq.id">
+            <div class="faq-question" @click="toggleAnswer(index)" @mouseenter="handleQuestionHover(index)"
+              @mouseleave="handleQuestionLeave(index)">
               {{ faq.question }}
-              <i :class="['fa', expandedAnswers[index]? 'fa-minus' : 'fa-plus']"></i>
+              <i :class="['fa', expandedAnswers[index] ? 'fa-minus' : 'fa-plus']"></i>
             </div>
             <transition name="answer-slide">
-              <div
-                class="faq-answer"
-                v-if="expandedAnswers[index]"
-                @mouseenter="handleAnswerHover(index)"
-                @mouseleave="handleAnswerLeave(index)"
-              >
+              <div class="faq-answer" v-if="expandedAnswers[index]" @mouseenter="handleAnswerHover(index)"
+                @mouseleave="handleAnswerLeave(index)">
                 {{ faq.answer }}
               </div>
             </transition>
@@ -120,7 +101,7 @@ export default {
     };
 
     const toggleAnswer = (index) => {
-      expandedAnswers.value[index] =!expandedAnswers.value[index];
+      expandedAnswers.value[index] = !expandedAnswers.value[index];
     };
 
     const handleQuestionHover = (index) => {
@@ -186,14 +167,14 @@ body {
   box-shadow: 0 8px 20px rgba(79, 172, 254, 0.15);
   color: white;
   /* 取消顶部背景边框加深 */
-  border: 1px solid rgba(0, 123, 255, 0.3); 
+  border: 1px solid rgba(0, 123, 255, 0.3);
 }
 
 .title {
-  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-size: 3rem;
   font-weight: 800;
-  margin-bottom: 0.8rem;
-  text-shadow: 0 2px 4px rgba(246, 243, 243, 0);
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .subtitle {
@@ -387,12 +368,12 @@ body {
     font-size: 2rem;
   }
 
- .faq-question {
+  .faq-question {
     font-size: 0.9rem;
   }
 
- .faq-answer {
+  .faq-answer {
     font-size: 0.8rem;
   }
 }
-</style>    
+</style>

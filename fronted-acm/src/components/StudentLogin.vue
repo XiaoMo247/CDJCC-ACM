@@ -5,25 +5,13 @@
         <label for="student_number">
           <i class="fas fa-id-card"></i> 学号
         </label>
-        <input 
-          type="text" 
-          id="student_number" 
-          v-model="student_number" 
-          placeholder="请输入学号"
-          required
-        />
+        <input type="text" id="student_number" v-model="student_number" placeholder="请输入学号" required />
       </div>
       <div class="form-group">
         <label for="password">
           <i class="fas fa-lock"></i> 密码
         </label>
-        <input 
-          type="password" 
-          id="password" 
-          v-model="password" 
-          placeholder="请输入密码"
-          required
-        />
+        <input type="password" id="password" v-model="password" placeholder="请输入密码" required />
       </div>
       <button type="submit" class="submit-btn">
         <i class="fas fa-sign-in-alt"></i> 登录
@@ -85,7 +73,7 @@ export default {
 }
 
 .form-group input {
-  width: 100%;
+  width: 95%;
   padding: 12px 15px;
   border: 1px solid #ddd;
   border-radius: 6px;

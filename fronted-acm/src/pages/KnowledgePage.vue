@@ -30,8 +30,8 @@
       </div>
 
       <!-- B站频道卡片，点击在新窗口打开B站链接 -->
-      <a href="https://space.bilibili.com/3546651937475184?spm_id_from=333.337.search-card.all.click"
-         target="_blank" class="link-card">
+      <a href="https://space.bilibili.com/3546651937475184?spm_id_from=333.337.search-card.all.click" target="_blank"
+        class="link-card">
         <div class="link-icon bilibili">
           <i class="fab fa-bilibili"></i>
         </div>
@@ -62,8 +62,7 @@
             <i class="fas fa-home"></i> 根目录
           </el-breadcrumb-item>
           <!-- 动态渲染面包屑路径 -->
-          <el-breadcrumb-item v-for="(folder, index) in breadcrumbFolders" :key="index"
-                              @click="goToBreadcrumb(index)">
+          <el-breadcrumb-item v-for="(folder, index) in breadcrumbFolders" :key="index" @click="goToBreadcrumb(index)">
             {{ folder.name }}
           </el-breadcrumb-item>
         </el-breadcrumb>
@@ -72,7 +71,7 @@
       <!-- 搜索框 -->
       <div class="search-bar">
         <el-input v-model="searchQuery" placeholder="搜索课件..." clearable size="large" style="width: 100%"
-                  @clear="resetSearch">
+          @clear="resetSearch">
           <template #prefix>
             <i class="el-icon-search"></i>
           </template>
@@ -81,7 +80,7 @@
 
       <!-- 文件夹列表 -->
       <el-table :data="filteredFolders" style="width: 100%; margin-bottom: 20px;" stripe v-loading="loading"
-                empty-text="暂无文件夹" @row-click="openFolder" class="clickable-table">
+        empty-text="暂无文件夹" @row-click="openFolder" class="clickable-table">
         <el-table-column prop="name" label="文件夹名称">
           <template #default="scope">
             <div class="folder-item">
@@ -94,12 +93,12 @@
         </el-table-column>
         <el-table-column prop="created_at" label="创建时间" width="220" align="center">
           <template #default="scope">
-                        <span class="create-time">
-                            <!-- 日历图标 -->
-                            <i class="far fa-calendar-alt" style="margin-right: 5px;"></i>
-                          <!-- 格式化后的创建时间 -->
-                            {{ formatDate(scope.row.created_at) }}
-                        </span>
+            <span class="create-time">
+              <!-- 日历图标 -->
+              <i class="far fa-calendar-alt" style="margin-right: 5px;"></i>
+              <!-- 格式化后的创建时间 -->
+              {{ formatDate(scope.row.created_at) }}
+            </span>
           </template>
         </el-table-column>
       </el-table>
@@ -118,22 +117,22 @@
         </el-table-column>
         <el-table-column prop="size" label="文件大小" width="150" align="center">
           <template #default="scope">
-                        <span class="file-size">
-                            <!-- 重量图标 -->
-                            <i class="fas fa-weight-hanging" style="margin-right: 5px;"></i>
-                          <!-- 格式化后的文件大小 -->
-                            {{ formatFileSize(scope.row.size) }}
-                        </span>
+            <span class="file-size">
+              <!-- 重量图标 -->
+              <i class="fas fa-weight-hanging" style="margin-right: 5px;"></i>
+              <!-- 格式化后的文件大小 -->
+              {{ formatFileSize(scope.row.size) }}
+            </span>
           </template>
         </el-table-column>
         <el-table-column prop="created_at" label="上传时间" width="220" align="center">
           <template #default="scope">
-                        <span class="upload-time">
-                            <!-- 时钟图标 -->
-                            <i class="far fa-clock" style="margin-right: 5px;"></i>
-                          <!-- 格式化后的上传时间 -->
-                            {{ formatDate(scope.row.created_at) }}
-                        </span>
+            <span class="upload-time">
+              <!-- 时钟图标 -->
+              <i class="far fa-clock" style="margin-right: 5px;"></i>
+              <!-- 格式化后的上传时间 -->
+              {{ formatDate(scope.row.created_at) }}
+            </span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="150" align="center" fixed="right">
@@ -194,7 +193,7 @@ export default {
       if (!this.searchQuery) return this.folderList
       const query = this.searchQuery.toLowerCase()
       return this.folderList.filter(folder =>
-          folder.name.toLowerCase().includes(query)
+        folder.name.toLowerCase().includes(query)
       )
     },
     // 过滤文件列表
@@ -202,7 +201,7 @@ export default {
       if (!this.searchQuery) return this.fileList
       const query = this.searchQuery.toLowerCase()
       return this.fileList.filter(file =>
-          file.name.toLowerCase().includes(query)
+        file.name.toLowerCase().includes(query)
       )
     },
     // 面包屑路径
@@ -337,6 +336,7 @@ export default {
   margin-right: 1.5rem;
   object-fit: cover;
 }
+
 /* 基础样式 */
 :root {
   --primary-color: #4361ee;
