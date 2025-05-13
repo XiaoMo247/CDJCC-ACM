@@ -11,7 +11,9 @@
             <!-- 即将开始的比赛 -->
             <div class="section">
                 <h2 class="section-title">
-                    <el-icon><AlarmClock /></el-icon> 即将开始
+                    <el-icon>
+                        <AlarmClock />
+                    </el-icon> 即将开始
                     <span class="badge">{{ upcomingContests.length }}</span>
                 </h2>
 
@@ -35,7 +37,9 @@
                                     class="competition-item upcoming" @click="openContestDialog(contest)">
                                     <div class="competition-content">
                                         <div class="time-badge">
-                                            <el-icon><Timer /></el-icon> {{ formatTime(contest.time) }}
+                                            <el-icon>
+                                                <Timer />
+                                            </el-icon> {{ formatTime(contest.time) }}
                                         </div>
                                         <h3 class="competition-name">{{ contest.title }}</h3>
                                         <div class="competition-description">
@@ -64,7 +68,9 @@
             <!-- 已结束的比赛 -->
             <div class="section">
                 <h2 class="section-title">
-                    <el-icon><CircleCheck /></el-icon> 已结束
+                    <el-icon>
+                        <CircleCheck />
+                    </el-icon> 已结束
                     <span class="badge">{{ endedContests.length }}</span>
                 </h2>
 
@@ -74,7 +80,9 @@
                             @click="openContestDialog(contest)">
                             <div class="competition-content">
                                 <div class="time-badge">
-                                    <el-icon><Timer /></el-icon> {{ formatTime(contest.time) }}
+                                    <el-icon>
+                                        <Timer />
+                                    </el-icon> {{ formatTime(contest.time) }}
                                 </div>
                                 <div class="ended-overlay">已结束</div>
                                 <h3 class="competition-name">{{ contest.title }}</h3>
@@ -103,8 +111,11 @@
         <el-dialog v-model="dialogVisible" :title="selectedContest.title" width="90%" :fullscreen="isMobile">
             <div class="contest-detail">
                 <div class="detail-meta">
-                    <p><el-icon><Timer /></el-icon> <strong>比赛时间：</strong> {{ formatTime(selectedContest.time) }}</p>
-                    <p v-if="!isContestEnded(selectedContest)"><strong>倒计时：</strong> {{ selectedContest.timeRemaining }}</p>
+                    <p><el-icon>
+                            <Timer />
+                        </el-icon> <strong>比赛时间：</strong> {{ formatTime(selectedContest.time) }}</p>
+                    <p v-if="!isContestEnded(selectedContest)"><strong>倒计时：</strong> {{ selectedContest.timeRemaining }}
+                    </p>
                     <p><strong>比赛简介：</strong></p>
                     <p>{{ selectedContest.text || '暂无比赛详情描述' }}</p>
                     <div v-if="selectedContest.link" class="detail-link">
@@ -214,11 +225,11 @@ export default {
                     });
                 } else {
                     // 添加更详细的错误信息
-                    const errorMessage = error.response?.data?.message 
-                        || (error.response?.status === 404 ? 'API接口不存在' 
-                        : error.response?.status === 500 ? '服务器内部错误'
-                        : '获取比赛信息失败');
-                    
+                    const errorMessage = error.response?.data?.message
+                        || (error.response?.status === 404 ? 'API接口不存在'
+                            : error.response?.status === 500 ? '服务器内部错误'
+                                : '获取比赛信息失败');
+
                     ElMessage({
                         message: errorMessage,
                         type: 'error',
@@ -238,13 +249,13 @@ export default {
             const time = dayjs(timeStr);
             const now = dayjs();
             const diff = time.diff(now);
-            
+
             if (diff < 0) return '已结束';
-            
+
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            
+
             if (days > 0) return `还有 ${days} 天`;
             if (hours > 0) return `还有 ${hours} 小时`;
             return `还有 ${minutes} 分钟`;
@@ -290,14 +301,13 @@ export default {
 
 .page-title {
     font-size: 3rem;
-    font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 10px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    background: linear-gradient(90deg, #409EFF, #67C23A);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--dark-color);
+    margin-bottom: 2rem;
+    text-align: center;
+    letter-spacing: 2px;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
 .page-subtitle {
@@ -542,7 +552,8 @@ export default {
         padding: 20px;
     }
 
-    .time-badge, .ended-overlay {
+    .time-badge,
+    .ended-overlay {
         padding: 6px 12px;
         font-size: 0.85rem;
     }

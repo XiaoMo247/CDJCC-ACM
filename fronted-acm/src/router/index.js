@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // 页面组件
-import HomePage from '../pages/HomePage.vue'
+import HomePage from '../pages/HomePage/HomePage.vue'
 import KnowledgePage from '../pages/KnowledgePage.vue'
 import CompetitionPage from '../pages/CompetitionPage.vue'
 import RankingPage from '../pages/RankingPage.vue'
