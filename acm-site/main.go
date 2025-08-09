@@ -14,6 +14,9 @@ func main() {
 	database.InitDB()   // 初始化数据库连接
 
 	r := gin.Default()
+
+	r.Static("/uploads", "./uploads")
+
 	r.Use(middleware.CorsMiddleware())
 
 	router.RouterInit(r)

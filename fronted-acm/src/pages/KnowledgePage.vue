@@ -176,6 +176,12 @@ export default {
           title: '个人博客',
           url: 'https://www.cnblogs.com/XiaoMo247',
           avatar: 'https://cdn.luogu.com.cn/upload/image_hosting/5of8epxu.png'
+        },
+        {
+          author: 'Martian148',
+          title: 'XCPC 自学指北',
+          url: 'https://chengyiwei.github.io/mkdocs/',
+          avatar: 'https://cdn.luogu.com.cn/upload/image_hosting/npue5pns.png'
         }
       ],
       blogColors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'],
