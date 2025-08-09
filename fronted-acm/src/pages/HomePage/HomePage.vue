@@ -6,16 +6,12 @@
     <section class="carousel-section">
       <el-carousel :interval="5000" height="500px" arrow="always" indicator-position="outside" trigger="click"
         :autoplay="true">
-        <el-carousel-item v-for="(photo, index) in photos" :key="index">
+        <el-carousel-item v-for="(slider, index) in sliders" :key="index">
           <div class="carousel-item">
-            <img :src="photo.url" :alt="photo.title" class="carousel-image" />
+            <img :src="slider.url" :alt="slider.title" class="carousel-image" />
             <div class="carousel-caption">
-              <h3>{{ photo.title }}</h3>
-              <p>{{ photo.description }}</p>
-              <div class="photo-meta">
-                <span class="photo-date">{{ photo.date }}</span>
-                <span class="photo-location">{{ photo.location }}</span>
-              </div>
+              <h3>{{ slider.title }}</h3>
+              <p>{{ slider.description }}</p>
             </div>
           </div>
         </el-carousel-item>
@@ -169,11 +165,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import request from '@/utils/request'
-import { teamInfo, photos, honors } from './data.js'
+import { teamInfo, honors } from './data.js'
 import './HomePage.css'
 
 export default {
   setup() {
+    const sliders = ref([])
     const notices = ref([])
     const loading = ref(false)
 
@@ -200,6 +197,23 @@ export default {
     const showNoticeDetail = (notice) => {
       currentNotice.value = notice
       noticeDialogVisible.value = true
+    }
+
+    // 获取轮播图数据
+    const fetchSliders = async () => {
+      try {
+        const res = await request.get('/slider/list')
+        if (res.data && res.data.data) {
+          sliders.value = res.data.data.map(slider => ({
+            url: slider.image,
+            title: slider.title,
+            description: slider.content,
+          }))
+        }
+      } catch (err) {
+        console.error('获取轮播图失败:', err)
+        ElMessage.error('获取轮播图列表失败')
+      }
     }
 
     const fetchAnnouncements = async () => {
@@ -235,12 +249,13 @@ export default {
     }
 
     onMounted(() => {
+      fetchSliders()
       fetchAnnouncements()
     })
 
     return {
       teamInfo,
-      photos,
+      sliders,
       notices,
       filteredHonors,
       activeHonorTab,

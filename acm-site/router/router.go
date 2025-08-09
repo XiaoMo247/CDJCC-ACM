@@ -54,6 +54,13 @@ func RouterInit(r *gin.Engine) {
 				faq.POST("/add", api.CreateFAQ)          // 添加 FAQ
 				faq.DELETE("/delete/:id", api.DeleteFAQ) // 删除 FAQ
 			}
+
+			// --------- 轮播图管理 --------
+			slider := admin.Group("/slider")
+			{
+				slider.POST("/add", api.AddSlider)
+				slider.DELETE("/delete/:id", api.DeleteSlider)
+			}
 		}
 
 		// ======================== 课件资源下载模块（所有用户） ========================
@@ -132,5 +139,8 @@ func RouterInit(r *gin.Engine) {
 		apiGroup.GET("/contest/list", api.GetAllContests)          // 获取比赛列表
 		apiGroup.GET("/faq/list", api.GetFAQList)                  // 获取 FAQ 列表
 		apiGroup.GET("/admin/team-members", api.GetAllTeamMembers) // 获取所有团队成员信息
+
+		// ========================轮播图公共接口 ========================
+		apiGroup.GET("/slider/list", api.ListSliders)
 	}
 }

@@ -37,6 +37,9 @@
         <li :class="{ active: currentTab === 'faq' }" @click="changeTab('faq')">
           <i class="fas fa-question-circle"></i> FAQ管理
         </li>
+        <li :class="{ active: currentTab === 'slider' }" @click="changeTab('slider')">
+          <i class="fas fa-images"></i> 轮播图管理
+        </li>
       </ul>
     </div>
 
@@ -51,6 +54,7 @@
       <StudentManage v-if="currentTab === 'student'" />
       <ContestManage v-if="currentTab === 'contest'" />
       <FAQManage v-if="currentTab === 'faq'" />
+      <Slider v-if="currentTab === 'slider'" />
     </div>
 
     <!-- 移动端遮罩层 -->
@@ -66,8 +70,9 @@ import JoinFormManage from '@/components/admin/JoinFormManage.vue'
 import UserManage from '@/components/admin/UserManage.vue'
 import FolderManage from '@/components/admin/FolderManage.vue'
 import StudentManage from '@/components/admin/StudentManage.vue'
-import ContestManage from '@/components/admin/ContestManage.vue'  // 新增
-import FAQManage from '@/components/admin/FAQManage.vue'          // 新增
+import ContestManage from '@/components/admin/ContestManage.vue'
+import FAQManage from '@/components/admin/FAQManage.vue'
+import Slider from '@/components/admin/Slider.vue'
 
 export default {
   name: 'AdminDashboard',
@@ -78,8 +83,9 @@ export default {
     UserManage,
     FolderManage,
     StudentManage,
-    ContestManage,   
-    FAQManage,  
+    ContestManage,
+    FAQManage,
+    Slider,
   },
   data() {
     return {
