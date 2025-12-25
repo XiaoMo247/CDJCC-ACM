@@ -1,0 +1,19 @@
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: your_secure_password_here  # 请修改为实际密码
+  dbname: acm_site
+
+# JWT 配置
+jwt:
+  secret_key: ${JWT_SECRET_KEY}  # 从环境变量读取
+  expiration_hours: 24
+
+# CORS 配置
+cors:
+  allowed_origins: ${ALLOWED_ORIGINS:http://localhost:5173}  # 从环境变量读取，默认本地开发
+
+# 超级管理员列表
+security:
+  super_admin_ids: [1]  # 超级管理员的用户ID列表

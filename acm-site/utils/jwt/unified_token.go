@@ -1,13 +1,23 @@
 package jwt
 
 import (
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// 统一的 JWT 密钥
-var unifiedJwtKey = []byte("your_secret_key")
+// 统一的 JWT 密钥 - 从环境变量读取
+var unifiedJwtKey = getJWTKey()
+
+func getJWTKey() []byte {
+	key := os.Getenv("JWT_SECRET_KEY")
+	if key == "" {
+		// 默认值（仅用于开发环境，生产环境必须设置环境变量）
+		key = "default_dev_secret_key_please_change_in_production"
+	}
+	return []byte(key)
+}
 
 // 统一的 Token Claims 结构
 type UnifiedClaims struct {
