@@ -35,6 +35,7 @@ func InitDB() {
 		&model.Contest{},
 		&model.FAQ{},
 		&model.Slider{},
+		&model.Honor{},
 	)
 
 	if err != nil {

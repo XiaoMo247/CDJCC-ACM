@@ -61,6 +61,14 @@ func RouterInit(r *gin.Engine) {
 				slider.POST("/add", api.AddSlider)
 				slider.DELETE("/delete/:id", api.DeleteSlider)
 			}
+
+			// -------- 荣誉墙管理 --------
+			honorGroup := admin.Group("/honor")
+			{
+				honorGroup.POST("", api.CreateHonor)
+				honorGroup.DELETE("/:id", api.DeleteHonor)
+				honorGroup.PUT("/:id", api.UpdateHonor)
+			}
 		}
 
 		// ======================== 课件资源下载模块（所有用户） ========================
@@ -142,5 +150,8 @@ func RouterInit(r *gin.Engine) {
 
 		// ========================轮播图公共接口 ========================
 		apiGroup.GET("/slider/list", api.ListSliders)
+
+		// ========================荣誉墙公共接口 ========================
+		apiGroup.GET("/honor", api.GetAllHonors)
 	}
 }

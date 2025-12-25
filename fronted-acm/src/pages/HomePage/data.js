@@ -14,6 +14,40 @@ import member7 from '../../assets/user.png'
 import member8 from '../../assets/user.png'
 import member9 from '../../assets/user.png'
 
+// 荣誉数据
+export const honors = [
+  {
+    id: 1,
+    name: "张三",
+    year: 2023,
+    competition: "ICPC",
+    level: "国一",
+    grade: "大三",
+    major: "计算机科学",
+    photo: member1
+  },
+  {
+    id: 2,
+    name: "李四",
+    year: 2022,
+    competition: "CCPC",
+    level: "国二",
+    grade: "大四",
+    major: "软件工程",
+    photo: member2
+  },
+  {
+    id: 3,
+    name: "王五",
+    year: 2023,
+    competition: "蓝桥杯",
+    level: "省一",
+    grade: "大二",
+    major: "人工智能",
+    photo: member3
+  }
+]
+
 // 团队信息
 export const teamInfo = {
     name: '锦城ACM集训队',
@@ -69,48 +103,5 @@ export const photos = [
         description: '团队在省级比赛中获得一等奖',
         date: '2023-05-20',
         location: '重庆'
-    }
-]
-
-// 荣誉数据
-export const honors = [
-    {
-        level: 'gold',
-        title: 'ICPC亚洲区域赛金奖',
-        year: '2023',
-        type: 'icpc',
-        typeText: 'ICPC',
-        description: '第48届ICPC国际大学生程序设计竞赛亚洲区域赛金奖',
-        members: [
-            { name: '张三', avatar: member1, class: '计算机2001' },
-            { name: '李四', avatar: member2, class: '软件2002' },
-            { name: '王五', avatar: member3, class: '计算机2003' }
-        ]
-    },
-    {
-        level: 'silver',
-        title: 'CCPC全国邀请赛银奖',
-        year: '2022',
-        type: 'ccpc',
-        typeText: 'CCPC',
-        description: '2022年中国大学生程序设计竞赛全国邀请赛银奖',
-        members: [
-            { name: '赵六', avatar: member4, class: '计算机1901' },
-            { name: '钱七', avatar: member5, class: '软件1902' },
-            { name: '孙八', avatar: member6, class: '计算机1903' }
-        ]
-    },
-    {
-        level: 'normal',
-        title: '四川省程序设计竞赛一等奖',
-        year: '2023',
-        type: 'provincial',
-        typeText: '省级',
-        description: '2023年四川省大学生程序设计竞赛一等奖',
-        members: [
-            { name: '周九', avatar: member7, class: '计算机2101' },
-            { name: '吴十', avatar: member8, class: '软件2102' },
-            { name: '郑十一', avatar: member9, class: '计算机2103' }
-        ]
     }
 ]

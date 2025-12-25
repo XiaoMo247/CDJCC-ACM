@@ -23,9 +23,11 @@
         <!-- 导航链接 -->
         <ul class="nav-links" :class="{ 'mobile-active': mobileMenuActive }">
             <li><router-link to="/" @click="closeMobileMenu">首页</router-link></li>
+            <li><router-link to="/announcement-and-news" @click="closeMobileMenu">公告与新闻</router-link></li>
             <li><router-link to="/knowledge" @click="closeMobileMenu">知识库</router-link></li>
             <li><router-link to="/competition" @click="closeMobileMenu">比赛页面</router-link></li>
             <li><router-link to="/ranking" @click="closeMobileMenu">排行榜</router-link></li>
+            <li><router-link to="/honor-wall" @click="closeMobileMenu">荣誉墙</router-link></li>
             <li><router-link to="/faq" @click="closeMobileMenu">常见问题</router-link></li>
         </ul>
 

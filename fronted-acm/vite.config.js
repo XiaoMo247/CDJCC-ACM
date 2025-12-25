@@ -18,7 +18,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/uploads': {
-        target: 'http://localhost:8081',
+        target: 'http://118.89.187.189:8081',
         changeOrigin: true
       }
     }

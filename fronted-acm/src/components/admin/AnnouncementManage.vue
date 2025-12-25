@@ -8,8 +8,14 @@
           <el-input v-model="form.title" placeholder="请输入公告标题" size="large" clearable />
         </el-form-item>
         <el-form-item label="内容" class="form-item">
-          <el-input v-model="form.content" type="textarea" placeholder="请输入公告内容" :rows="6" resize="none" size="large"
-            class="content-textarea" />
+          <quill-editor
+            v-model:content="form.content"
+            placeholder="请输入公告内容"
+            theme="snow"
+            contentType="html"
+            style="min-height: 300px"
+            :options="editorOptions"
+          />
         </el-form-item>
         <div class="form-button-group">
           <el-button type="primary" @click="submitAnnouncement" size="large" class="submit-btn">
@@ -51,9 +57,14 @@
 import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 export default {
   name: 'AnnouncementManage',
+  components: {
+    QuillEditor
+  },
   data() {
     return {
       announcements: [],
@@ -61,7 +72,27 @@ export default {
         title: '',
         content: ''
       },
-      editingId: null
+      editingId: null,
+      editorOptions: {
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline', 'strike'],
+            ['blockquote', 'code-block'],
+            [{ 'header': 1 }, { 'header': 2 }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'script': 'sub'}, { 'script': 'super' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            [{ 'direction': 'rtl' }],
+            [{ 'size': ['small', false, 'large', 'huge'] }],
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'font': [] }],
+            [{ 'align': [] }],
+            ['clean'],
+            ['link', 'image', 'video']
+          ]
+        }
+      }
     }
   },
   mounted() {
@@ -167,6 +198,7 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-width: 100%;
 }
 
 .form-vertical {
@@ -182,12 +214,6 @@ export default {
   padding-bottom: 8px;
 }
 
-.content-textarea :deep(.el-textarea__inner) {
-  font-size: 15px;
-  line-height: 1.6;
-  min-height: 150px !important;
-}
-
 .form-button-group {
   display: flex;
   gap: 15px;
@@ -195,6 +221,7 @@ export default {
 }
 
 .submit-btn {
+  margin-top: 40px;
   font-size: 16px;
   padding: 12px 25px;
   border-radius: 8px;
@@ -206,6 +233,7 @@ export default {
 }
 
 .cancel-btn {
+  margin-top: 40px;
   font-size: 16px;
   padding: 12px 20px;
   border-radius: 8px;
@@ -269,4 +297,21 @@ export default {
 .cancel-delete-btn:hover {
   color: #606266;
 }
+
+.form-item :deep(.ql-editor),
+.form-item :deep(.ql-toolbar),
+.form-item :deep(.ql-container) {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* 修复编辑器边框和圆角 */
+.form-item :deep(.ql-toolbar) {
+  border-radius: 6px 6px 0 0;
+}
+.form-item :deep(.ql-container) {
+  border-radius: 0 0 6px 6px;
+  min-height: 250px; /* 你原来设置 300px 可以写这里 */
+}
+
 </style>
