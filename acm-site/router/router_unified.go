@@ -7,7 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RouterInit(r *gin.Engine) {
+// RouterUnifiedInit 使用统一认证中间件的路由配置示例
+// 这是新版本的路由配置，使用统一的 token 管理
+// 可以逐步替换 router.go 中的旧配置
+func RouterUnifiedInit(r *gin.Engine) {
 	apiGroup := r.Group("/api")
 	{
 		// ======================== 公开接口（无需认证） ========================
@@ -34,11 +37,11 @@ func RouterInit(r *gin.Engine) {
 
 		// ======================== 需要认证的接口 ========================
 		auth := apiGroup.Group("/")
-		auth.Use(middleware.AuthMiddleware()) // 统一认证中间件
+		auth.Use(middleware.AuthMiddleware()) // 统一的认证中间件
 		{
 			// -------- 获取当前用户信息（任何登录用户都可以） --------
-			auth.GET("/admin/me", api.GetAdminInfo)
-			auth.GET("/user/info", api.GetUserInfo)
+			auth.GET("/admin/me", api.GetAdminInfo) // 管理员信息（兼容性）
+			auth.GET("/user/info", api.GetUserInfo) // 用户信息（兼容性）
 
 			// ======================== 管理员专属接口 ========================
 			admin := auth.Group("/admin")

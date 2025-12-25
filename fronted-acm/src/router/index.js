@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { isLoggedIn, hasRole } from '../utils/tokenManager'
 
 // 页面组件
 import HomePage from '../pages/HomePage/HomePage.vue'
@@ -34,21 +35,55 @@ const router = createRouter({
   routes
 })
 
-// 全局导航守卫（访问控制）
+// 全局导航守卫（访问控制）- 使用统一的 token 判断
 router.beforeEach((to, from, next) => {
   const isAdminPage = to.path.startsWith('/admin')
-  const isUserPage = to.path.startsWith('/student')
+  const isStudentPage = to.path.startsWith('/student')
+  const isMemberPage = to.path.startsWith('/member')
 
-  const adminToken = localStorage.getItem('admin_token')
-  const userToken = localStorage.getItem('user_token')
-
-  if (isAdminPage && !adminToken) {
-    next('/login') // 管理员未登录
-  } else if (isUserPage && !userToken) {
-    next('/login') // 用户未登录
-  } else {
-    next() // 放行
+  // 管理员页面：需要 admin 角色
+  if (isAdminPage) {
+    if (!hasRole('admin')) {
+      sessionStorage.setItem('redirect_after_login', to.fullPath)
+      next('/login')
+      return
+    }
   }
+
+  // 学生页面：需要 student 角色
+  if (isStudentPage) {
+    if (!hasRole('student')) {
+      sessionStorage.setItem('redirect_after_login', to.fullPath)
+      next('/login')
+      return
+    }
+  }
+
+  // 成员页面：需要任意登录角色
+  if (isMemberPage) {
+    if (!isLoggedIn()) {
+      sessionStorage.setItem('redirect_after_login', to.fullPath)
+      next('/login')
+      return
+    }
+  }
+
+  // 如果已登录访问登录页，跳转到对应的 dashboard
+  if (to.path === '/login' && isLoggedIn()) {
+    if (hasRole('admin')) {
+      next('/admin/dashboard')
+    } else if (hasRole('student')) {
+      next('/student/dashboard')
+    } else if (hasRole('member')) {
+      next('/member/dashboard')
+    } else {
+      next()
+    }
+    return
+  }
+
+  // 其他页面：放行
+  next()
 })
 
 export default router

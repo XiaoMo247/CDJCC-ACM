@@ -26,32 +26,36 @@ func AdminLogin(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&loginDetails); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": "请求数据不合法"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "请求数据不合法"})
 		return
 	}
 
 	var admin model.Admin
 	if err := database.DB.Where("username = ?", loginDetails.Username).First(&admin).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"msg": "用户名或密码错误"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "用户名或密码错误"})
 		return
 	}
 
 	if !utils.CheckPassword(loginDetails.Password, admin.Password) {
-		c.JSON(http.StatusUnauthorized, gin.H{"msg": "用户名或密码错误"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "用户名或密码错误"})
 		return
 	}
 
-	// 生成 token
-	token, err := jwt.GenerateToken(admin.ID, admin.Username)
+	// 使用统一的 token 生成函数
+	token, err := jwt.GenerateUnifiedToken(admin.ID, admin.Username, "admin")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"msg": "生成 token 失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "生成 token 失败"})
 		return
 	}
 
-	// 返回 token
+	// 返回统一格式：token + user 对象
 	c.JSON(http.StatusOK, gin.H{
-		"msg":   "登录成功",
 		"token": token,
+		"user": gin.H{
+			"id":       admin.ID,
+			"username": admin.Username,
+			"role":     "admin",
+		},
 	})
 }
 
@@ -89,8 +93,9 @@ func AddAdmin(c *gin.Context) {
 }
 
 func GetAdminInfo(c *gin.Context) {
-	username, _ := c.Get("adminUsername")
-	id, _ := c.Get("adminID")
+	// 从统一中间件获取用户信息
+	username, _ := c.Get("username")
+	id, _ := c.Get("user_id")
 
 	c.JSON(http.StatusOK, gin.H{
 		"msg":      "你是合法管理员",
@@ -115,8 +120,8 @@ func ListAdmins(c *gin.Context) {
 
 // 删除管理员接口（仅初代管理员可用）
 func DeleteAdmin(c *gin.Context) {
-	// 获取当前管理员 ID
-	adminIDVal, exists := c.Get("adminID")
+	// 从统一中间件获取当前管理员 ID
+	adminIDVal, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"msg": "无权限"})
 		return

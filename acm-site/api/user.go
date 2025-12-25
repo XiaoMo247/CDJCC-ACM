@@ -19,35 +19,37 @@ type UserLoginRequest struct {
 func UserLoginHandler(c *gin.Context) {
 	var req UserLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": "参数绑定失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "参数绑定失败"})
 		return
 	}
 
 	var user model.User
 	err := database.DB.Where("student_number = ?", req.StudentNumber).First(&user).Error
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"msg": "用户不存在"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "用户不存在"})
 		return
 	}
 
 	if !utils.CheckPassword(req.Password, user.Password) {
-		c.JSON(http.StatusUnauthorized, gin.H{"msg": "密码错误"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "密码错误"})
 		return
 	}
 
-	token, err := jwt.GenerateUserToken(user.ID, user.StudentNumber)
+	// 使用统一的 token 生成函数
+	token, err := jwt.GenerateUnifiedToken(user.ID, user.StudentNumber, "student")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"msg": "Token 生成失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Token 生成失败"})
 		return
 	}
 
+	// 返回统一格式：token + user 对象
 	c.JSON(http.StatusOK, gin.H{
-		"msg":   "登录成功",
 		"token": token,
 		"user": gin.H{
 			"id":             user.ID,
 			"student_number": user.StudentNumber,
 			"username":       user.Username,
+			"role":           "student",
 		},
 	})
 }
@@ -62,7 +64,8 @@ func ChangeUsername(c *gin.Context) {
 		return
 	}
 
-	userID, exists := c.Get("userID")
+	// 从统一中间件获取 user_id
+	userID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "未授权"})
 		return
@@ -87,7 +90,8 @@ func ChangePassword(c *gin.Context) {
 		return
 	}
 
-	userID, exists := c.Get("userID")
+	// 从统一中间件获取 user_id
+	userID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "未授权"})
 		return
@@ -103,7 +107,8 @@ func ChangePassword(c *gin.Context) {
 }
 
 func GetUserInfo(c *gin.Context) {
-	userID, exists := c.Get("userID")
+	// 从统一中间件获取 user_id
+	userID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"msg": "未登录"})
 		return

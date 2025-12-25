@@ -133,7 +133,7 @@ export default {
     },
     async fetchJoinApplies() {
       try {
-        const res = await request.get('/join/get')
+        const res = await request.get('/admin/join/get')
         this.joinApplies = res.data.applies || []
       } catch {
         ElMessage.error('获取申请数据失败')
@@ -171,7 +171,7 @@ export default {
     },
     async approveJoinApply(id) {
       try {
-        await request.put(`/join/ac/${id}`)
+        await request.put(`/admin/join/ac/${id}`)
         ElMessage.success('批准成功')
         this.fetchJoinApplies()
       } catch {
@@ -180,7 +180,7 @@ export default {
     },
     async rejectJoinApply(id) {
       try {
-        await request.put(`/join/wa/${id}`)
+        await request.put(`/admin/join/wa/${id}`)
         ElMessage.success('拒绝成功')
         this.fetchJoinApplies()
       } catch {
@@ -189,7 +189,7 @@ export default {
     },
     async viewDetails(row) {
       try {
-        const res = await request.get(`/join/${row.id}`)
+        const res = await request.get(`/admin/join/${row.id}`)
         this.selectedApply = res.data.apply
         this.dialogVisible = true
       } catch {

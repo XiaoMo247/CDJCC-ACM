@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
+    "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",
+    "dompurify": "^3.3.1",
     "element-plus": "^2.10.6",
     "mitt": "^3.0.1",
     "pinia": "^3.0.2",
