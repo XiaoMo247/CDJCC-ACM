@@ -163,7 +163,7 @@ export default {
 
 <style scoped>
 .admin-card {
-  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  background: linear-gradient(135deg, #e0f2fe, #c7d2fe);
   padding: 25px;
   border-radius: 15px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
@@ -179,7 +179,7 @@ export default {
   margin: 0 0 15px 0;
   display: flex;
   align-items: center;
-  color: #166534;
+  color: #1a365d;
 }
 
 .admin-card h1 i {

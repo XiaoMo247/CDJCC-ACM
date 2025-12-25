@@ -40,6 +40,9 @@
         <li :class="{ active: currentTab === 'slider' }" @click="changeTab('slider')">
           <i class="fas fa-images"></i> 轮播图管理
         </li>
+        <li :class="{ active: currentTab === 'honorwallmanage' }" @click="changeTab('honorwallmanage')">
+          <i class="fas fa-trophy"></i> 荣誉墙管理
+        </li>
       </ul>
     </div>
 
@@ -55,6 +58,7 @@
       <ContestManage v-if="currentTab === 'contest'" />
       <FAQManage v-if="currentTab === 'faq'" />
       <Slider v-if="currentTab === 'slider'" />
+      <HonorWallManage v-if="currentTab === 'honorwallmanage'" />
     </div>
 
     <!-- 移动端遮罩层 -->
@@ -73,6 +77,7 @@ import StudentManage from '@/components/admin/StudentManage.vue'
 import ContestManage from '@/components/admin/ContestManage.vue'
 import FAQManage from '@/components/admin/FAQManage.vue'
 import Slider from '@/components/admin/Slider.vue'
+import HonorWallManage from '@/components/admin/HonorWallManage.vue'
 
 export default {
   name: 'AdminDashboard',
@@ -86,6 +91,7 @@ export default {
     ContestManage,
     FAQManage,
     Slider,
+    HonorWallManage,
   },
   data() {
     return {

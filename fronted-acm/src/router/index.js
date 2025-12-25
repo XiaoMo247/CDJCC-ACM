@@ -11,6 +11,8 @@ import AdminDashboard from '../pages/admin/Dashboard.vue'
 import StudentDashboard from '../pages/student/Dashboard.vue'
 import ForgotPasswordPage from '../pages/ForgotPassword.vue'
 import MemberDashboard from '../pages/member/Dashboard.vue'
+import AnnouncementAndNews from '../pages/AnnouncementsAndNews.vue'
+import HonorWall from '../pages/HonorWall.vue'
 
 const routes = [
   { path: '/', component: HomePage },
@@ -23,6 +25,8 @@ const routes = [
   { path: '/student/dashboard', component: StudentDashboard },
   { path: '/forgot-password', component: ForgotPasswordPage },
   { path: '/member/dashboard', component: MemberDashboard },
+  { path: '/announcement-and-news', component: AnnouncementAndNews},
+  { path: '/honor-wall', component: HonorWall},
 ]
 
 const router = createRouter({

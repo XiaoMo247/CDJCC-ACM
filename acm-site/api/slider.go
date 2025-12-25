@@ -4,15 +4,25 @@ import (
 	"acm-site/model"
 	"acm-site/service"
 	"net/http"
+	"strconv"
 	"os"
 	"path/filepath"
-	"strconv"
-	"time"
-
 	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
+
+// 初始化静态文件路由
+func init() {
+	// 确保 uploads/sliders/ 目录存在
+	if err := os.MkdirAll("uploads/sliders/", os.ModePerm); err != nil {
+		panic("无法创建 uploads/sliders/ 目录: " + err.Error())
+	}
+
+	// 配置静态文件路由
+	router := gin.Default()
+	router.Static("/uploads/sliders", "./uploads/sliders")
+}
 
 // 获取轮播图列表
 func ListSliders(c *gin.Context) {
@@ -24,30 +34,9 @@ func ListSliders(c *gin.Context) {
 		})
 		return
 	}
-
-	// 确保返回的数据包含ID字段
-	type SliderResponse struct {
-		ID        uint      `json:"id"`
-		Title     string    `json:"title"`
-		Content   string    `json:"content"`
-		Image     string    `json:"image"`
-		CreatedAt time.Time `json:"created_at"`
-	}
-
-	var responseData []SliderResponse
-	for _, slider := range sliders {
-		responseData = append(responseData, SliderResponse{
-			ID:        slider.ID,
-			Title:     slider.Title,
-			Content:   slider.Content,
-			Image:     slider.Image,
-			CreatedAt: slider.CreatedAt,
-		})
-	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"message": "获取成功",
-		"data":    responseData,
+		"data":    sliders,
 	})
 }
 
