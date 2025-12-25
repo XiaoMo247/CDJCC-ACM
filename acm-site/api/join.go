@@ -11,8 +11,8 @@ import (
 
 // 提交申请表
 func SubmitJoinApplyHandler(c *gin.Context) {
-	// 从上下文中获取 userID（由中间件注入）
-	userIDAny, exists := c.Get("userID")
+	// 从统一中间件获取 user_id
+	userIDAny, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "未登录"})
 		return
@@ -38,7 +38,8 @@ func SubmitJoinApplyHandler(c *gin.Context) {
 
 // 获取用户所有申请记录
 func GetMyJoinApplyHandler(c *gin.Context) {
-	userIDAny, exists := c.Get("userID") // JWT 中间件已注入 user_id
+	// 从统一中间件获取 user_id
+	userIDAny, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "用户未认证"})
 		return

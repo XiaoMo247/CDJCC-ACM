@@ -25,31 +25,38 @@ func StudentLogin(c *gin.Context) {
 		return
 	}
 
-	// 生成 JWT Token
-	token, err := jwt.GenerateStudentToken(student.ID, student.StudentID)
+	// 使用统一的 token 生成函数
+	token, err := jwt.GenerateUnifiedToken(student.ID, student.StudentID, "member")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "生成 token 失败"})
 		return
 	}
 
+	// 返回统一格式：token + user 对象
 	c.JSON(http.StatusOK, gin.H{
 		"code":  200,
 		"msg":   "登录成功",
 		"token": token,
-		"data": gin.H{
+		"user": gin.H{
 			"id":         student.ID,
 			"username":   student.Username,
 			"student_id": student.StudentID,
+			"role":       "member",
 		},
 	})
 }
 
 // 获取当前学生信息
 func GetStudentInfo(c *gin.Context) {
-	studentID := c.GetUint("student_id")
+	// 从统一中间件获取 user_id
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "未授权"})
+		return
+	}
 
 	var student model.TeamMember
-	if err := database.DB.First(&student, studentID).Error; err != nil {
+	if err := database.DB.First(&student, userID.(uint)).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "msg": "学生不存在"})
 		return
 	}
@@ -82,9 +89,15 @@ func UpdateStudentPassword(c *gin.Context) {
 		return
 	}
 
-	studentID := c.GetUint("student_id")
+	// 从统一中间件获取 user_id
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "未授权"})
+		return
+	}
+
 	var student model.TeamMember
-	if err := database.DB.First(&student, studentID).Error; err != nil {
+	if err := database.DB.First(&student, userID.(uint)).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "msg": "学生不存在"})
 		return
 	}
@@ -112,9 +125,15 @@ func UpdateStudentUsername(c *gin.Context) {
 		return
 	}
 
-	studentID := c.GetUint("student_id")
+	// 从统一中间件获取 user_id
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "未授权"})
+		return
+	}
+
 	var student model.TeamMember
-	if err := database.DB.First(&student, studentID).Error; err != nil {
+	if err := database.DB.First(&student, userID.(uint)).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "msg": "学生不存在"})
 		return
 	}
@@ -139,9 +158,15 @@ func UpdateStudentInfo(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetUint("student_id") // 从 JWT 提取学生 ID
+	// 从统一中间件获取 user_id
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "未授权"})
+		return
+	}
+
 	var student model.TeamMember
-	if err := database.DB.First(&student, userID).Error; err != nil {
+	if err := database.DB.First(&student, userID.(uint)).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "msg": "用户不存在"})
 		return
 	}

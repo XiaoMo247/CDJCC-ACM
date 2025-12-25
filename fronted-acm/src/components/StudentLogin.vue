@@ -24,6 +24,7 @@
 import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import emitter from '@/utils/eventBus'
+import { saveToken, startTokenRefresh } from '@/utils/tokenManager'
 
 export default {
   name: 'StudentLogin',
@@ -41,12 +42,37 @@ export default {
           password: this.password
         })
 
-        const token = res.data.token
-        localStorage.setItem('user_token', token)
-        emitter.emit('loginChange', { role: 'user' })
+        // 后端应该返回: { token, user: { id, student_number, role: 'student', ... } }
+        const { token, user } = res.data
+
+        // 如果后端没有返回 user 对象，临时构造一个
+        const userInfo = user || {
+          student_number: this.student_number,
+          role: 'student'
+        }
+
+        // 使用统一的 token 存储
+        saveToken(token, userInfo)
+
+        emitter.emit('loginChange', { role: 'student', user: userInfo })
+
+        // 启动 token 自动刷新
+        startTokenRefresh()
 
         ElMessage.success('登录成功！')
-        this.$router.push('/student/dashboard')
+
+        // 获取登录前访问的页面路径
+        const redirectPath = sessionStorage.getItem('redirect_after_login')
+
+        if (redirectPath) {
+          // 清除已保存的路径
+          sessionStorage.removeItem('redirect_after_login')
+          // 跳转到之前的页面
+          this.$router.push(redirectPath)
+        } else {
+          // 默认跳转到学生首页
+          this.$router.push('/student/dashboard')
+        }
       } catch (error) {
         console.error('登录失败:', error)
         ElMessage.error(error.response?.data?.message || '登录失败，请检查学号或密码')
