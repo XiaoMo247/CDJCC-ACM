@@ -1,0 +1,16 @@
+.p-4 {
+  padding: var(--spacing-4);
+}
+.p-5 {
+  padding: var(--spacing-5);
+}
+.mb-5 {
+  margin-bottom: var(--spacing-5);
+}
+.gap-4 {
+  gap: var(--spacing-4);
+}
+.gap-5 {
+  gap: var(--spacing-5);
+}
+

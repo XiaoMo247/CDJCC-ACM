@@ -1,10 +1,10 @@
 import axios from 'axios'
 import router from '../router'
 import { ElMessage } from 'element-plus'
-import { getToken, clearAuth, stopTokenRefresh } from './tokenManager'
+import { getToken, clearAuth } from './tokenManager'
 
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://localhost:8080',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
   timeout: 5000
 })
 
@@ -65,35 +65,12 @@ request.interceptors.response.use(
             }, 1000)
           })
         }
-      } else if (status === 500) {
-        ElMessage.error({
-          message: data?.message || '服务器错误，请稍后重试',
-          duration: 3000
-        })
-      } else if (status === 404) {
-        ElMessage.error({
-          message: '请求的资源不存在',
-          duration: 3000
-        })
-      } else if (status === 400) {
-        ElMessage.warning({
-          message: data?.message || '请求参数错误',
-          duration: 3000
-        })
       }
-    } else if (error.request) {
-      // 请求已发出但没有收到响应
-      ElMessage.error({
-        message: '网络连接失败，请检查网络',
-        duration: 3000
-      })
-    } else {
-      // 其他错误
-      ElMessage.error({
-        message: '请求失败: ' + error.message,
-        duration: 3000
-      })
+      // 注意：400, 404, 500 等业务错误由各组件在 catch 块中处理
+      // 拦截器只处理认证/授权错误（401/403）
     }
+    // 所有非 401/403 的错误都由各组件在 catch 块中处理
+    // 避免拦截器和组件重复显示错误提示
 
     return Promise.reject(error)
   }

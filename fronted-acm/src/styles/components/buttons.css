@@ -1,0 +1,29 @@
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3) var(--spacing-5);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-base) var(--ease-in-out);
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .btn,
+  button,
+  a[role='button'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+

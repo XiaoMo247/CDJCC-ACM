@@ -115,10 +115,10 @@ export default {
 
       try {
         if (this.editingId) {
-          await request.put(`/announcement/update/${this.editingId}`, this.form)
+          await request.put(`/admin/announcement/update/${this.editingId}`, this.form)
           ElMessage.success('公告更新成功')
         } else {
-          await request.post('/announcement/create', this.form)
+          await request.post('/admin/announcement/create', this.form)
           ElMessage.success('公告创建成功')
         }
         this.resetForm()
@@ -149,7 +149,7 @@ export default {
           confirmButtonClass: 'confirm-delete-btn',
           cancelButtonClass: 'cancel-delete-btn'
         })
-        await request.delete(`/announcement/delete/${id}`)
+        await request.delete(`/admin/announcement/delete/${id}`)
         ElMessage.success('删除成功')
         this.fetchAnnouncements()
       } catch (err) {
@@ -166,33 +166,6 @@ export default {
 </script>
 
 <style scoped>
-.admin-card {
-  background: linear-gradient(135deg, #e0f2fe, #c7d2fe);
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
-  color: #1e293b;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-.admin-card h1 {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 0 0 15px 0;
-  display: flex;
-  align-items: center;
-  color: #1a365d;
-}
-
-.admin-card h1 i {
-  margin-right: 20px;
-  width: 20px;
-  height: 20px;
-  color: #4a5568;
-}
-
 .form-container {
   background-color: rgba(255, 255, 255, 0.7);
   padding: 20px;

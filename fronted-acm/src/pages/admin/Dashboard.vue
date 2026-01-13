@@ -1,5 +1,4 @@
 <template>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <div class="admin-dashboard">
     <!-- 移动端顶部导航栏 -->
     <div class="mobile-navbar" v-if="isMobile">

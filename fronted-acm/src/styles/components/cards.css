@@ -1,0 +1,39 @@
+/* 管理后台卡片样式（供所有 admin 组件复用） */
+.admin-card {
+  background: var(--gradient-admin-card);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  color: var(--color-gray-800);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.admin-card h1 {
+  font-size: var(--font-2xl);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--spacing-4) 0;
+  display: flex;
+  align-items: center;
+  color: #1a365d;
+}
+
+.admin-card h1 i {
+  margin-right: var(--spacing-5);
+  width: 20px;
+  height: 20px;
+  color: var(--color-gray-600);
+}
+
+@media (max-width: 768px) {
+  .admin-card {
+    padding: var(--spacing-4);
+    gap: var(--spacing-4);
+  }
+
+  .admin-card h1 {
+    font-size: var(--font-xl);
+  }
+}
+

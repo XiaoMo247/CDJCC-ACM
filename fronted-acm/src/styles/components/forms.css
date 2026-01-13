@@ -1,0 +1,62 @@
+/* 登录表单样式（Admin/Student/Member 共用） */
+.auth-form {
+  padding: 0 var(--spacing-3);
+}
+
+.auth-form .form-group {
+  margin-bottom: var(--spacing-5);
+}
+
+.auth-form .form-group label {
+  display: block;
+  margin-bottom: var(--spacing-2);
+  color: var(--color-gray-600);
+  font-size: var(--font-sm);
+}
+
+.auth-form .form-group input {
+  width: 95%;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-base);
+  transition: border-color var(--duration-base) var(--ease-in-out),
+    box-shadow var(--duration-base) var(--ease-in-out);
+}
+
+.auth-form .form-group input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.auth-form .form-group input:disabled {
+  background-color: var(--color-gray-100);
+  cursor: not-allowed;
+}
+
+.auth-form .submit-btn {
+  width: 100%;
+  padding: var(--spacing-3);
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-base);
+  cursor: pointer;
+  transition: background-color var(--duration-base) var(--ease-in-out),
+    transform var(--duration-base) var(--ease-in-out);
+}
+
+.auth-form .submit-btn:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.auth-form .submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-form .submit-btn i {
+  margin-right: var(--spacing-2);
+}
+

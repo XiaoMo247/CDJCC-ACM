@@ -1,17 +1,24 @@
-<template>
+  <template>
     <div class="join-card">
       <h1><i class="fas fa-edit"></i>加入申请表</h1>
   
       <!-- 提交申请表部分 -->
       <div class="form-container">
-        <el-form :model="form" label-width="100px" class="form-inline">
-          <el-form-item label="学号">
-            <el-input v-model="form.student_number" placeholder="请输入学号" size="large" clearable />
+        <el-form
+          ref="formRef"
+          :model="form"
+          :rules="rules"
+          label-width="100px"
+          class="form-inline"
+          status-icon
+        >
+          <el-form-item label="学号" prop="student_number">
+            <el-input v-model="form.student_number" placeholder="请输入9位学号" size="large" clearable maxlength="9" />
           </el-form-item>
-          <el-form-item label="QQ号">
-            <el-input v-model="form.qq_number" placeholder="请输入QQ号" size="large" clearable />
+          <el-form-item label="QQ号" prop="qq_number">
+            <el-input v-model="form.qq_number" placeholder="请输入QQ号" size="large" clearable maxlength="11" />
           </el-form-item>
-          <el-form-item label="申请职位">
+          <el-form-item label="申请职位" prop="apply">
             <el-select v-model="form.apply" placeholder="请选择职位" size="large">
               <el-option label="队员" :value="0" />
               <el-option label="组织委员" :value="1" />
@@ -19,14 +26,14 @@
               <el-option label="网站运维" :value="3" />
             </el-select>
           </el-form-item>
-          <el-form-item label="真实姓名">
+          <el-form-item label="真实姓名" prop="name">
             <el-input v-model="form.name" placeholder="请输入真实姓名" size="large" clearable />
           </el-form-item>
-          <el-form-item label="自我介绍" class="form-item">
+          <el-form-item label="自我介绍" class="form-item" prop="text">
             <el-input
               v-model="form.text"
               type="textarea"
-              placeholder="介绍一下自己~"
+              placeholder="请简述申请理由（至少10字）"
               :rows="3"
               resize="none"
               size="large"
@@ -34,7 +41,7 @@
             />
           </el-form-item>
   
-          <el-button type="primary" @click="submitApply" size="large" class="submit-btn">
+          <el-button type="primary" @click="submitApply" size="large" class="submit-btn" :loading="submitLoading" :disabled="submitLoading">
             <i class="fas fa-paper-plane"></i> 提交申请
           </el-button>
         </el-form>
@@ -42,7 +49,7 @@
   
       <!-- 申请记录部分 -->
       <h2><i class="fas fa-list"></i>我的申请记录</h2>
-      <el-table :data="myApplies" style="width: 100%" class="apply-table" stripe border>
+      <el-table :data="myApplies" style="width: 100%" class="apply-table" stripe border v-loading="appliesLoading">
         <el-table-column prop="name" label="姓名" align="center" />
         <el-table-column prop="student_number" label="学号" align="center" />
         <el-table-column prop="qq_number" label="QQ号" align="center" />
@@ -73,9 +80,27 @@
   import { ElMessage } from 'element-plus'
   import dayjs from 'dayjs'
   
-  export default {
+export default {
     name: 'StudentJoinForm',
     data() {
+      const validateStudentNumber = (rule, value, callback) => {
+        if (!value) return callback(new Error('请输入学号'))
+        if (!/^\d{9}$/.test(value)) return callback(new Error('学号必须是9位数字'))
+        callback()
+      }
+
+      const validateQQ = (rule, value, callback) => {
+        if (!value) return callback(new Error('请输入QQ号'))
+        if (!/^[1-9]\d{4,10}$/.test(value)) return callback(new Error('请输入有效的QQ号'))
+        callback()
+      }
+
+      const validateReason = (rule, value, callback) => {
+        if (!value) return callback(new Error('请填写自我介绍'))
+        if (value.length < 10) return callback(new Error('自我介绍至少10个字'))
+        callback()
+      }
+
       return {
         form: {
           student_number: '',
@@ -84,6 +109,30 @@
           name: '',
           text: ''
         },
+        rules: {
+          student_number: [{ required: true, validator: validateStudentNumber, trigger: 'blur' }],
+          qq_number: [{ required: true, validator: validateQQ, trigger: 'blur' }],
+          apply: [
+            {
+              required: true,
+              validator: (rule, value, callback) => {
+                if (value === '' || value === null || value === undefined) {
+                  callback(new Error('请选择申请职位'))
+                  return
+                }
+                callback()
+              },
+              trigger: 'change'
+            }
+          ],
+          name: [
+            { required: true, message: '请输入姓名', trigger: 'blur' },
+            { min: 2, max: 10, message: '姓名长度为2-10个字符', trigger: 'blur' }
+          ],
+          text: [{ required: true, validator: validateReason, trigger: 'blur' }]
+        },
+        submitLoading: false,
+        appliesLoading: false,
         myApplies: []
       }
     },
@@ -92,32 +141,36 @@
     },
     methods: {
       async submitApply() {
-        const { student_number, qq_number, apply, name, text } = this.form
-        if (!student_number || !qq_number || apply === '' || !name || !text) {
-          ElMessage.warning('请填写所有信息')
+        if (this.submitLoading) return
+
+        try {
+          await this.$refs.formRef.validate()
+        } catch {
+          ElMessage.warning('请正确填写所有必填项')
           return
         }
+
+        this.submitLoading = true
         try {
           await request.post('/join/send', this.form)
           ElMessage.success('申请提交成功')
-          this.form = {
-            student_number: '',
-            qq_number: '',
-            apply: '',
-            name: '',
-            text: ''
-          }
+          this.$refs.formRef.resetFields()
           this.getMyApplies()
         } catch (err) {
           ElMessage.error(err.response?.data?.message || '提交失败')
+        } finally {
+          this.submitLoading = false
         }
       },
       async getMyApplies() {
+        this.appliesLoading = true
         try {
           const res = await request.get('/join/my')
           this.myApplies = res.data.data || []
         } catch (err) {
           ElMessage.error('获取申请记录失败')
+        } finally {
+          this.appliesLoading = false
         }
       },
       formatDate(date) {

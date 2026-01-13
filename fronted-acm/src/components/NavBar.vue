@@ -1,27 +1,41 @@
 <template>
-    <nav class="navbar">
+    <nav class="navbar" role="navigation" aria-label="主导航" @keydown.esc="closeMobileMenu">
         <!-- 品牌标志区域 -->
-        <div class="navbar-brand" @click="$router.push('/')">
+        <router-link to="/" class="navbar-brand" aria-label="返回首页" @click="closeMobileMenu">
             <img src="@/assets/acm-logo.jpg" alt="ACM集训队Logo" class="brand-logo" />
             <div class="brand-text">
                 <div class="school-name">成都锦城学院</div>
                 <div class="team-name">ACM集训队</div>
             </div>
             <img src="@/assets/acm-icon.png" alt="ACM图标" class="acm-icon" />
-        </div>
+        </router-link>
 
         <!-- 移动端汉堡菜单按钮 -->
-        <div class="hamburger" @click="toggleMobileMenu" :class="{ 'active': mobileMenuActive }">
+        <button
+            type="button"
+            class="hamburger"
+            @click="toggleMobileMenu"
+            :class="{ 'active': mobileMenuActive }"
+            :aria-expanded="mobileMenuActive"
+            aria-controls="primary-navigation"
+            :aria-label="mobileMenuActive ? '关闭导航菜单' : '打开导航菜单'"
+        >
             <div class="bar"></div>
             <div class="bar"></div>
             <div class="bar"></div>
-        </div>
+        </button>
 
         <!-- 自适应间隔 -->
         <div class="spacer1"></div>
 
         <!-- 导航链接 -->
-        <ul class="nav-links" :class="{ 'mobile-active': mobileMenuActive }">
+        <ul
+            id="primary-navigation"
+            class="nav-links"
+            :class="{ 'mobile-active': mobileMenuActive }"
+            aria-label="主导航链接"
+            :aria-hidden="isMobileView ? (!mobileMenuActive).toString() : 'false'"
+        >
             <li><router-link to="/" @click="closeMobileMenu">首页</router-link></li>
             <li><router-link to="/announcement-and-news" @click="closeMobileMenu">公告与新闻</router-link></li>
             <li><router-link to="/knowledge" @click="closeMobileMenu">知识库</router-link></li>
@@ -47,7 +61,7 @@
             <router-link v-else to="/student/dashboard" class="control-panel-btn" @click="closeMobileMenu">
                 学生控制面板
             </router-link>
-            <button class="logout-btn" @click="handleLogout">退出</button>
+            <button class="logout-btn" type="button" @click="handleLogout" aria-label="退出登录">退出</button>
         </div>
 
         <router-link v-else to="/login" class="login-btn" :class="{ 'mobile-active': mobileMenuActive }"
@@ -57,6 +71,7 @@
 
 <script>
 import emitter from '@/utils/eventBus'
+import { isLoggedIn, getCurrentRole, clearAuth } from '@/utils/tokenManager'
 
 export default {
     name: 'NavBar',
@@ -64,7 +79,8 @@ export default {
         return {
             role: null,
             isLoggedIn: false,
-            mobileMenuActive: false
+            mobileMenuActive: false,
+            isMobileView: false
         }
     },
     mounted() {
@@ -81,19 +97,9 @@ export default {
     },
     methods: {
         syncLoginState() {
-            const memberToken = localStorage.getItem('member_token')
-            const adminToken = localStorage.getItem('admin_token')
-            const userToken = localStorage.getItem('user_token')
-
-            if (memberToken) {
-                this.role = 'member'
-                this.isLoggedIn = true
-            } else if (adminToken) {
-                this.role = 'admin'
-                this.isLoggedIn = true
-            } else if (userToken) {
-                const userRole = localStorage.getItem('user_role') || 'user'
-                this.role = userRole
+            // 使用统一的 token 管理器检查登录状态
+            if (isLoggedIn()) {
+                this.role = getCurrentRole()
                 this.isLoggedIn = true
             } else {
                 this.role = null
@@ -101,11 +107,8 @@ export default {
             }
         },
         handleLogout() {
-            localStorage.removeItem('member_token')
-            localStorage.removeItem('admin_token')
-            localStorage.removeItem('user_token')
-            localStorage.removeItem('user_role')
-            localStorage.removeItem('member_info') // 删除队员信息
+            // 使用统一的清除方法
+            clearAuth()
             this.syncLoginState()
             emitter.emit('loginChange', { role: null })
             this.$router.push('/login')
@@ -118,7 +121,8 @@ export default {
         },
         handleResize() {
             // 在窗口大小变化时，如果宽度大于768px且菜单是打开的，则关闭菜单
-            if (window.innerWidth > 768 && this.mobileMenuActive) {
+            this.isMobileView = window.innerWidth <= 768
+            if (!this.isMobileView && this.mobileMenuActive) {
                 this.mobileMenuActive = false
             }
         }
@@ -134,14 +138,13 @@ export default {
     left: 0;
     right: 0;
     height: 80px;
-    background: linear-gradient(90deg, #f8fafc, #e2e8f0, #cbd5e1);
-    color: #1e293b;
+    background: var(--gradient-navbar);
+    color: var(--color-gray-800);
     display: flex;
     align-items: center;
     padding: 0 2rem;
-    z-index: 1000;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04),
-        0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    z-index: var(--z-navbar);
+    box-shadow: var(--shadow-navbar);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -169,7 +172,7 @@ export default {
 }
 
 .nav-links a {
-    color: #1e293b;
+    color: var(--color-gray-800);
     text-decoration: none;
     font-weight: 500;
     font-size: 1rem;
@@ -179,7 +182,7 @@ export default {
 }
 
 .nav-links a:not(.login-btn):hover {
-    color: #3498db;
+    color: var(--color-primary);
 }
 
 .nav-links a:not(.login-btn)::after {
@@ -189,7 +192,7 @@ export default {
     left: 0;
     width: 0;
     height: 2px;
-    background-color: #3498db;
+    background-color: var(--color-primary);
     transition: width 0.3s ease;
 }
 
@@ -197,25 +200,35 @@ export default {
     width: 100%;
 }
 
+/* 导航链接激活状态 */
+.nav-links a.router-link-active {
+    color: var(--color-primary, #3498db);
+    font-weight: 600;
+}
+
+.nav-links a.router-link-active:not(.login-btn)::after {
+    width: 100%;
+    background-color: var(--color-primary, #3498db);
+}
+
 /* 按钮基础样式 */
 .login-btn,
 .control-panel-btn {
     position: relative;
-    background: linear-gradient(135deg, #3B82F6, #3498db);
-    color: white !important;
-    padding: 0.75rem 1.75rem !important;
-    border-radius: 12px;
-    font-weight: 600 !important;
+    background: var(--gradient-btn-primary);
+    color: var(--color-white);
+    padding: 0.75rem 1.75rem;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
     font-size: 1rem;
     text-decoration: none;
     border: none;
     cursor: pointer;
     overflow: hidden;
     box-shadow:
-        0 4px 6px rgba(59, 130, 246, 0.25),
-        0 1px 3px rgba(59, 130, 246, 0.1),
+        var(--shadow-button-primary),
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.4s var(--ease-bounce);
     z-index: 1;
     display: inline-flex;
     align-items: center;
@@ -231,7 +244,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #3498db, #1D4ED8);
+    background: var(--gradient-btn-primary);
     opacity: 0;
     transition: opacity 0.4s ease;
     z-index: -1;
@@ -266,6 +279,8 @@ export default {
     cursor: pointer;
     transition: all 0.3s ease;
     border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
 }
 
 .navbar-brand:hover {
@@ -328,20 +343,19 @@ export default {
 
 .logout-btn {
     position: relative;
-    background: linear-gradient(135deg, #EF4444, #f56c6c);
-    color: white;
+    background: var(--gradient-btn-danger);
+    color: var(--color-white);
     padding: 0.75rem 1.5rem;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     font-weight: 600;
     font-size: 1rem;
     border: none;
     cursor: pointer;
     overflow: hidden;
     box-shadow:
-        0 4px 6px rgba(239, 68, 68, 0.2),
-        0 1px 3px rgba(239, 68, 68, 0.1),
+        var(--shadow-button-danger),
         inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.4s var(--ease-bounce);
     z-index: 1;
     display: inline-flex;
     align-items: center;
@@ -384,18 +398,23 @@ export default {
 .hamburger {
     display: none;
     flex-direction: column;
-    justify-content: space-around;
-    width: 30px;
-    height: 25px;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    width: 48px;
+    height: 48px;
     cursor: pointer;
     z-index: 1001;
     margin-left: 15px;
+    background: none;
+    border: none;
+    padding: 0;
 }
 
 .hamburger .bar {
     height: 3px;
-    width: 100%;
-    background-color: #1e293b;
+    width: 30px;
+    background-color: var(--color-gray-800);
     border-radius: 3px;
     transition: all 0.3s ease;
 }
@@ -482,6 +501,12 @@ export default {
         margin: 0 auto;
         text-align: center;
         padding: 0.8rem !important;
+    }
+
+    .nav-links.mobile-active a.router-link-active {
+        background-color: rgba(52, 152, 219, 0.1);
+        color: var(--color-primary, #3498db);
+        border-left: 3px solid var(--color-primary, #3498db);
     }
 
     .control-panel-btn,

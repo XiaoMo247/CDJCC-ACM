@@ -167,33 +167,6 @@
   </script>
   
   <style scoped>
-  /* 保持与比赛管理页面一致的样式 */
-  .admin-card {
-    background: linear-gradient(135deg, #e0f2fe, #c7d2fe);
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
-    color: #1e293b;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-  }
-  
-  .admin-card h1 {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0 0 15px 0;
-    display: flex;
-    align-items: center;
-    color: #1a365d;
-  }
-  
-  .admin-card h1 i {
-    margin-right: 20px;
-    width: 20px;
-    height: 20px;
-  }
-  
   .form-container {
     background-color: rgba(255, 255, 255, 0.7);
     padding: 20px;

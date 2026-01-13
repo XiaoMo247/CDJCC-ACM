@@ -4,7 +4,7 @@
         <div class="profile-card">
             <div class="profile-header">
                 <div class="avatar-container">
-                    <el-avatar :size="120" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAllBMVEW/2OvF4vra5+shISFCQkLH4vnA2u7T5fDN5PXF3/O+1+vI5v5SW2IbGRgNBACZrsAHAADN6/+rxNkeHRw1OT02My/W5u7i7/OosrUXFBI4OjumvMyUp7WKmaU7OTdRU1N4hI1kbHIzMzNreIEuLStKUlexy+AqLTDI3euQo7GGlKBMTEsuKCHY6/Z/jJV2gYokHxpDRkrDp6E3AAACnklEQVR4nO3d0VbaQABF0ahVCUHBAFosRUAJVKm0//9z/YJ7H+7KWNt1znsyswN5yaxJqvMCDc50g/Cc9+acl+7AKhzQhjAJoQxhFMIkhDKEUQiTEMoQRiFMQihDGIUwCaEMYRTCJIQyhFEIkz5e+GBywutwvDLCSldvto+ql3FjZpNmhGdmolUsHC2mqokTFqmM8OZCdYsQIUKECBEiRIgQIUKECBEiRIgQIUKECP8n4W6iKyK80zVWWJvcMkL7TdddZdUG2O1Gsk1jJlqll9TN1F5S05UermknN6rF7M5MNBemjFgo7/spQoQIESJEiBAhQoQIESJEiBAhQoQIESL8lMKhzgtvVZO9FV6bSjy5P7gBTYcfS13tJhquPaUN4z0z8eX+Z4TDdEiEPYcQYRDCnkOIMAhhzyFEGISw5xAiDELYcwgRBiHsOYQIg9xZ7cPysEMs1MXCh++6185t1DANTO73vTcLHodY+LaSHdsC+2LSN52d21/RCZ++yOZt/0CECBEiRIgQIUKECBEiRIgQIUKECBEiRPjXhO6Zd9foigjN9zS80Gxx+Pm+lp2WY10XCodfw+w6kRvRvSRrZ/awhO/6asbHrezFvFtsX6dCc1iJ97U147m+8R/lcBfTGUKECBEiRIgQIUKECBEiRIgQIUKECBEiLClcyG8V+GfeZr3DCVd6vMXWCt2Te3fYSX9uYrTs2qjlxmTG21ihW+5xxzXmmyHr41z2y6w/PF+G21TcRGOh+dZ5877S/7atvp8Wz36qYQgRIkSIECFChAgRIkSIECFChAgRIkSIsJxw7YRT2WcT6prXtyfZ75lsf/pwYdrArGm43FJQjCgj1P9gG0KECBEiRIgQIUKECBEiRIgQIUKECBEiRIjQ9AeceaXi/L2vVwAAAABJRU5ErkJggg==" />
+                    <el-avatar :size="120" :src="defaultAvatar" />
                 </div>
                 <div class="user-info">
                     <h2 class="username">{{ studentInfo.username }}</h2>
@@ -79,6 +79,7 @@
 <script>
 import { ElMessage } from 'element-plus';
 import request from '@/utils/request';
+import defaultAvatar from '@/assets/user.png';
 
 export default {
     data() {
@@ -92,6 +93,7 @@ export default {
 
         return {
             activeTab: 'info',
+            defaultAvatar,
             studentInfo: {
                 student_id: '',
                 username: '',
@@ -128,19 +130,16 @@ export default {
     methods: {
         async fetchStudentInfo() {
             try {
-                const response = await request.get('/student/info', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('member_token')}`,
-                    },
-                });
+                const response = await request.get('/student/info');
+                const data = response.data?.data || {};
                 this.studentInfo = {
-                    student_id: response.data.data.StudentID,
-                    username: response.data.data.Username,
+                    student_id: data.StudentID || data.student_id || data.id || '',
+                    username: data.Username || data.username || data.name || '',
                 };
                 this.ojInfo = {
-                    cf_name: response.data.data.CfName || '',
-                    at_name: response.data.data.AtName || '',
-                    nc_id: response.data.data.NcID || '',
+                    cf_name: data.CfName || data.cf_name || '',
+                    at_name: data.AtName || data.at_name || '',
+                    nc_id: data.NcID || data.nc_id || '',
                 };
             } catch (error) {
                 ElMessage.error('获取用户信息失败: ' + (error.response?.data?.msg || error.message));
@@ -149,15 +148,7 @@ export default {
 
         async updateUsername() {
             try {
-                await request.post(
-                    '/student/update-username',
-                    { username: this.studentInfo.username },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('member_token')}`,
-                        },
-                    }
-                );
+                await request.post('/student/update-username', { username: this.studentInfo.username });
                 ElMessage.success('用户名更新成功');
             } catch (error) {
                 ElMessage.error('更新用户名失败: ' + (error.response?.data?.msg || error.message));
@@ -167,15 +158,7 @@ export default {
         async updatePassword() {
             try {
                 await this.$refs.passwordForm.validate();
-                await request.post(
-                    '/student/update-password',
-                    this.passwordForm,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('member_token')}`,
-                        },
-                    }
-                );
+                await request.post('/student/update-password', this.passwordForm);
                 ElMessage.success('密码更新成功，请重新登录');
                 this.$refs.passwordForm.resetFields();
             } catch (error) {
@@ -187,15 +170,7 @@ export default {
 
         async updateOJInfo() {
             try {
-                await request.post(
-                    '/student/update-info',
-                    this.ojInfo,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('member_token')}`,
-                        },
-                    }
-                );
+                await request.post('/student/update-info', this.ojInfo);
                 ElMessage.success('OJ账号信息更新成功');
             } catch (error) {
                 ElMessage.error('更新OJ账号信息失败: ' + (error.response?.data?.msg || error.message));

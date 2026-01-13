@@ -1,0 +1,4 @@
+:where(h1, h2, h3) {
+  line-height: var(--line-height-tight);
+}
+

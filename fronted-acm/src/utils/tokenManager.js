@@ -157,10 +157,14 @@ async function checkAndRefreshToken() {
 
     // 方式2: 使用静默验证（当前采用）
     const role = getCurrentRole()
-    let endpoint = '/user/me' // 默认端点
+    let endpoint = '/user/info' // 默认端点（学生）
 
     if (role === 'admin') {
       endpoint = '/admin/me'
+    }
+
+    if (role === 'member') {
+      endpoint = '/student/info'
     }
 
     await request.get(endpoint)

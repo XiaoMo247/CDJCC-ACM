@@ -1,6 +1,4 @@
 <template>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
   <div class="acm-homepage">
     <!-- 轮播图部分 -->
     <section class="carousel-section">
@@ -8,7 +6,7 @@
         :autoplay="true">
         <el-carousel-item v-for="(slider, index) in sliders" :key="index">
           <div class="carousel-item">
-            <img :src="slider.url" :alt="slider.title" class="carousel-image" />
+            <img :src="slider.url" :alt="slider.title" class="carousel-image" loading="lazy" />
             <div class="carousel-caption">
               <h3>{{ slider.title }}</h3>
               <p>{{ slider.description }}</p>
