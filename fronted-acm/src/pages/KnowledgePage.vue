@@ -30,7 +30,7 @@
         </div>
       </div>
 
-      <a class="link-card link-card--bilibili" href="https://space.bilibili.com/3546651937475184?spm_id_from=333.337.search-card.all.click"
+      <a class="link-card link-card--bilibili" :href="biliBiliUrl"
         target="_blank" rel="noreferrer">
         <div class="link-icon"><i class="fab fa-bilibili"></i></div>
         <div class="link-main">
@@ -39,7 +39,7 @@
         </div>
       </a>
 
-      <a class="link-card link-card--oj" href="https://hydro.ac/d/cdjcc_acm_2333/" target="_blank" rel="noreferrer">
+      <a class="link-card link-card--oj" :href="ojUrl" target="_blank" rel="noreferrer">
         <div class="link-icon"><i class="fas fa-laptop-code"></i></div>
         <div class="link-main">
           <div class="link-title">OJ 平台</div>
@@ -166,6 +166,10 @@ export default {
   data() {
     return {
       blogDialogVisible: false,
+      // 外部链接配置
+      biliBiliUrl: import.meta.env.VITE_BILIBILI_URL || 'https://space.bilibili.com/3546651937475184?spm_id_from=333.337.search-card.all.click',
+      ojUrl: import.meta.env.VITE_OJ_URL || 'https://hydro.ac/d/cdjcc_acm_2333/',
+
       teamBlogs: [
         {
           author: 'Martian148',

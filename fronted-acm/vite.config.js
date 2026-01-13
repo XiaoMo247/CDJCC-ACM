@@ -29,7 +29,7 @@ export default defineConfig(({ command }) => ({
   server: {
     proxy: {
       '/uploads': {
-        target: 'http://118.89.187.189:8081',
+        target: process.env.VITE_UPLOAD_TARGET || 'http://localhost:8081',
         changeOrigin: true
       }
     }

@@ -7,7 +7,7 @@
         <span>QQ群号：</span>
         <strong>932140807</strong>
       </div>
-      <a href="https://jq.qq.com/?_wv=1027&k=KoVRvLvL" target="_blank" class="join-qq">点我加群</a>
+      <a :href="qqGroupUrl" target="_blank" class="join-qq">点我加群</a>
     </div>
   </div>
 </template>
@@ -15,6 +15,11 @@
 <script>
 export default {
   name: 'ForgotPasswordPage',
+  data() {
+    return {
+      qqGroupUrl: import.meta.env.VITE_QQ_GROUP_URL || 'https://jq.qq.com/?_wv=1027&k=KoVRvLvL'
+    }
+  }
 };
 </script>
 

@@ -80,7 +80,7 @@ export default {
       selectedLevel: '',
       searchGrade: '',
       searchMajor: '',
-      defaultAvatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+      defaultAvatar: import.meta.env.VITE_DEFAULT_AVATAR || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
       
       // 筛选选项
       competitionOptions: [

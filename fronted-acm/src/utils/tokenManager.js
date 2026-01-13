@@ -13,11 +13,11 @@ import request from './request'
 // ==================== 常量定义 ====================
 
 // 统一的 token 存储键
-const TOKEN_KEY = 'auth_token'
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY || 'auth_token'
 // 用户信息存储键
-const USER_INFO_KEY = 'user_info'
-// Token 刷新间隔（50分钟）
-const REFRESH_INTERVAL = 50 * 60 * 1000
+const USER_INFO_KEY = import.meta.env.VITE_USER_INFO_KEY || 'user_info'
+// Token 刷新间隔（毫秒）
+const REFRESH_INTERVAL = parseInt(import.meta.env.VITE_TOKEN_REFRESH_INTERVAL || '3000000')
 
 // 定时器ID
 let refreshTimer = null
