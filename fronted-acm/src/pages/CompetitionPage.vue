@@ -1,7 +1,7 @@
 <template>
-    <div class="competition-page">
+    <div class="competition-page page-competition">
         <!-- 页面标题 -->
-        <div class="page-header">
+        <div class="page-header page-hero">
             <h1> <span style="font-size: 3rem;">🏆</span><span class="page-title">比赛信息中心</span></h1>
             <p class="page-subtitle">了解近期重要比赛，助力你的成长之路！</p>
         </div>
@@ -291,28 +291,32 @@ export default {
 
 /* 页面标题 */
 .page-header {
-    margin-bottom: 40px;
+    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+    margin-bottom: 60px;
     text-align: center;
-    padding: 20px 0;
-    /* background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%); */
-    /* border-radius: 12px; */
-    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); */
+    padding: 60px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    color: #92400e;
 }
 
 .page-title {
-    font-size: 3rem;
-    color: var(--dark-color);
-    margin-bottom: 2rem;
+    font-size: 2.8rem;
+    color: #92400e;
+    margin-bottom: 15px;
     text-align: center;
-    letter-spacing: 2px;
     font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    text-shadow: none;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
 }
 
 .page-subtitle {
-    font-size: 1.1rem;
-    color: #7f8c8d;
+    font-size: 1.125rem;
+    color: #b45309;
     max-width: 600px;
     margin: 0 auto;
     padding: 0 20px;
@@ -359,19 +363,19 @@ export default {
 .competition-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 30px;
-    padding: 10px;
+    gap: 32px;
+    padding: 0;
 }
 
 /* 比赛项 */
 .competition-item {
     background-color: #fff;
-    border-radius: 16px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    border: 1px solid #ebeef5;
+    border-left: 3px solid #fed7aa;
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -379,18 +383,29 @@ export default {
     position: relative;
 }
 
+.competition-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(254, 215, 170, 0.02) 0%, transparent 100%);
+    pointer-events: none;
+}
+
 .competition-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    border-color: #409EFF;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(254, 215, 170, 0.1);
+    border-left-color: #fdba74;
 }
 
 .competition-item.upcoming {
-    border-left: 4px solid #67C23A;
+    border-left-color: #fed7aa;
 }
 
 .competition-item.ended {
-    border-left: 4px solid #909399;
+    border-left-color: #d1d5db;
 }
 
 .time-badge {

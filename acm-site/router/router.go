@@ -10,13 +10,11 @@ import (
 func RouterInit(r *gin.Engine) {
 	apiGroup := r.Group("/api")
 	{
-		// ======================== 公开接口（无需认证） ========================
-		// 登录接口
+		// Public (no auth)
 		apiGroup.POST("/admin/login", api.AdminLogin)
 		apiGroup.POST("/user/login", api.UserLoginHandler)
 		apiGroup.POST("/student/login", api.StudentLogin)
 
-		// 公共查询接口
 		apiGroup.GET("/contest/list", api.GetAllContests)
 		apiGroup.GET("/faq/list", api.GetFAQList)
 		apiGroup.GET("/slider/list", api.ListSliders)
@@ -24,27 +22,30 @@ func RouterInit(r *gin.Engine) {
 		apiGroup.GET("/admin/team-members", api.GetAllTeamMembers)
 		apiGroup.GET("/announcement/list", api.ListAnnouncements)
 
-		// 课件资源（无需登录）
-		file := apiGroup.Group("/folder")
+		// Folder resources (public)
+		folder := apiGroup.Group("/folder")
 		{
-			file.GET("/files", api.ListFiles)
-			file.GET("/download/:id", api.DownloadFile)
-			file.GET("/list", api.ListFolders)
+			folder.GET("/files", api.ListFiles)
+			folder.GET("/download/:id", api.DownloadFile)
+			folder.GET("/list", api.ListFolders)
+			folder.GET("/tree", api.GetFolderTree)
+			folder.GET("/:id/content", api.GetFolderContent)
+			folder.GET("/:id/breadcrumb", api.GetFolderBreadcrumb)
+			folder.GET("/search", api.SearchPublic)
 		}
 
-		// ======================== 需要认证的接口 ========================
+		// Authenticated
 		auth := apiGroup.Group("/")
-		auth.Use(middleware.AuthMiddleware()) // 统一认证中间件
+		auth.Use(middleware.AuthMiddleware())
 		{
-			// -------- 获取当前用户信息（任何登录用户都可以） --------
 			auth.GET("/admin/me", api.GetAdminInfo)
 			auth.GET("/user/info", api.GetUserInfo)
 
-			// ======================== 管理员专属接口 ========================
+			// Admin-only
 			admin := auth.Group("/admin")
-			admin.Use(middleware.RequireAdmin()) // 要求管理员角色
+			admin.Use(middleware.RequireAdmin())
 			{
-				// -------- 学生账号管理 --------
+				// Students
 				admin.POST("/register-student", api.AdminRegisterStudent)
 				admin.GET("/team-member", api.GetStudentByID)
 				admin.DELETE("/delete-student", api.DeleteStudent)
@@ -52,46 +53,57 @@ func RouterInit(r *gin.Engine) {
 				admin.POST("/update-ratings", api.UpdateRatingsHandler)
 				admin.POST("/update-all-ratings", api.UpdateAllRatingsHandler)
 
-				// -------- 用户账号管理 --------
+				// Users
 				admin.POST("/register", api.AdminBatchRegisterHandler)
 				admin.GET("/get/all-user", api.AdminGetAllUserHandler)
 				admin.GET("/get/user", api.AdminGetUsersHandler)
 				admin.DELETE("/user/:id", api.AdminDeleteUserHandler)
 				admin.PUT("/user/reset/:id", api.AdminResetPasswordHandler)
 
-				// -------- 管理员账户管理 --------
+				// Admin accounts
 				admin.POST("/add", api.AddAdmin)
 				admin.DELETE("/delete/:id", api.DeleteAdmin)
 				admin.GET("/list", api.ListAdmins)
 
-				// -------- 比赛管理 --------
+				// Contests
 				admin.POST("/contest/upload", api.UploadContest)
 				admin.DELETE("/contest/:id", api.DeleteContest)
 
-				// -------- 文件夹管理 --------
+				// Folder manager (admin)
 				adminFolder := admin.Group("/folder")
 				{
+					// New nested folder APIs
+					adminFolder.GET("/tree", api.AdminGetFolderTree)
+					adminFolder.GET("/:id/content", api.AdminGetFolderContent)
+					adminFolder.GET("/:id/breadcrumb", api.AdminGetFolderBreadcrumb)
+					adminFolder.POST("/create", api.AdminCreateFolder)
+					adminFolder.POST("/:id/upload", api.AdminUploadFileToFolder)
+
+					// Legacy APIs (kept for backward compatibility)
 					adminFolder.POST("/upload", api.UploadFile)
 					adminFolder.DELETE("/file/:id", api.DeleteFile)
 					adminFolder.POST("/add", api.AddFolder)
 					adminFolder.DELETE("/delete/:id", api.DeleteFolder)
 				}
 
-				// -------- FAQ 管理 --------
+				admin.GET("/search", api.AdminSearch)
+				admin.POST("/item/move", api.AdminMoveItem)
+
+				// FAQ
 				adminFaq := admin.Group("/faq")
 				{
 					adminFaq.POST("/add", api.CreateFAQ)
 					adminFaq.DELETE("/delete/:id", api.DeleteFAQ)
 				}
 
-				// -------- 轮播图管理 --------
+				// Slider
 				slider := admin.Group("/slider")
 				{
 					slider.POST("/add", api.AddSlider)
 					slider.DELETE("/delete/:id", api.DeleteSlider)
 				}
 
-				// -------- 荣誉墙管理 --------
+				// Honor
 				honor := admin.Group("/honor")
 				{
 					honor.POST("", api.CreateHonor)
@@ -99,7 +111,7 @@ func RouterInit(r *gin.Engine) {
 					honor.PUT("/:id", api.UpdateHonor)
 				}
 
-				// -------- 公告管理 --------
+				// Announcement
 				announcement := admin.Group("/announcement")
 				{
 					announcement.POST("/create", api.CreateAnnouncement)
@@ -107,7 +119,7 @@ func RouterInit(r *gin.Engine) {
 					announcement.DELETE("/delete/:id", api.DeleteAnnouncement)
 				}
 
-				// -------- 申请审核 --------
+				// Join review
 				joinAdmin := admin.Group("/join")
 				{
 					joinAdmin.GET("/get", api.GetAllJoinAppliesHandler)
@@ -117,17 +129,17 @@ func RouterInit(r *gin.Engine) {
 				}
 			}
 
-			// ======================== 学生专属接口 ========================
+			// Student-only
 			user := auth.Group("/user")
-			user.Use(middleware.RequireStudent()) // 要求学生角色
+			user.Use(middleware.RequireStudent())
 			{
 				user.POST("/change-username", api.ChangeUsername)
 				user.POST("/change-password", api.ChangePassword)
 			}
 
-			// ======================== 队员专属接口 ========================
+			// Member-only
 			student := auth.Group("/student")
-			student.Use(middleware.RequireMember()) // 要求队员角色
+			student.Use(middleware.RequireMember())
 			{
 				student.GET("/info", api.GetStudentInfo)
 				student.POST("/update-password", api.UpdateStudentPassword)
@@ -135,9 +147,9 @@ func RouterInit(r *gin.Engine) {
 				student.POST("/update-info", api.UpdateStudentInfo)
 			}
 
-			// ======================== 申请模块（需要学生登录） ========================
+			// Join module (student)
 			join := auth.Group("/join")
-			join.Use(middleware.RequireStudent()) // 要求学生角色
+			join.Use(middleware.RequireStudent())
 			{
 				join.POST("/send", api.SubmitJoinApplyHandler)
 				join.GET("/my", api.GetMyJoinApplyHandler)

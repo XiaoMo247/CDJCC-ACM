@@ -8,6 +8,7 @@ import { ElMessage } from 'element-plus'
 
 // CSS 导入顺序：变量 -> reset -> 第三方库 -> 全局/组件/工具类
 import './styles/abstracts/variables.css'
+import './styles/abstracts/page-themes.css'
 import './styles/base/reset.css'
 import 'element-plus/dist/index.css'
 import './styles/base/global.css'

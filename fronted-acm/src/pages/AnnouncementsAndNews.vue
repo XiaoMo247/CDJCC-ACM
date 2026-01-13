@@ -1,7 +1,7 @@
 <template>
-  <div class="announcements-container">
+  <div class="announcements-container page-announcement">
     <!-- 标题区 -->
-    <div class="header">
+    <div class="header page-header page-hero">
       <h2><i class="fas fa-bell"></i> 团队公告</h2>
       <p class="subtitle">最新动态与重要通知</p>
     </div>
@@ -145,39 +145,74 @@ body {
 }
 
 .header {
+  background: linear-gradient(135deg, #a5f3fc 0%, #7dd3fc 100%);
+  color: #0c4a6e;
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 60px;
+  padding: 60px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .header h2 {
-  font-size: 28px;
-  color: #333;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.header h2 i {
+  font-size: 2.8rem;
 }
 
 .subtitle {
-  color: #888;
+  color: rgba(255, 255, 255, 0.95);
   margin-top: 10px;
+  font-size: 1.125rem;
 }
 
 .announcement-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
+  gap: 32px;
+  padding: 0;
 }
 
 .announcement-card {
   cursor: pointer;
-  transition: all 0.3s;
-  border-radius: 8px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  border-left: 3px solid #a5f3fc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.announcement-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(165, 243, 252, 0.02) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .announcement-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(165, 243, 252, 0.1);
+  border-left-color: #7dd3fc;
 }
 
 .card-content {
-  padding: 20px;
+  padding: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .card-header {

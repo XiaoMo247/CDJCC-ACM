@@ -1,5 +1,5 @@
 <template>
-  <div class="acm-homepage">
+  <div class="acm-homepage page-home">
     <!-- 轮播图部分 -->
     <section class="carousel-section">
       <el-carousel :interval="5000" height="500px" arrow="always" indicator-position="outside" trigger="click"

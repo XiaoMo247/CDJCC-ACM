@@ -1,0 +1,64 @@
+:root {
+  /* Default page theme (fallback) */
+  --page-primary: var(--color-primary);
+  --page-secondary: var(--color-primary-dark);
+  --page-light: var(--color-primary-lighter);
+  --page-primary-rgb: 52, 152, 219;
+}
+
+/* Home */
+.page-home {
+  --page-primary: #667eea;
+  --page-secondary: #764ba2;
+  --page-light: #e9ecef;
+  --page-primary-rgb: 102, 126, 234;
+}
+
+/* Announcement */
+.page-announcement {
+  --page-primary: #0ea5e9;
+  --page-secondary: #0284c7;
+  --page-light: #e0f2fe;
+  --page-primary-rgb: 14, 165, 233;
+}
+
+/* Knowledge */
+.page-knowledge {
+  --page-primary: #6366f1;
+  --page-secondary: #4f46e5;
+  --page-light: #e0e7ff;
+  --page-primary-rgb: 99, 102, 241;
+}
+
+/* Competition */
+.page-competition {
+  --page-primary: #f97316;
+  --page-secondary: #dc2626;
+  --page-light: #fed7aa;
+  --page-primary-rgb: 249, 115, 22;
+}
+
+/* Ranking */
+.page-ranking {
+  --page-primary: #eab308;
+  --page-secondary: #ca8a04;
+  --page-light: #fef08a;
+  --page-primary-rgb: 234, 179, 8;
+}
+
+/* Honor */
+.page-honor {
+  --page-primary: #a855f7;
+  --page-secondary: #7e22ce;
+  --page-light: #f3e8ff;
+  --page-primary-rgb: 168, 85, 247;
+}
+
+/* FAQ */
+.page-faq {
+  --page-primary: #10b981;
+  --page-secondary: #059669;
+  --page-light: #d1fae5;
+  --page-primary-rgb: 16, 185, 129;
+}
+

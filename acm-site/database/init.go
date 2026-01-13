@@ -15,11 +15,10 @@ import (
 
 var DB *gorm.DB
 
-// generateSecurePassword 生成安全的随机密码
 func generateSecurePassword(length int) string {
 	bytes := make([]byte, length)
 	if _, err := rand.Read(bytes); err != nil {
-		panic("生成随机密码失败: " + err.Error())
+		panic("failed to generate password: " + err.Error())
 	}
 	return base64.URLEncoding.EncodeToString(bytes)[:length]
 }
@@ -32,11 +31,10 @@ func InitDB() {
 	var err error
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("数据库连接失败: " + err.Error())
+		panic("database connection failed: " + err.Error())
 	}
 
-	// 自动迁移所有模型
-	err = DB.AutoMigrate(
+	if err := DB.AutoMigrate(
 		&model.Admin{},
 		&model.Announcement{},
 		&model.User{},
@@ -48,28 +46,28 @@ func InitDB() {
 		&model.FAQ{},
 		&model.Slider{},
 		&model.Honor{},
-	)
-
-	if err != nil {
-		panic("数据库迁移失败: " + err.Error())
+	); err != nil {
+		panic("database migration failed: " + err.Error())
 	}
 
-	// 初始化默认管理员
+	// Best-effort schema upgrade for legacy folders table.
+	ensureFolderSchema()
+
+	// Seed default admin account (admin/admin or generated).
 	var count int64
 	DB.Model(&model.Admin{}).Where("username = ?", "admin").Count(&count)
 	if count == 0 {
-		// 从环境变量读取初始密码，如果没有则生成随机密码
 		initialPassword := os.Getenv("INITIAL_ADMIN_PASSWORD")
 		if initialPassword == "" {
 			initialPassword = generateSecurePassword(16)
 			fmt.Println("=========================================")
-			fmt.Println("🔐 初代管理员已创建")
-			fmt.Println("   用户名: admin")
-			fmt.Println("   密码:", initialPassword)
-			fmt.Println("   ⚠️  请立即登录并修改密码！")
+			fmt.Println("Default admin created")
+			fmt.Println("  username: admin")
+			fmt.Println("  password:", initialPassword)
+			fmt.Println("  Please log in and change it ASAP.")
 			fmt.Println("=========================================")
 		} else {
-			fmt.Println("已使用环境变量 INITIAL_ADMIN_PASSWORD 创建管理员")
+			fmt.Println("Created default admin from INITIAL_ADMIN_PASSWORD")
 		}
 
 		admin := model.Admin{
@@ -79,3 +77,4 @@ func InitDB() {
 		DB.Create(&admin)
 	}
 }
+
