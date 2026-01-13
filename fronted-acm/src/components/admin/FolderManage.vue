@@ -104,6 +104,7 @@
 import { ElMessage, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import request from '@/utils/request'
+import { getToken } from '@/utils/tokenManager'
 
 export default {
   name: 'FolderManage',
@@ -115,13 +116,15 @@ export default {
         name: ''
       },
       dialogVisible: false,
-      currentFolderId: null,
-      uploadHeaders: {
-        'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}`
-      }
+      currentFolderId: null
     }
   },
   computed: {
+    uploadHeaders() {
+      const token = getToken()
+      if (!token) return {}
+      return { Authorization: `Bearer ${token}` }
+    },
     uploadUrl() {
       return `${request.defaults.baseURL}/admin/folder/upload`
     }
@@ -171,7 +174,7 @@ export default {
         return
       }
       try {
-        await request.post('/folder/add', { name: this.form.name })
+        await request.post('/admin/folder/add', { name: this.form.name })
         ElMessage.success('文件夹创建成功')
         this.form.name = ''
         this.fetchFolders()
@@ -187,7 +190,7 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         })
-        await request.delete(`/folder/delete/${id}`)
+        await request.delete(`/admin/folder/delete/${id}`)
         ElMessage.success('文件夹删除成功')
         this.fetchFolders()
       } catch (error) {
@@ -314,33 +317,6 @@ export default {
 </script>
 
 <style scoped>
-.admin-card {
-  background: linear-gradient(135deg, #e0f2fe, #c7d2fe);
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
-  color: #1e293b;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-.admin-card h1 {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 0 0 15px 0;
-  display: flex;
-  align-items: center;
-  color: #1a365d;
-}
-
-.admin-card h1 i {
-  margin-right: 20px;
-  width: 20px;
-  height: 20px;
-  color: #4a5568;
-}
-
 .form-container {
   background-color: rgba(255, 255, 255, 0.8);
   padding: 20px;

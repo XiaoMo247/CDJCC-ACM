@@ -1,5 +1,4 @@
 <template>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <div class="member-dashboard">
       <!-- 移动端菜单按钮 -->
       <div class="mobile-menu-btn" @click="toggleSidebar">
@@ -32,6 +31,7 @@
   import MemberAccountSettings from '@/components/member/MemberAccountSettings.vue'
   import request from '@/utils/request'
   import { ElMessage } from 'element-plus'
+  import { isLoggedIn } from '@/utils/tokenManager'
   
   export default {
     name: 'MemberDashboard',
@@ -52,18 +52,15 @@
     methods: {
       async fetchUsername() {
         try {
-          const token = localStorage.getItem('member_token')
-          if (!token) {
+          if (!isLoggedIn()) {
             ElMessage.error('未登录，请重新登录')
             this.Username = '未登录'
             return
           }
-          const res = await request.get('/student/info', {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          })
-          this.Username = res.data.data.Username || '未知队员'
+
+          const res = await request.get('/student/info')
+          const data = res.data?.data || {}
+          this.Username = data.Username || data.username || data.name || '未知队员'
         } catch (err) {
           ElMessage.error('获取用户名失败')
           this.Username = '未登录'

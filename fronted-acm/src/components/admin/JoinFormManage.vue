@@ -201,33 +201,6 @@ export default {
 </script>
 
 <style scoped>
-.admin-card {
-  background: linear-gradient(135deg, #e0f2fe, #c7d2fe);
-  padding: 15px;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
-  color: #1e293b;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.admin-card h1 {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 0 0 10px 0;
-  display: flex;
-  align-items: center;
-  color: #1a365d;
-}
-
-.admin-card h1 i {
-  margin-right: 15px;
-  width: 18px;
-  height: 18px;
-  color: #4a5568;
-}
-
 .admin-card h2 {
   font-size: 18px;
   font-weight: bold;
@@ -332,14 +305,6 @@ export default {
 
 /* 移动端适配 */
 @media screen and (max-width: 768px) {
-  .admin-card {
-    padding: 12px;
-  }
-  
-  .admin-card h1 {
-    font-size: 18px;
-  }
-  
   .admin-card h2 {
     font-size: 16px;
   }
