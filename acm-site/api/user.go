@@ -26,12 +26,12 @@ func UserLoginHandler(c *gin.Context) {
 	var user model.User
 	err := database.DB.Where("student_number = ?", req.StudentNumber).First(&user).Error
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": "用户不存在"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "用户不存在"})
 		return
 	}
 
 	if !utils.CheckPassword(req.Password, user.Password) {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": "密码错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "密码错误"})
 		return
 	}
 

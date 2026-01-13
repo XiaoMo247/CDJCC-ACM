@@ -32,12 +32,12 @@ func AdminLogin(c *gin.Context) {
 
 	var admin model.Admin
 	if err := database.DB.Where("username = ?", loginDetails.Username).First(&admin).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": "用户名或密码错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "用户名或密码错误"})
 		return
 	}
 
 	if !utils.CheckPassword(loginDetails.Password, admin.Password) {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": "用户名或密码错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": "用户名或密码错误"})
 		return
 	}
 

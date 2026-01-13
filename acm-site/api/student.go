@@ -21,7 +21,7 @@ func StudentLogin(c *gin.Context) {
 
 	student, err := loginService.Login(database.DB)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "msg": err.Error(), "message": err.Error()})
 		return
 	}
 
