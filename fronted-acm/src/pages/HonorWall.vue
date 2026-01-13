@@ -1,5 +1,13 @@
 <template>
-  <div class="honor-wall">
+  <div class="honor-wall page-honor">
+    <div class="page-header page-hero">
+      <h1 class="page-title">
+        <span class="page-title-icon"><i class="fas fa-star"></i></span>
+        荣誉墙
+      </h1>
+      <p class="page-subtitle">记录每一次突破与成长，向优秀的队员致敬</p>
+    </div>
+
     <div class="filters">
       <!-- 赛事筛选（按钮组） -->
       <div class="competition-buttons">
@@ -13,7 +21,7 @@
         </el-button>
       </div>
 
-      <!-- 其他筛选（下拉框） -->
+      <!-- 其他筛选（下拉框+姓名搜索） -->
       <div class="dropdown-filters">
         <el-select v-model="searchYear" placeholder="全部年份" class="filter-item" clearable>
           <el-option v-for="year in yearOptions" :key="year" :label="year" :value="year" />
@@ -31,9 +39,6 @@
           <el-option v-for="major in majorOptions" :key="major" :label="major" :value="major" />
         </el-select>
       </div>
-
-      <!-- 姓名搜索 -->
-      <el-input v-model="searchName" placeholder="学生姓名" class="name-search" clearable />
     </div>
 
     <div class="honor-list">
@@ -75,7 +80,6 @@ export default {
       selectedLevel: '',
       searchGrade: '',
       searchMajor: '',
-      searchName: '',
       defaultAvatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
       
       // 筛选选项
@@ -112,8 +116,7 @@ export default {
           (this.searchYear === '' || honor.year.toString() === this.searchYear.toString()) &&
           (this.selectedLevel === '' || honor.level === this.selectedLevel) &&
           (this.searchGrade === '' || honor.grade.toString() === this.searchGrade.toString()) &&
-          (this.searchMajor === '' || honor.major === this.searchMajor) &&
-          (this.searchName === '' || honor.name.includes(this.searchName))
+          (this.searchMajor === '' || honor.major === this.searchMajor)
         );
       });
     }
@@ -153,126 +156,221 @@ export default {
 </script>
 
 <style scoped>
+.page-honor {
+  padding: 0;
+}
+
+.page-hero {
+  background: linear-gradient(135deg, #d8b4fe 0%, #c084fc 100%);
+  padding: 60px 20px;
+  text-align: center;
+  color: #6b21a8;
+  margin-bottom: 60px;
+}
+
+.page-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0 0 15px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.page-title-icon {
+  font-size: 3.5rem;
+}
+
+.page-subtitle {
+  font-size: 1.25rem;
+  opacity: 0.95;
+  margin: 0;
+}
+
 .honor-wall {
-  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px 60px;
 }
 
 .filters {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-bottom: 30px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 50px;
 }
 
 .competition-buttons {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
+  margin-bottom: 25px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.competition-buttons .el-button {
+  border-radius: 20px;
+  padding: 8px 20px;
 }
 
 .dropdown-filters {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  align-items: center;
+  gap: 15px;
   flex-wrap: wrap;
+  margin-bottom: 0;
 }
 
 .filter-item {
-  width: 150px;
-}
-
-.name-search {
-  width: 200px;
-  margin: 0 auto;
+  min-width: 140px;
 }
 
 .honor-list {
-  text-align: center;
+  margin-top: 40px;
 }
 
 .list-title {
-  font-size: 24px;
-  margin-bottom: 20px;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 40px;
   color: #333;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.list-title::before {
+  content: '✨';
+  font-size: 2rem;
 }
 
 .honor-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  justify-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
+  padding: 0;
 }
 
 .honor-item {
-  border: 1px solid #ddd;
-  padding: 15px;
-  border-radius: 8px;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
   display: flex;
-  gap: 15px;
-  width: 100%;
-  max-width: 350px;
-  transition: all 0.3s;
-  background-color: white;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-left: 3px solid #d8b4fe;
+  position: relative;
+  overflow: hidden;
+}
+
+.honor-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(216, 180, 254, 0.02) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .honor-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(216, 180, 254, 0.1);
+  border-left-color: #c084fc;
 }
 
-.avatar-placeholder {
-  width: 80px;
-  height: 80px;
+.honor-avatar {
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background-color: #409EFF;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
+  object-fit: cover;
+  border: 3px solid #d8b4fe;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(216, 180, 254, 0.15);
+}
+
+.honor-item img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #d8b4fe;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(216, 180, 254, 0.15);
 }
 
 .info {
   flex: 1;
-  text-align: left;
+  width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .info h3 {
-  margin: 0 0 10px 0;
-  font-size: 18px;
+  margin: 0 0 12px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d2d2d;
 }
 
 .info p {
-  margin: 5px 0;
-  font-size: 14px;
+  margin: 8px 0;
+  font-size: 0.9rem;
   color: #666;
+  line-height: 1.5;
+}
+
+.info p::before {
+  content: attr(data-icon);
+  margin-right: 6px;
+  font-weight: 600;
+  color: #a855f7;
 }
 
 .loading-container {
-  padding: 20px;
+  padding: 40px 20px;
 }
 
 .no-data {
-  padding: 40px 0;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  text-align: center;
 }
 
-.honor-avatar {
-  width: 80px; 
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #f0f0f0;
-}
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
+  }
 
-.honor-item img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #f0f0f0;
+  .page-subtitle {
+    font-size: 1rem;
+  }
+
+  .honor-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .dropdown-filters {
+    flex-direction: column;
+  }
+
+  .filter-item {
+    width: 100%;
+  }
 }
 </style>

@@ -1,155 +1,164 @@
 <template>
-  <div class="knowledge-container">
-
-    <!-- 博客弹窗 -->
-    <el-dialog v-model="blogDialogVisible" title="团队成员博客" width="90%" class="blog-dialog">
-      <ul class="blog-list">
-        <li class="blog-item" v-for="(blog, index) in teamBlogs" :key="index">
-          <img :src="blog.avatar" alt="Avatar" class="blog-avatar">
+  <div class="knowledge-page page-knowledge">
+    <el-dialog v-model="blogDialogVisible" title="团队成员博客" width="820px" class="blog-dialog">
+      <div class="blog-list">
+        <a v-for="(blog, index) in teamBlogs" :key="index" class="blog-item" :href="blog.url" target="_blank"
+          rel="noreferrer">
+          <img :src="blog.avatar" alt="Avatar" class="blog-avatar" />
           <div class="blog-info">
-            <span class="author">{{ blog.author }}</span>
-            <a :href="blog.url" target="_blank" class="blog-link">{{ blog.title }}</a>
+            <div class="blog-author">{{ blog.author }}</div>
+            <div class="blog-title">{{ blog.title }}</div>
           </div>
-        </li>
-      </ul>
+        </a>
+      </div>
     </el-dialog>
 
-    <!-- 知识库标题 -->
-    <h1 class="knowledge-title">📖 知识库</h1>
+    <header class="page-header page-hero">
+      <h1 class="page-title">
+        <span class="page-title-icon"><i class="fas fa-book"></i></span>
+        知识库
+      </h1>
+      <p class="page-subtitle">课程资料、课件资源与常用链接</p>
+    </header>
 
-    <!-- 垂直布局导航 -->
-    <div class="vertical-links">
-      <!-- 团队博客卡片，点击打开博客弹窗 -->
-      <div class="link-card" @click="openBlogDialog">
-        <div class="link-icon blog">
-          <i class="fas fa-blog"></i>
+    <section class="quick-links">
+      <div class="link-card link-card--blog" role="button" tabindex="0" @click="openBlogDialog" @keydown.enter="openBlogDialog">
+        <div class="link-icon"><i class="fas fa-blog"></i></div>
+        <div class="link-main">
+          <div class="link-title">团队博客</div>
+          <div class="link-desc">查看队员的学习记录与题解总结</div>
         </div>
-        <h3>团队博客</h3>
-        <p>点击查看成员技术博客</p>
       </div>
 
-      <!-- B站频道卡片，点击在新窗口打开B站链接 -->
-      <a href="https://space.bilibili.com/3546651937475184?spm_id_from=333.337.search-card.all.click" target="_blank"
-        class="link-card">
-        <div class="link-icon bilibili">
-          <i class="fab fa-bilibili"></i>
+      <a class="link-card link-card--bilibili" href="https://space.bilibili.com/3546651937475184?spm_id_from=333.337.search-card.all.click"
+        target="_blank" rel="noreferrer">
+        <div class="link-icon"><i class="fab fa-bilibili"></i></div>
+        <div class="link-main">
+          <div class="link-title">B 站频道</div>
+          <div class="link-desc">团队公开视频与训练分享</div>
         </div>
-        <h3>B站频道</h3>
-        <p>观看团队视频教程</p>
       </a>
 
-      <!-- OJ平台卡片，点击在新窗口打开OJ平台链接 -->
-      <a href="https://hydro.ac/d/cdjcc_acm_2333/" target="_blank" class="link-card">
-        <div class="link-icon oj">
-          <i class="fas fa-laptop-code"></i>
+      <a class="link-card link-card--oj" href="https://hydro.ac/d/cdjcc_acm_2333/" target="_blank" rel="noreferrer">
+        <div class="link-icon"><i class="fas fa-laptop-code"></i></div>
+        <div class="link-main">
+          <div class="link-title">OJ 平台</div>
+          <div class="link-desc">在线训练与题目集合</div>
         </div>
-        <h3>OJ平台</h3>
-        <p>在线编程训练</p>
       </a>
-    </div>
+    </section>
 
-    <!-- 课件资源部分 -->
-    <div class="courseware-section">
-      <!-- 课件资源标题 -->
-      <h2>📁 课件资源</h2>
-
-      <!-- 面包屑导航 -->
-      <div class="breadcrumb">
-        <el-breadcrumb separator="/">
-          <!-- 返回根目录 -->
-          <el-breadcrumb-item @click="goToRoot">
-            <i class="fas fa-home"></i> 根目录
-          </el-breadcrumb-item>
-          <!-- 动态渲染面包屑路径 -->
-          <el-breadcrumb-item v-for="(folder, index) in breadcrumbFolders" :key="index" @click="goToBreadcrumb(index)">
-            {{ folder.name }}
-          </el-breadcrumb-item>
-        </el-breadcrumb>
+    <section class="courseware">
+      <div class="section-title">
+        <i class="fas fa-folder-open"></i>
+        <span>课件资源</span>
       </div>
 
-      <!-- 搜索框 -->
-      <div class="search-bar">
-        <el-input v-model="searchQuery" placeholder="搜索课件..." clearable size="large" style="width: 100%"
-          @clear="resetSearch">
-          <template #prefix>
-            <i class="el-icon-search"></i>
-          </template>
-        </el-input>
+      <div class="explorer">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <span class="sidebar-title">目录</span>
+            <el-button size="small" text :loading="treeLoading" @click="fetchTree">刷新</el-button>
+          </div>
+
+          <el-tree ref="treeRef" class="tree" :data="treeData" node-key="id" :props="treeProps"
+            :highlight-current="true" :expand-on-click-node="false" default-expand-all @node-click="handleTreeClick">
+            <template #default="{ data }">
+              <span class="tree-node">
+                <i class="fas fa-folder tree-icon"></i>
+                <span class="tree-label">{{ data.name }}</span>
+              </span>
+            </template>
+          </el-tree>
+        </aside>
+
+        <main class="main">
+          <div class="main-header">
+            <el-breadcrumb separator="/" class="breadcrumb">
+              <el-breadcrumb-item v-for="item in breadcrumb" :key="item.id">
+                <a href="#" class="breadcrumb-link" @click.prevent="openFolder(item.id)">{{ item.name }}</a>
+              </el-breadcrumb-item>
+            </el-breadcrumb>
+
+            <div class="toolbar">
+              <el-input v-model="filterQuery" placeholder="筛选当前目录..." clearable style="max-width: 260px" />
+
+              <el-input v-model="globalSearchQuery" placeholder="全局搜索..." clearable style="max-width: 260px"
+                @keyup.enter="runGlobalSearch" />
+              <el-button :loading="searchLoading" @click="runGlobalSearch">搜索</el-button>
+              <el-button v-if="searchMode" @click="exitSearch">返回目录</el-button>
+            </div>
+          </div>
+
+          <div class="content">
+            <el-table :data="displayRows" stripe class="table" height="100%"
+              v-loading="contentLoading || treeLoading || searchLoading" @row-dblclick="handleRowDblClick">
+              <el-table-column label="名称" min-width="320">
+                <template #default="{ row }">
+                  <div class="name-cell">
+                    <span :class="['icon-badge', iconBadgeClass(row)]">
+                      <i :class="rowIconClass(row)"></i>
+                    </span>
+                    <span class="name-text">{{ row.name }}</span>
+                  </div>
+                </template>
+              </el-table-column>
+
+              <el-table-column label="类型" width="110" align="center">
+                <template #default="{ row }">
+                  <el-tag size="small" :type="row.type === 'folder' ? 'info' : 'success'">
+                    {{ row.type === 'folder' ? '文件夹' : '文件' }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+
+              <el-table-column label="大小" width="170" align="right">
+                <template #default="{ row }">
+                  <span v-if="row.type === 'file'">{{ formatFileSize(row.size) }}</span>
+                  <span v-else class="muted">
+                    {{ formatFileSize(row.size || 0) }} · {{ typeof row.fileCount === 'number' ? `${row.fileCount} 文件` :
+                      '-' }}
+                  </span>
+                </template>
+              </el-table-column>
+
+              <el-table-column label="路径" min-width="220">
+                <template #default="{ row }">
+                  <span class="muted">{{ searchMode ? row.path : currentPath }}</span>
+                </template>
+              </el-table-column>
+
+              <el-table-column label="上传时间" width="180">
+                <template #default="{ row }">
+                  <span v-if="row.type === 'file'">{{ row.uploadedAt || '-' }}</span>
+                  <span v-else class="muted">-</span>
+                </template>
+              </el-table-column>
+
+              <el-table-column label="操作" width="260" align="center">
+                <template #default="{ row }">
+                  <el-button v-if="row.type === 'folder'" size="small" @click="openFolder(row.id)">打开</el-button>
+                  <el-button v-if="row.type === 'file'" size="small" type="primary" @click="downloadFile(row.id)">
+                    下载
+                  </el-button>
+                  <el-button v-if="searchMode && row.type === 'file' && row.folderId" size="small"
+                    @click="openFolder(row.folderId)">
+                    打开所在文件夹
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+
+            <el-empty v-if="!contentLoading && !searchLoading && displayRows.length === 0" description="暂无内容" />
+          </div>
+        </main>
       </div>
-
-      <!-- 文件夹列表 -->
-      <el-table :data="filteredFolders" style="width: 100%; margin-bottom: 20px;" stripe v-loading="loading"
-        empty-text="暂无文件夹" @row-click="openFolder" class="clickable-table">
-        <el-table-column prop="name" label="文件夹名称">
-          <template #default="scope">
-            <div class="folder-item">
-              <!-- 文件夹图标 -->
-              <i class="fas fa-folder" style="color: #FFD700; margin-right: 10px;"></i>
-              <!-- 文件夹名称 -->
-              <span>{{ scope.row.name }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" width="220" align="center">
-          <template #default="scope">
-            <span class="create-time">
-              <!-- 日历图标 -->
-              <i class="far fa-calendar-alt" style="margin-right: 5px;"></i>
-              <!-- 格式化后的创建时间 -->
-              {{ formatDate(scope.row.created_at) }}
-            </span>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <!-- 文件列表 -->
-      <el-table :data="filteredFiles" style="width: 100%" stripe v-loading="loading" empty-text="暂无课件资源">
-        <el-table-column prop="name" label="课件名称">
-          <template #default="scope">
-            <div class="file-item">
-              <!-- 根据文件类型显示不同图标 -->
-              <i :class="getFileIcon(scope.row.name)" style="margin-right: 10px;"></i>
-              <!-- 文件名称 -->
-              <span>{{ scope.row.name }}</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="size" label="文件大小" width="150" align="center">
-          <template #default="scope">
-            <span class="file-size">
-              <!-- 重量图标 -->
-              <i class="fas fa-weight-hanging" style="margin-right: 5px;"></i>
-              <!-- 格式化后的文件大小 -->
-              {{ formatFileSize(scope.row.size) }}
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="created_at" label="上传时间" width="220" align="center">
-          <template #default="scope">
-            <span class="upload-time">
-              <!-- 时钟图标 -->
-              <i class="far fa-clock" style="margin-right: 5px;"></i>
-              <!-- 格式化后的上传时间 -->
-              {{ formatDate(scope.row.created_at) }}
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="150" align="center" fixed="right">
-          <template #default="scope">
-            <!-- 下载按钮 -->
-            <el-button type="primary" size="small" @click.stop="downloadFile(scope.row)" plain>
-              <i class="fas fa-download"></i> 下载
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
+    </section>
   </div>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
-import dayjs from 'dayjs'
 import request from '@/utils/request'
 
 export default {
@@ -160,7 +169,7 @@ export default {
       teamBlogs: [
         {
           author: 'Martian148',
-          title: '锦城学院ACM学习地图',
+          title: '锦城学院 ACM 学习地图',
           url: 'https://www.cnblogs.com/martian148/p/18221024',
           avatar: 'https://cdn.luogu.com.cn/upload/image_hosting/npue5pns.png'
         },
@@ -183,571 +192,556 @@ export default {
           avatar: 'https://cdn.luogu.com.cn/upload/image_hosting/npue5pns.png'
         }
       ],
-      blogColors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'],
-      searchQuery: '',
-      loading: false,
-      folderList: [],
-      fileList: [],
-      currentFolder: null,
-      folderStack: []
+
+      // Explorer state
+      treeProps: { label: 'name', children: 'children' },
+      treeData: [],
+      treeLoading: false,
+
+      currentFolderId: 0,
+      currentPath: '/',
+      breadcrumb: [{ id: 0, name: '根目录' }],
+
+      subFolders: [],
+      files: [],
+      contentLoading: false,
+
+      filterQuery: '',
+      globalSearchQuery: '',
+      searchMode: false,
+      searchResults: [],
+      searchLoading: false,
+
+      contentCache: {}
     }
   },
   computed: {
-    // 过滤文件夹列表
-    filteredFolders() {
-      if (!this.searchQuery) return this.folderList
-      const query = this.searchQuery.toLowerCase()
-      return this.folderList.filter(folder =>
-        folder.name.toLowerCase().includes(query)
-      )
-    },
-    // 过滤文件列表
-    filteredFiles() {
-      if (!this.searchQuery) return this.fileList
-      const query = this.searchQuery.toLowerCase()
-      return this.fileList.filter(file =>
-        file.name.toLowerCase().includes(query)
-      )
-    },
-    // 面包屑路径
-    breadcrumbFolders() {
-      return this.folderStack
+    displayRows() {
+      let rows = []
+
+      if (this.searchMode) {
+        rows = (this.searchResults || []).map(r => ({
+          id: r.id,
+          name: r.name,
+          type: r.type,
+          path: r.path,
+          size: r.size || 0,
+          folderId: r.folderId || null
+        }))
+      } else {
+        const folderRows = (this.subFolders || []).map(f => ({ ...f, type: 'folder' }))
+        const fileRows = (this.files || []).map(f => ({
+          ...f,
+          type: 'file',
+          path: `${this.currentPath.replace(/\/$/, '')}/${f.name}`
+        }))
+        rows = [...folderRows, ...fileRows]
+      }
+
+      const q = (this.filterQuery || '').trim().toLowerCase()
+      if (!q) return rows
+      return rows.filter(r => (r.name || '').toLowerCase().includes(q))
     }
   },
   mounted() {
-    // 页面加载时获取文件夹列表
-    this.fetchFolders()
+    this.initExplorer()
   },
   methods: {
-    // 打开博客弹窗
     openBlogDialog() {
       this.blogDialogVisible = true
     },
-    // 获取文件夹和文件列表
-    async fetchFolders(folderId = null) {
-      this.loading = true
+    async initExplorer() {
+      await this.fetchTree()
+      await this.openFolder(0)
+    },
+    async fetchTree() {
+      this.treeLoading = true
       try {
-        const url = folderId ? `/folder/list?parent_id=${folderId}` : '/folder/list'
-        const res = await request.get(url)
-        this.folderList = res.data.folders || []
-
-        if (folderId) {
-          const filesRes = await request.get(`/folder/files?folder_id=${folderId}`)
-          this.fileList = filesRes.data.files || []
-        } else {
-          this.fileList = []
-        }
-
-        if (folderId) {
-          this.currentFolder = {
-            id: folderId,
-            name: res.data.current_folder_name || '未知文件夹'
-          }
-        } else {
-          this.currentFolder = null
-        }
+        const res = await request.get('/folder/tree')
+        const tree = res.data.tree || []
+        this.treeData = [{ id: 0, name: '根目录', children: tree }]
       } catch (error) {
-        // 错误提示
-        ElMessage.error('获取资源列表失败')
+        ElMessage.error(error.response?.data?.message || '获取文件夹树失败')
         console.error(error)
       } finally {
-        this.loading = false
+        this.treeLoading = false
       }
     },
-    // 打开文件夹
-    openFolder(row) {
-      this.folderStack = []
-      this.folderStack.push({
-        id: row.id,
-        name: row.name
-      })
-      this.fetchFolders(row.id)
+    handleTreeClick(node) {
+      this.openFolder(node.id)
     },
-    // 返回根目录
-    goToRoot() {
-      this.folderStack = []
-      this.fetchFolders()
+    async openFolder(folderId) {
+      this.searchMode = false
+      this.searchResults = []
+      this.currentFolderId = folderId
+
+      await Promise.all([this.fetchBreadcrumb(folderId), this.fetchContent(folderId)])
+
+      if (this.$refs.treeRef) {
+        this.$refs.treeRef.setCurrentKey(folderId)
+      }
     },
-    // 根据面包屑路径跳转
-    goToBreadcrumb(index) {
-      this.folderStack = this.folderStack.slice(0, index + 1)
-      const folder = this.folderStack[index]
-      this.fetchFolders(folder.id)
+    async fetchBreadcrumb(folderId) {
+      try {
+        const res = await request.get(`/folder/${folderId}/breadcrumb`)
+        this.breadcrumb = res.data.breadcrumb || [{ id: 0, name: '根目录' }]
+      } catch (error) {
+        this.breadcrumb = [{ id: 0, name: '根目录' }]
+      }
     },
-    // 根据文件扩展名获取文件图标
+    async fetchContent(folderId) {
+      const cacheKey = String(folderId)
+      if (this.contentCache[cacheKey]) {
+        const cached = this.contentCache[cacheKey]
+        this.currentPath = cached.currentPath
+        this.subFolders = cached.subFolders
+        this.files = cached.files
+        return
+      }
+
+      this.contentLoading = true
+      try {
+        const res = await request.get(`/folder/${folderId}/content`)
+        const data = res.data
+
+        this.currentPath = data.folder?.path || '/'
+        this.subFolders = data.subFolders || []
+        this.files = data.files || []
+
+        this.contentCache[cacheKey] = {
+          currentPath: this.currentPath,
+          subFolders: this.subFolders,
+          files: this.files
+        }
+      } catch (error) {
+        ElMessage.error(error.response?.data?.message || '获取目录内容失败')
+        console.error(error)
+        this.currentPath = '/'
+        this.subFolders = []
+        this.files = []
+      } finally {
+        this.contentLoading = false
+      }
+    },
+    async runGlobalSearch() {
+      const q = (this.globalSearchQuery || '').trim()
+      if (!q) {
+        ElMessage.warning('请输入搜索关键字')
+        return
+      }
+
+      this.searchLoading = true
+      try {
+        const res = await request.get('/folder/search', { params: { q } })
+        this.searchResults = res.data.results || []
+        this.searchMode = true
+      } catch (error) {
+        ElMessage.error(error.response?.data?.message || '搜索失败')
+        console.error(error)
+      } finally {
+        this.searchLoading = false
+      }
+    },
+    exitSearch() {
+      this.searchMode = false
+      this.searchResults = []
+    },
+    handleRowDblClick(row) {
+      if (row.type === 'folder') {
+        this.openFolder(row.id)
+      } else {
+        this.downloadFile(row.id)
+      }
+    },
+    async downloadFile(fileId) {
+      try {
+        const res = await request.get(`/folder/download/${fileId}`)
+        const { name, type, data } = res.data
+
+        const byteCharacters = atob(data)
+        const bytes = new Uint8Array(byteCharacters.length)
+        for (let i = 0; i < byteCharacters.length; i++) bytes[i] = byteCharacters.charCodeAt(i)
+
+        const blob = new Blob([bytes], { type: type || 'application/octet-stream' })
+        const url = URL.createObjectURL(blob)
+
+        const link = document.createElement('a')
+        link.href = url
+        link.download = name || 'download'
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+
+        URL.revokeObjectURL(url)
+      } catch (error) {
+        ElMessage.error(error.response?.data?.message || '下载失败')
+        console.error(error)
+      }
+    },
+    rowIconClass(row) {
+      if (row.type === 'folder') return 'fas fa-folder'
+      return this.getFileIcon(row.name)
+    },
+    iconBadgeClass(row) {
+      if (row.type === 'folder') return 'icon-badge--folder'
+      const name = (row.name || '').toLowerCase()
+      if (name.endsWith('.pdf')) return 'icon-badge--pdf'
+      if (name.endsWith('.doc') || name.endsWith('.docx')) return 'icon-badge--word'
+      if (name.endsWith('.ppt') || name.endsWith('.pptx')) return 'icon-badge--ppt'
+      if (name.endsWith('.xls') || name.endsWith('.xlsx')) return 'icon-badge--excel'
+      if (name.endsWith('.zip') || name.endsWith('.rar')) return 'icon-badge--archive'
+      if (name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.gif')) return 'icon-badge--image'
+      if (name.endsWith('.md')) return 'icon-badge--md'
+      return 'icon-badge--file'
+    },
     getFileIcon(filename) {
-      const extension = filename.split('.').pop().toLowerCase()
-      switch (extension) {
-        case 'pdf': return 'fas fa-file-pdf text-red-500'
-        case 'ppt': case 'pptx': return 'fas fa-file-powerpoint text-orange-500'
-        case 'doc': case 'docx': return 'fas fa-file-word text-blue-500'
-        case 'xls': case 'xlsx': return 'fas fa-file-excel text-green-500'
-        case 'zip': case 'rar': return 'fas fa-file-archive text-purple-500'
-        default: return 'fas fa-file text-gray-500'
-      }
+      const name = (filename || '').toLowerCase()
+      if (name.endsWith('.pdf')) return 'fas fa-file-pdf'
+      if (name.endsWith('.doc') || name.endsWith('.docx')) return 'fas fa-file-word'
+      if (name.endsWith('.ppt') || name.endsWith('.pptx')) return 'fas fa-file-powerpoint'
+      if (name.endsWith('.xls') || name.endsWith('.xlsx')) return 'fas fa-file-excel'
+      if (name.endsWith('.zip') || name.endsWith('.rar')) return 'fas fa-file-archive'
+      if (name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.gif')) return 'fas fa-file-image'
+      if (name.endsWith('.md')) return 'fas fa-file-alt'
+      return 'fas fa-file'
     },
-    // 格式化文件大小
     formatFileSize(bytes) {
-      if (bytes === 0) return '0 Bytes'
+      if (!bytes) return '0 Bytes'
       const k = 1024
       const sizes = ['Bytes', 'KB', 'MB', 'GB']
       const i = Math.floor(Math.log(bytes) / Math.log(k))
       const size = (bytes / Math.pow(k, i)).toFixed(2)
       return `${size} ${sizes[i]}`
-    },
-    // 格式化日期
-    formatDate(date) {
-      return dayjs(date).format('YYYY-MM-DD HH:mm')
-    },
-    // 下载文件
-    async downloadFile(file) {
-      try {
-        // 提示正在下载
-        ElMessage.info(`正在下载: ${file.name}`)
-        const res = await request.get(`/folder/download/${file.id}`)
-        const { name, type, data } = res.data
-        const byteCharacters = atob(data)
-        const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i))
-        const byteArray = new Uint8Array(byteNumbers)
-        const blob = new Blob([byteArray], { type })
-
-        const link = document.createElement('a')
-        link.href = URL.createObjectURL(blob)
-        link.download = name
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-
-        // 提示下载成功
-        ElMessage.success('文件下载成功')
-      } catch (error) {
-        // 提示下载失败
-        ElMessage.error('文件下载失败')
-        console.error(error)
-      }
-    },
-    // 重置搜索框
-    resetSearch() {
-      this.searchQuery = ''
     }
   }
 }
 </script>
+
 <style scoped>
-.blog-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  margin-right: 1.5rem;
-  object-fit: cover;
-}
-
-/* 基础样式 */
-:root {
-  --primary-color: #4361ee;
-  --secondary-color: #3f37c9;
-  --accent-color: #4895ef;
-  --light-color: #f8f9fa;
-  --dark-color: #212529;
-  --success-color: #4cc9f0;
-  --warning-color: #f72585;
-  --info-color: #7209b7;
-  --hover-bg-color: #e9f2ff;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.knowledge-container {
-  padding: 2rem;
-  margin: 0 auto;
-  min-height: 100vh;
-  width: 90%;
+.knowledge-page {
   max-width: 1200px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
-  border-radius: 20px;
-  transition: all 0.3s ease;
+  margin: 0 auto;
+  padding: var(--spacing-6) var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
 }
 
-.knowledge-container:hover {
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
-}
-
-.knowledge-title {
-  font-size: 3rem;
-  color: var(--dark-color);
-  margin-bottom: 2rem;
+.page-header {
   text-align: center;
-  letter-spacing: 2px;
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%);
+  color: #312e81;
+  border-radius: 12px;
+  margin-bottom: 60px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.page-title {
+  margin: 0 0 15px 0;
+  font-size: clamp(2rem, 3vw, 2.8rem);
   font-weight: 700;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
 }
 
-.knowledge-title:hover {
-  transform: scale(1.05);
+.page-title i {
+  font-size: 2.5rem;
 }
 
-/* 链接卡片样式 */
-.vertical-links {
+.page-subtitle {
+  margin: 10px 0 0 0;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.125rem;
+}
+
+.quick-links {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-4);
 }
 
 .link-card {
-  background: white;
-  border-radius: 15px;
-  padding: 2rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  cursor: pointer;
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  padding: var(--spacing-4);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-sm);
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(5px);
-  position: relative;
-  overflow: hidden;
-}
-
-.link-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
-}
-
-.link-card:hover::before {
-  transform: scaleX(1);
+  transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out);
 }
 
 .link-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .link-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin: 0 auto 1.5rem;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
-  color: white;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  color: var(--color-white);
+  flex: 0 0 auto;
 }
 
-.link-card:hover .link-icon {
-  transform: scale(1.1);
+.link-card--blog .link-icon {
+  background: linear-gradient(135deg, #4e54c8, #8f94fb);
+  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25);
 }
 
-.link-icon.blog {
-  background: linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%);
+.link-card--bilibili .link-icon {
+  background: linear-gradient(135deg, #00a1d6, #0066cc);
+  box-shadow: 0 10px 25px rgba(0, 161, 214, 0.22);
 }
 
-.link-icon.bilibili {
-  background: linear-gradient(135deg, #00A1D6 0%, #0066CC 100%);
+.link-card--oj .link-icon {
+  background: linear-gradient(135deg, #10b981, #3b82f6);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.18);
 }
 
-.link-icon.oj {
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+.link-title {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
 }
 
-.link-card h3 {
-  margin: 1rem 0;
-  font-size: 1.8rem;
-  color: var(--dark-color);
-  font-weight: 600;
+.link-desc {
+  color: var(--color-gray-600);
+  font-size: var(--font-sm);
+  margin-top: 2px;
 }
 
-.link-card p {
-  color: #6c757d;
-  font-size: 1.1rem;
-  margin: 0;
-  line-height: 1.6;
+.courseware {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-5);
 }
 
-/* 课件部分样式 */
-.courseware-section {
-  background: white;
-  border-radius: 15px;
-  padding: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  margin-top: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(5px);
-  transition: all 0.3s ease;
-}
-
-.courseware-section:hover {
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-}
-
-.courseware-section h2 {
-  font-size: 2.2rem;
-  color: var(--dark-color);
-  margin-bottom: 1.5rem;
+.section-title {
   display: flex;
   align-items: center;
-  gap: 10px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  gap: var(--spacing-3);
+  font-size: var(--font-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-4);
 }
 
-.courseware-section h2 i {
-  color: var(--accent-color);
+.explorer {
+  display: flex;
+  gap: var(--spacing-5);
+  min-height: 520px;
 }
 
-.breadcrumb {
-  margin-bottom: 25px;
-  padding: 15px;
-  background-color: #f8fafc;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
+.sidebar {
+  width: clamp(240px, 24vw, 320px);
+  flex: 0 0 auto;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.breadcrumb:hover {
-  background-color: var(--hover-bg-color);
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-3);
 }
 
-.search-bar {
-  margin-bottom: 25px;
+.sidebar-title {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-800);
 }
 
-.search-bar .el-input__inner {
-  border-radius: 10px;
-  transition: all 0.3s ease;
+.tree {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
-.search-bar .el-input__inner:hover {
-  border-color: var(--accent-color);
+.tree-node {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
 }
 
-/* 博客弹窗样式 */
-.blog-dialog {
-  border-radius: 15px;
+.tree-icon {
+  color: var(--color-warning);
+}
+
+.tree-label {
+  color: var(--color-gray-800);
+}
+
+.main {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.main-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.breadcrumb-link {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  align-items: center;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+}
+
+.table {
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
-.blog-dialog .el-dialog__header {
-  background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
-  margin: 0;
-  padding: 1.5rem;
+.name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
 }
 
-.blog-dialog .el-dialog__title {
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 600;
+.name-icon {
+  width: 18px;
+  text-align: center;
+  color: var(--color-gray-600);
+}
+
+.icon-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--color-white);
+}
+
+.icon-badge--folder {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+}
+.icon-badge--pdf {
+  background: linear-gradient(135deg, #ef4444, #f87171);
+}
+.icon-badge--word {
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+}
+.icon-badge--ppt {
+  background: linear-gradient(135deg, #f97316, #fb923c);
+}
+.icon-badge--excel {
+  background: linear-gradient(135deg, #16a34a, #4ade80);
+}
+.icon-badge--archive {
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+}
+.icon-badge--image {
+  background: linear-gradient(135deg, #06b6d4, #22c55e);
+}
+.icon-badge--md {
+  background: linear-gradient(135deg, #334155, #64748b);
+}
+.icon-badge--file {
+  background: linear-gradient(135deg, #475569, #94a3b8);
+}
+
+.muted {
+  color: var(--color-gray-500);
+}
+
+.blog-dialog :deep(.el-dialog) {
+  border-radius: var(--radius-lg);
+}
+
+.blog-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
 }
 
 .blog-item {
   display: flex;
+  gap: var(--spacing-3);
   align-items: center;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-  border-radius: 10px;
-  margin: 5px 0;
+  padding: var(--spacing-3);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-white);
+  transition: background-color var(--duration-base) var(--ease-out);
 }
 
 .blog-item:hover {
-  background: var(--hover-bg-color);
-  transform: translateX(5px);
+  background: var(--color-gray-50);
 }
 
-.blog-item i {
-  font-size: 2rem;
-  margin-right: 1.5rem;
-  flex-shrink: 0;
+.blog-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
 }
 
-.blog-info {
-  display: flex;
-  flex-direction: column;
+.blog-author {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
 }
 
-.author {
-  font-weight: 600;
-  color: var(--dark-color);
-  margin-bottom: 0.5rem;
-  font-size: 1.2rem;
+.blog-title {
+  color: var(--color-gray-600);
+  font-size: var(--font-sm);
 }
 
-.blog-link {
-  color: #6c757d;
-  text-decoration: none;
-  transition: color 0.3s ease;
-  font-size: 1.1rem;
-}
-
-.blog-link:hover {
-  color: var(--accent-color);
-  text-decoration: underline;
-}
-
-/* 表格样式优化 */
-.el-table {
-  border-radius: 10px;
-  overflow: hidden;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-}
-
-.el-table:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.el-table th {
-  font-size: 1.2rem;
-  font-weight: 600;
-  background-color: #f8fafc !important;
-  transition: all 0.3s ease;
-}
-
-.el-table th:hover {
-  background-color: var(--hover-bg-color) !important;
-}
-
-::v-deep(.clickable-table .el-table__row) {
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-::v-deep(.clickable-table .el-table__row:hover) {
-  background-color: var(--hover-bg-color) !important;
-  transform: scale(1.01);
-}
-
-.folder-item,
-.file-item {
-  display: flex;
-  align-items: center;
-  font-size: 1.1rem;
-}
-
-.create-time,
-.upload-time,
-.file-size {
-  font-size: 1rem;
-  color: #6c757d;
-}
-
-/* 下载按钮样式 */
-.el-button {
-  transition: all 0.3s ease;
-}
-
-.el-button:hover {
-  transform: scale(1.05);
-  background-color: var(--accent-color);
-  color: white;
-  border-color: var(--accent-color);
-}
-
-/* 响应式设计 */
-@media (max-width: 1200px) {
-  .knowledge-container {
-    padding: 1.5rem;
-  }
-}
-
-@media (max-width: 992px) {
-  .knowledge-title {
-    font-size: 2.5rem;
-  }
-
-  .link-card h3 {
-    font-size: 1.6rem;
-  }
-
-  .courseware-section h2 {
-    font-size: 2rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .vertical-links {
+@media (max-width: 1024px) {
+  .quick-links {
     grid-template-columns: 1fr;
   }
 
-  .link-card {
-    padding: 1.5rem;
+  .explorer {
+    flex-direction: column;
   }
 
-  .knowledge-title {
-    font-size: 2rem;
-  }
-
-  .courseware-section {
-    padding: 1.5rem;
-  }
-
-  .el-table-column--fixed-right {
-    position: static !important;
-  }
-
-  .el-table th,
-  .el-table td {
-    padding: 12px 5px;
-  }
-}
-
-@media (max-width: 576px) {
-  .knowledge-container {
-    padding: 1rem;
-  }
-
-  .knowledge-title {
-    font-size: 1.8rem;
-  }
-
-  .link-icon {
-    width: 60px;
-    height: 60px;
-    font-size: 2rem;
-  }
-
-  .link-card h3 {
-    font-size: 1.4rem;
-  }
-
-  .courseware-section h2 {
-    font-size: 1.6rem;
-  }
-
-  .folder-item,
-  .file-item {
-    font-size: 1rem;
-  }
-
-  .el-table th {
-    font-size: 1rem;
-  }
-
-  .el-button {
-    padding: 8px 12px;
-    font-size: 0.9rem;
+  .sidebar {
+    width: 100%;
   }
 }
 </style>

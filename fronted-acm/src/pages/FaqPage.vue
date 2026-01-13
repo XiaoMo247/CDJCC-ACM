@@ -1,6 +1,6 @@
 <template>
-  <div class="faq-page">
-    <div class="header">
+  <div class="faq-page page-faq">
+    <div class="header page-header page-hero">
       <h1 class="title">💡常见问题</h1>
       <p class="subtitle">传递集训文化，在解答中融入经验分享，促进成员交流</p>
       <div class="search-box">
@@ -160,28 +160,36 @@ body {
 
 .header {
   text-align: center;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(135deg, #8ab7df 0%);
-  padding: 3rem 1.5rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 8px 20px rgba(79, 172, 254, 0.15);
-  color: white;
-  /* 取消顶部背景边框加深 */
-  border: 1px solid rgba(0, 123, 255, 0.3);
+  margin-bottom: 60px;
+  background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
+  padding: 60px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  color: #065f46;
 }
 
 .title {
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  color: #065f46;
+}
+
+.title::before {
+  display: none;
 }
 
 .subtitle {
-  font-size: clamp(1rem, 3vw, 1.2rem);
+  font-size: 1.125rem;
   opacity: 0.95;
   font-weight: 300;
-  margin-bottom: 1.5rem;
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .search-box {
@@ -247,7 +255,7 @@ body {
 .faq-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
 }
 
 .faq-question {
@@ -255,46 +263,68 @@ body {
   font-weight: 600;
   color: #333;
   background-color: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  padding: 0.5rem;
-  border-image: linear-gradient(to right, #e0e0e0, #f0f0f0) 1;
-  transition: all 0.3s ease;
+  border-left: 3px solid #a7f3d0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.faq-question::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(167, 243, 208, 0.02) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .faq-question:hover,
 .faq-question[data-hover="true"] {
-  background-color: #f5f5f5;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  border-color: #ccc;
-  transform: scale(1.02);
+  background-color: #f0fdf4;
+  box-shadow: 0 4px 8px rgba(167, 243, 208, 0.08);
+  border-left-color: #6ee7b7;
+  transform: translateX(2px);
 }
 
 .faq-answer {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #666;
-  line-height: 1.6;
+  line-height: 1.7;
   background-color: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  padding: 0.5rem;
-  border-image: linear-gradient(to right, #e0e0e0, #f0f0f0) 1;
-  transition: all 0.3s ease;
+  border-left: 3px solid #a7f3d0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.faq-answer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(167, 243, 208, 0.02) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .faq-answer:hover,
 .faq-answer[data-hover="true"] {
-  background-color: #f5f5f5;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  border-color: #ccc;
-  transform: scale(1.02);
+  background-color: #f0fdf4;
+  box-shadow: 0 4px 8px rgba(167, 243, 208, 0.08);
+  border-left-color: #6ee7b7;
 }
 
 .divider {

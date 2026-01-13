@@ -1,6 +1,6 @@
 <template>
-    <div class="ranking-page">
-        <div class="header">
+    <div class="ranking-page page-ranking">
+        <div class="header page-header page-hero">
             <h1 class="header-title">📈 排行榜中心</h1>
             <p class="header-subtitle">追踪队员们在各大平台的精彩表现！</p>
             <el-button type="primary" :loading="loading" @click="refreshData" class="refresh-btn">
@@ -112,12 +112,12 @@ export default {
 
 .header {
     text-align: center;
-    margin-bottom: 2.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 3rem 1rem;
-    border-radius: 1rem;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    color: white;
+    margin-bottom: 60px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    padding: 60px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    color: #78350f;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -146,6 +146,21 @@ export default {
     font-weight: 800;
     margin-bottom: 1rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: inline-flex;
+    align-items: center;
+}
+
+.header-title::before {
+    content: "🥇";
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.16);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .header-subtitle {

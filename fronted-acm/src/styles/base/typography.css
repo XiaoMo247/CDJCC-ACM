@@ -2,3 +2,96 @@
   line-height: var(--line-height-tight);
 }
 
+:where(.page-header) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-4) 0;
+}
+
+:where(.page-hero) {
+  padding: var(--spacing-8) var(--spacing-4);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(
+    135deg,
+    var(--page-primary) 0%,
+    var(--page-secondary) 100%
+  );
+  box-shadow: 0 14px 34px rgba(var(--page-primary-rgb), 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: var(--color-white);
+}
+
+:where(.page-hero) :where(h1, h2) {
+  color: var(--color-white);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+:where(.page-hero) :where(.subtitle, .header-subtitle, .page-subtitle) {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+:where(.page-hero) :where(.page-title-icon) {
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--color-white);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Make existing icon-in-title headers feel consistent without rewriting every page */
+:where(.page-hero) :where(h1, h2) > i {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.16);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--spacing-3);
+  flex: 0 0 auto;
+}
+
+:where(.page-title) {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+:where(.page-header) :where(h1, h2) {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+:where(.page-title-icon) {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--page-light);
+  color: var(--page-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+:where(.page-subtitle) {
+  margin: 0;
+  color: var(--color-gray-600);
+  max-width: 64ch;
+}
+
+:where(.page-header) :where(.subtitle, .header-subtitle) {
+  margin: 0;
+  color: var(--color-gray-600);
+  max-width: 64ch;
+}

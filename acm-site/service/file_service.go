@@ -11,30 +11,25 @@ import (
 )
 
 func SaveUploadedFile(file *multipart.FileHeader, folderID uint) (*model.File, error) {
-	// 1. 先根据 folderID 查出 Folder.Name
+	// Ensure folder exists.
 	var folder model.Folder
 	if err := database.DB.First(&folder, folderID).Error; err != nil {
 		return nil, err
 	}
 
-	// 2. 构建最终的上传目录：相对于当前工作目录的上级（../）下的 uploads/<folder.Name>
-	uploadDir := filepath.Join("..", "uploads", folder.Name)
+	// Store files by folder ID (stable even if folder name/path changes).
+	uploadDir := filepath.Join("..", "uploads", "folders", fmt.Sprintf("%d", folder.ID))
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
 		return nil, err
 	}
 
-	// 3. 生成一个防重名的文件名
 	filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), file.Filename)
-
-	// 4. 拼接文件完整路径
 	filePath := filepath.Join(uploadDir, filename)
 
-	// 5. 保存文件到磁盘
 	if err := saveFile(file, filePath); err != nil {
 		return nil, err
 	}
 
-	// 6. 写入数据库
 	newFile := model.File{
 		Name:     file.Filename,
 		Path:     filePath,
@@ -56,11 +51,10 @@ func GetFilesByFolderID(folderID uint) ([]model.File, error) {
 
 func DeleteFileByID(id uint) error {
 	var file model.File
-	err := database.DB.First(&file, id).Error
-	if err != nil {
+	if err := database.DB.First(&file, id).Error; err != nil {
 		return err
 	}
-	os.Remove(file.Path)
+	_ = os.Remove(file.Path)
 	return database.DB.Delete(&file).Error
 }
 
