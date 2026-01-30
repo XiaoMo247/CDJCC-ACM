@@ -421,10 +421,18 @@ func UpdateAllRatingsHandler(c *gin.Context) {
 	successCount := 0
 	failCount := 0
 
+	// 使用信号量限制并发数（最多 5 个成员同时更新）
+	semaphore := make(chan struct{}, 5)
+
 	for i := range members {
 		wg.Add(1)
 		go func(member *model.TeamMember) {
 			defer wg.Done()
+
+			// 获取信号量
+			semaphore <- struct{}{}
+			defer func() { <-semaphore }() // 释放信号量
+
 			err := service.UpdateRatingsByMember(member)
 			mu.Lock()
 			if err != nil {

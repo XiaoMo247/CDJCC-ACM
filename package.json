@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "@vueup/vue-quill": "^1.2.0",
-    "dompurify": "^3.2.6",
-    "quill": "^2.0.3"
-  }
-}
