@@ -1,11 +1,15 @@
-import { fileURLToPath, URL } from 'node:url'
+﻿import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
+const repoRoot = fileURLToPath(new URL('..', import.meta.url))
+
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
+  // Load `.env` from repo root so the project has a single env file.
+  envDir: repoRoot,
   plugins: [vue(), command === 'serve' ? vueDevTools() : null].filter(Boolean),
   resolve: {
     alias: {
@@ -23,14 +27,6 @@ export default defineConfig(({ command }) => ({
           if (id.includes('dayjs')) return 'dayjs'
           return 'vendor'
         }
-      }
-    }
-  },
-  server: {
-    proxy: {
-      '/uploads': {
-        target: process.env.VITE_UPLOAD_TARGET || 'http://localhost:8081',
-        changeOrigin: true
       }
     }
   }

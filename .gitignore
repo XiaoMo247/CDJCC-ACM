@@ -1,9 +1,12 @@
-# Node.js
+﻿# Node.js
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 package-lock.json
+*.local
 
 # Go
 *.exe
@@ -30,9 +33,6 @@ Thumbs.db
 .env
 .env.*
 !.env.example
-fronted-acm/.env
-fronted-acm/.env.*
-!fronted-acm/.env.example
 
 # Configuration files with sensitive data
 acm-site/config/config.yml
@@ -42,10 +42,17 @@ config/config.yml
 
 # Build outputs
 dist/
+dist-ssr/
 build/
+coverage/
+logs/
 *.log
+
+/cypress/videos/
+/cypress/screenshots/
 
 # Temporary files
 tmp/
 temp/
 ~$*
+tmp.md
