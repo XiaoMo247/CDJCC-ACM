@@ -56,3 +56,7 @@ tmp/
 temp/
 ~$*
 tmp.md
+
+# Local-only folders
+/Test/
+/uploads/
