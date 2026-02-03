@@ -101,8 +101,8 @@ func migrateSliderToImage() {
 
 // alterSliderTable 修改sliders表结构
 func alterSliderTable() {
-	// 添加新字段
-	DB.Exec("ALTER TABLE sliders ADD COLUMN IF NOT EXISTS image_id INT UNSIGNED DEFAULT 0")
+	// 添加新字段（允许NULL）
+	DB.Exec("ALTER TABLE sliders ADD COLUMN IF NOT EXISTS image_id INT UNSIGNED DEFAULT NULL")
 	DB.Exec("ALTER TABLE sliders ADD COLUMN IF NOT EXISTS `order` INT DEFAULT 0")
 	DB.Exec("ALTER TABLE sliders ADD COLUMN IF NOT EXISTS is_active TINYINT(1) DEFAULT 1")
 

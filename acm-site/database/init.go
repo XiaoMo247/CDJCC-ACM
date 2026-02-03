@@ -34,6 +34,9 @@ func InitDB() {
 		panic("database connection failed: " + err.Error())
 	}
 
+	// 预迁移：在AutoMigrate之前清理数据，避免外键约束失败
+	prepareSliderMigration()
+
 	if err := DB.AutoMigrate(
 		&model.Admin{},
 		&model.Announcement{},
@@ -79,6 +82,27 @@ func InitDB() {
 			Password: utils.HashPassword(initialPassword),
 		}
 		DB.Create(&admin)
+	}
+}
+
+// prepareSliderMigration 预迁移处理，清理sliders表中的无效image_id
+func prepareSliderMigration() {
+	// 检查sliders表是否存在
+	var tableExists int64
+	DB.Raw("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sliders'").Scan(&tableExists)
+
+	if tableExists == 0 {
+		return // 表不存在，跳过
+	}
+
+	// 检查image_id列是否存在
+	var columnExists int64
+	DB.Raw("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sliders' AND COLUMN_NAME = 'image_id'").Scan(&columnExists)
+
+	if columnExists > 0 {
+		// 将无效的image_id设置为NULL（为外键约束做准备）
+		DB.Exec("UPDATE sliders SET image_id = NULL WHERE image_id = 0 OR image_id IS NOT NULL AND image_id NOT IN (SELECT id FROM images)")
+		fmt.Println("已清理sliders表中的无效image_id")
 	}
 }
 

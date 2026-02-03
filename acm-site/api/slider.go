@@ -36,44 +36,75 @@ func ListSliders(c *gin.Context) {
 	})
 }
 
-// 添加轮播图
+// 添加轮播图（支持两种方式：上传图片或选择已有图片）
 func AddSlider(c *gin.Context) {
-	// 获取上传的文件
-	file, err := c.FormFile("image")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "文件上传失败"})
-		return
-	}
-
-	// 创建保存目录
-	uploadDir := "uploads/sliders/"
-	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "创建目录失败"})
-		return
-	}
-
-	// 生成唯一文件名
-	fileName := uuid.New().String() + filepath.Ext(file.Filename)
-	filePath := filepath.Join(uploadDir, fileName)
-
-	// 保存文件
-	if err := c.SaveUploadedFile(file, filePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "文件保存失败"})
-		return
-	}
-
-	// 获取其他表单字段
 	title := c.PostForm("title")
 	content := c.PostForm("content")
+	imageIDStr := c.PostForm("image_id")
+	orderStr := c.DefaultPostForm("order", "0")
+	isActiveStr := c.DefaultPostForm("is_active", "true")
 
-	// 构造访问URL
-	imageURL := "/uploads/sliders/" + fileName
+	// 解析参数
+	order, _ := strconv.Atoi(orderStr)
+	isActive := isActiveStr == "true"
+
+	var imageID *uint
+	var imageURL string
+
+	// 方式1：通过image_id选择已有图片（新方式）
+	if imageIDStr != "" {
+		id, err := strconv.ParseUint(imageIDStr, 10, 32)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "无效的图片ID"})
+			return
+		}
+		uid := uint(id)
+		imageID = &uid
+
+		// 验证图片是否存在
+		var image model.Image
+		if err := service.GetImageByID(uid, &image); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "图片不存在"})
+			return
+		}
+		imageURL = image.URL
+
+	} else {
+		// 方式2：上传新图片（旧方式，保持向后兼容）
+		file, err := c.FormFile("image")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "请提供image_id或上传图片文件"})
+			return
+		}
+
+		// 创建保存目录
+		uploadDir := "uploads/sliders/"
+		if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "创建目录失败"})
+			return
+		}
+
+		// 生成唯一文件名
+		fileName := uuid.New().String() + filepath.Ext(file.Filename)
+		filePath := filepath.Join(uploadDir, fileName)
+
+		// 保存文件
+		if err := c.SaveUploadedFile(file, filePath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "文件保存失败"})
+			return
+		}
+
+		imageURL = "/uploads/sliders/" + fileName
+	}
 
 	// 构造 Slider 对象
 	slider := model.Slider{
-		Title:   title,
-		Content: content,
-		Image:   imageURL,
+		Title:    title,
+		Content:  content,
+		Image:    imageURL, // 保留旧字段
+		ImageID:  imageID,  // 新字段
+		Order:    order,
+		IsActive: isActive,
 	}
 
 	if err := service.CreateSlider(&slider); err != nil {
@@ -83,9 +114,7 @@ func AddSlider(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "轮播图添加成功",
-		"data": gin.H{
-			"image_url": imageURL,
-		},
+		"data":    slider,
 	})
 }
 

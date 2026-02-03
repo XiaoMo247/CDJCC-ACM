@@ -164,3 +164,11 @@ func UpdateImageFlags(imageID uint, isSlider *bool, description *string) error {
 
 	return nil
 }
+
+// GetImageByID 根据ID获取图片信息
+func GetImageByID(imageID uint, image *model.Image) error {
+	if err := database.DB.First(image, imageID).Error; err != nil {
+		return errors.New("图片不存在")
+	}
+	return nil
+}
