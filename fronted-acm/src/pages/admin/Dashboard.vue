@@ -12,6 +12,9 @@
     <div class="sidebar" :class="{ 'mobile-active': sidebarActive }">
       <h3 class="sidebar-title"><i class="fas fa-tools"></i> 控制面板</h3>
       <ul>
+        <li :class="{ active: currentTab === 'home' }" @click="changeTab('home')">
+          <i class="fas fa-home"></i> 管理主页
+        </li>
         <li :class="{ active: currentTab === 'announcement' }" @click="changeTab('announcement')">
           <i class="fas fa-bullhorn"></i> 公告管理
         </li>
@@ -48,6 +51,7 @@
     <!-- 内容区域 -->
     <div class="content" :class="{ 'mobile-padding': isMobile }" @touchstart="handleTouchStart"
       @touchmove="handleTouchMove" @touchend="handleTouchEnd">
+      <DashboardHome v-if="currentTab === 'home'" @change-tab="changeTab" />
       <AnnouncementManage v-if="currentTab === 'announcement'" />
       <AdminAccountManage v-if="currentTab === 'admin'" />
       <JoinFormManage v-if="currentTab === 'join'" />
@@ -67,6 +71,7 @@
 
 
 <script>
+import DashboardHome from '@/components/admin/DashboardHome.vue'
 import AnnouncementManage from '@/components/admin/AnnouncementManage.vue'
 import AdminAccountManage from '@/components/admin/AdminAccountManage.vue'
 import JoinFormManage from '@/components/admin/JoinFormManage.vue'
@@ -81,6 +86,7 @@ import HonorWallManage from '@/components/admin/HonorWallManage.vue'
 export default {
   name: 'AdminDashboard',
   components: {
+    DashboardHome,
     AnnouncementManage,
     AdminAccountManage,
     JoinFormManage,
@@ -94,7 +100,7 @@ export default {
   },
   data() {
     return {
-      currentTab: 'announcement',
+      currentTab: 'home',
       isMobile: false,
       sidebarActive: false,
       touchStartX: 0,

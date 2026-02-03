@@ -27,6 +27,8 @@ func main() {
 	database.InitDB()
 
 	r := gin.Default()
+	// 只信任本机代理，避免 Gin “trust all proxies” 的安全警告刷屏
+	_ = r.SetTrustedProxies([]string{"127.0.0.1"})
 	r.Static("/uploads", "./uploads")
 	r.Use(middleware.CorsMiddleware())
 	router.RouterInit(r)

@@ -45,6 +45,9 @@ func RouterInit(r *gin.Engine) {
 			admin := auth.Group("/admin")
 			admin.Use(middleware.RequireAdmin())
 			{
+				// Dashboard统计
+				admin.GET("/dashboard/stats", api.GetDashboardStats)
+
 				// Students
 				admin.POST("/register-student", api.AdminRegisterStudent)
 				admin.GET("/team-member", api.GetStudentByID)

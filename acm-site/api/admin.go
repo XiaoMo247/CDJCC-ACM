@@ -452,3 +452,50 @@ func UpdateAllRatingsHandler(c *gin.Context) {
 		"failCount":    failCount,
 	})
 }
+
+// GetDashboardStats 获取管理员Dashboard统计数据
+func GetDashboardStats(c *gin.Context) {
+	var userCount int64
+	var studentCount int64
+	var contestCount int64
+	var announcementCount int64
+	var pendingApplicationCount int64
+
+	// 统计用户总数
+	if err := database.DB.Model(&model.User{}).Count(&userCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "获取用户总数失败"})
+		return
+	}
+
+	// 统计学生总数
+	if err := database.DB.Model(&model.TeamMember{}).Count(&studentCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "获取学生总数失败"})
+		return
+	}
+
+	// 统计比赛总数
+	if err := database.DB.Model(&model.Contest{}).Count(&contestCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "获取比赛总数失败"})
+		return
+	}
+
+	// 统计公告总数
+	if err := database.DB.Model(&model.Announcement{}).Count(&announcementCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "获取公告总数失败"})
+		return
+	}
+
+	// 统计待处理的申请表总数 (state=0表示待审核)
+	if err := database.DB.Model(&model.JoinApply{}).Where("state = ?", 0).Count(&pendingApplicationCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "获取待处理申请表总数失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"userCount":               userCount,
+		"studentCount":            studentCount,
+		"contestCount":            contestCount,
+		"announcementCount":       announcementCount,
+		"pendingApplicationCount": pendingApplicationCount,
+	})
+}

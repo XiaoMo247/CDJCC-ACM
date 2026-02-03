@@ -12,16 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 初始化静态文件路由
+// 初始化：确保 uploads/sliders/ 目录存在。
+// 注意：不要在 init() 里创建 gin.Engine（会导致重复的 Gin 启动日志，而且不会被 main.go 的路由使用）。
 func init() {
-	// 确保 uploads/sliders/ 目录存在
 	if err := os.MkdirAll("uploads/sliders/", os.ModePerm); err != nil {
 		panic("无法创建 uploads/sliders/ 目录: " + err.Error())
 	}
-
-	// 配置静态文件路由
-	router := gin.Default()
-	router.Static("/uploads/sliders", "./uploads/sliders")
 }
 
 // 获取轮播图列表
