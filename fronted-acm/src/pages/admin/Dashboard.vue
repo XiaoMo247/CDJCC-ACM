@@ -18,6 +18,9 @@
         <li :class="{ active: currentTab === 'announcement' }" @click="changeTab('announcement')">
           <i class="fas fa-bullhorn"></i> 公告管理
         </li>
+        <li :class="{ active: currentTab === 'image' }" @click="changeTab('image')">
+          <i class="fas fa-images"></i> 图片管理
+        </li>
         <li :class="{ active: currentTab === 'admin' }" @click="changeTab('admin')">
           <i class="fas fa-user-shield"></i> 管理员账户
         </li>
@@ -53,6 +56,7 @@
       @touchmove="handleTouchMove" @touchend="handleTouchEnd">
       <DashboardHome v-if="currentTab === 'home'" @change-tab="changeTab" />
       <AnnouncementManage v-if="currentTab === 'announcement'" />
+      <ImageLibrary v-if="currentTab === 'image'" />
       <AdminAccountManage v-if="currentTab === 'admin'" />
       <JoinFormManage v-if="currentTab === 'join'" />
       <UserManage v-if="currentTab === 'user'" />
@@ -73,6 +77,7 @@
 <script>
 import DashboardHome from '@/components/admin/DashboardHome.vue'
 import AnnouncementManage from '@/components/admin/AnnouncementManage.vue'
+import ImageLibrary from '@/components/admin/ImageLibrary.vue'
 import AdminAccountManage from '@/components/admin/AdminAccountManage.vue'
 import JoinFormManage from '@/components/admin/JoinFormManage.vue'
 import UserManage from '@/components/admin/UserManage.vue'
@@ -88,6 +93,7 @@ export default {
   components: {
     DashboardHome,
     AnnouncementManage,
+    ImageLibrary,
     AdminAccountManage,
     JoinFormManage,
     UserManage,

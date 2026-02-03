@@ -46,12 +46,16 @@ func InitDB() {
 		&model.FAQ{},
 		&model.Slider{},
 		&model.Honor{},
+		&model.Image{}, // 新增Image模型
 	); err != nil {
 		panic("database migration failed: " + err.Error())
 	}
 
 	// Best-effort schema upgrade for legacy folders table.
 	ensureFolderSchema()
+
+	// Image management system migrations
+	ensureImageSchema()
 
 	// Seed default admin account (admin/admin or generated).
 	var count int64

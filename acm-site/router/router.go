@@ -21,6 +21,7 @@ func RouterInit(r *gin.Engine) {
 		apiGroup.GET("/honor", api.GetAllHonors)
 		apiGroup.GET("/admin/team-members", api.GetAllTeamMembers)
 		apiGroup.GET("/announcement/list", api.ListAnnouncements)
+		apiGroup.POST("/announcement/view/:id", api.IncrementViewCount) // 增加查看次数
 
 		// Folder resources (public)
 		folder := apiGroup.Group("/folder")
@@ -104,6 +105,15 @@ func RouterInit(r *gin.Engine) {
 				{
 					slider.POST("/add", api.AddSlider)
 					slider.DELETE("/delete/:id", api.DeleteSlider)
+				}
+
+				// Image management
+				image := admin.Group("/image")
+				{
+					image.POST("/upload", api.UploadImage)
+					image.GET("/list", api.ListImages)
+					image.PUT("/update/:id", api.UpdateImage)
+					image.DELETE("/delete/:id", api.DeleteImage)
 				}
 
 				// Honor

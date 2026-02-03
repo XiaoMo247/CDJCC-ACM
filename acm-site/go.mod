@@ -4,6 +4,7 @@ go 1.24.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.3
+	github.com/disintegration/imaging v1.6.2
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
@@ -12,6 +13,8 @@ require (
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
 )
+
+require golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 
 require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect

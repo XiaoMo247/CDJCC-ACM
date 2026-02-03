@@ -74,3 +74,28 @@ func UpdateAnnouncement(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"msg": "修改成功"})
 }
+
+// IncrementViewCount 增加公告查看次数
+func IncrementViewCount(c *gin.Context) {
+	id := c.Param("id")
+
+	var announcement model.Announcement
+	if err := database.DB.First(&announcement, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"msg": "公告不存在"})
+		return
+	}
+
+	// 使用原子操作增加计数，防止并发问题
+	if err := database.DB.Model(&announcement).UpdateColumn("view_count", database.DB.Raw("view_count + 1")).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "更新失败"})
+		return
+	}
+
+	// 重新查询获取最新的view_count
+	database.DB.First(&announcement, id)
+
+	c.JSON(http.StatusOK, gin.H{
+		"msg":        "记录成功",
+		"view_count": announcement.ViewCount,
+	})
+}
