@@ -44,18 +44,12 @@
     <!-- 图片网格 -->
     <div v-loading="loading" class="image-grid">
       <div v-for="img in images" :key="img.id" class="image-card">
-        <el-image
+        <img
           :src="getImageUrl(img.url)"
-          fit="cover"
-          :preview-src-list="[getImageUrl(img.url)]"
+          :alt="img.file_name"
           class="image-preview"
-        >
-          <template #error>
-            <div class="image-error">
-              <el-icon><picture-filled /></el-icon>
-            </div>
-          </template>
-        </el-image>
+          @click="previewImage(img)"
+        />
 
         <div class="image-overlay">
           <div class="image-actions">
@@ -63,7 +57,7 @@
               type="primary"
               size="small"
               circle
-              @click="togglePreview(img)"
+              @click.stop="previewImage(img)"
             >
               <el-icon><zoom-in /></el-icon>
             </el-button>
@@ -71,7 +65,7 @@
               type="danger"
               size="small"
               circle
-              @click="deleteImage(img.id)"
+              @click.stop="deleteImage(img.id)"
             >
               <el-icon><delete /></el-icon>
             </el-button>
@@ -117,12 +111,22 @@
         @current-change="fetchImages"
       />
     </div>
+
+    <!-- 图片预览器 -->
+    <el-image-viewer
+      v-if="previewVisible"
+      :url-list="previewList"
+      :initial-index="previewIndex"
+      @close="closePreview"
+      :teleported="true"
+      :z-index="3000"
+    />
   </div>
 </template>
 
 <script>
 import request from '@/utils/request'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElImageViewer } from 'element-plus'
 import { UploadFilled, ZoomIn, Delete, PictureFilled, Picture } from '@element-plus/icons-vue'
 import { getToken } from '@/utils/tokenManager'
 
@@ -133,7 +137,8 @@ export default {
     ZoomIn,
     Delete,
     PictureFilled,
-    Picture
+    Picture,
+    ElImageViewer
   },
   data() {
     return {
@@ -146,7 +151,10 @@ export default {
       uploadUrl: `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/admin/image/upload`,
       uploadHeaders: {
         Authorization: `Bearer ${getToken()}`
-      }
+      },
+      previewVisible: false,
+      previewList: [],
+      previewIndex: 0
     }
   },
   mounted() {
@@ -237,8 +245,15 @@ export default {
       }
     },
 
-    togglePreview(img) {
-      // Element Plus的el-image组件已经支持预览，点击图片即可
+    previewImage(img) {
+      // 准备预览列表和当前索引
+      this.previewList = this.images.map(image => this.getImageUrl(image.url))
+      this.previewIndex = this.images.findIndex(image => image.id === img.id)
+      this.previewVisible = true
+    },
+
+    closePreview() {
+      this.previewVisible = false
     },
 
     getImageUrl(url) {
@@ -347,10 +362,13 @@ h1 i {
   width: 100%;
   height: 200px;
   display: block;
+  object-fit: cover;
+  cursor: pointer;
+  transition: opacity 0.3s;
 }
 
-.image-preview :deep(.el-image__inner) {
-  object-fit: cover;
+.image-preview:hover {
+  opacity: 0.9;
 }
 
 .image-error {

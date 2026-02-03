@@ -130,7 +130,11 @@ func RouterInit(r *gin.Engine) {
 					announcement.POST("/create", api.CreateAnnouncement)
 					announcement.PUT("/update/:id", api.UpdateAnnouncement)
 					announcement.DELETE("/delete/:id", api.DeleteAnnouncement)
+					announcement.GET("/stats/views", api.GetAnnouncementViewStats) // 获取观看统计
 				}
+
+				// File stats
+				admin.GET("/files/stats/downloads", api.GetFileDownloadStats) // 获取文件下载统计
 
 				// Join review
 				joinAdmin := admin.Group("/join")

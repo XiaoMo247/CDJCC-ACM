@@ -99,3 +99,13 @@ func IncrementViewCount(c *gin.Context) {
 		"view_count": announcement.ViewCount,
 	})
 }
+
+// GetAnnouncementViewStats 获取公告观看统计（前10）
+func GetAnnouncementViewStats(c *gin.Context) {
+	var announcements []model.Announcement
+	if err := database.DB.Order("view_count DESC").Limit(10).Find(&announcements).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"msg": "获取统计数据失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": announcements})
+}

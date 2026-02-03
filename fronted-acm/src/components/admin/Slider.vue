@@ -13,11 +13,11 @@
       <el-table-column prop="content" label="内容" header-align="center" show-overflow-tooltip />
       <el-table-column label="图片" width="200" header-align="center" align="center">
         <template #default="{ row }">
-          <el-image
+          <img
             :src="getImageUrl(row)"
-            style="width: 160px; height: 90px"
-            fit="cover"
-            :preview-src-list="[getImageUrl(row)]"
+            style="width: 160px; height: 90px; object-fit: cover; cursor: pointer; border-radius: 4px;"
+            :alt="row.title"
+            @click="previewImage(row)"
           />
         </template>
       </el-table-column>
@@ -87,19 +87,30 @@
       :multi-select="false"
       @confirm="handleImageSelected"
     />
+
+    <!-- 图片预览器 -->
+    <el-image-viewer
+      v-if="previewVisible"
+      :url-list="previewSrcList"
+      :initial-index="previewIndex"
+      @close="closePreview"
+      :teleported="true"
+      :z-index="3000"
+    />
   </div>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElImageViewer } from 'element-plus'
 import request from '@/utils/request'
 import ImagePicker from './ImagePicker.vue'
 
 export default {
   name: 'SliderManagement',
   components: {
-    ImagePicker
+    ImagePicker,
+    ElImageViewer
   },
   setup() {
     const sliderList = ref([])
@@ -115,6 +126,11 @@ export default {
       is_active: true
     })
     const sliderFormRef = ref(null)
+
+    // 图片预览相关
+    const previewVisible = ref(false)
+    const previewSrcList = ref([])
+    const previewIndex = ref(0)
 
     // 获取轮播图列表
     const fetchSliderList = async () => {
@@ -231,6 +247,17 @@ export default {
       return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
     }
 
+    const previewImage = (row) => {
+      const url = getImageUrl(row)
+      previewSrcList.value = [url]
+      previewVisible.value = true
+      previewIndex.value = 0
+    }
+
+    const closePreview = () => {
+      previewVisible.value = false
+    }
+
     onMounted(() => {
       fetchSliderList()
     })
@@ -249,7 +276,12 @@ export default {
       addSlider,
       deleteSlider,
       getImageUrl,
-      formatSize
+      formatSize,
+      previewVisible,
+      previewSrcList,
+      previewIndex,
+      previewImage,
+      closePreview
     }
   }
 }

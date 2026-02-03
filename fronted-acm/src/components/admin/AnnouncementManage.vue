@@ -2,6 +2,22 @@
   <div class="admin-card">
     <h1><i class="fas fa-bullhorn"></i>公告管理</h1>
 
+    <!-- 统计图表区域 -->
+    <div class="stats-section" style="margin-bottom: 24px;">
+      <el-card shadow="hover">
+        <template #header>
+          <div style="display: flex; align-items: center;">
+            <i class="fas fa-chart-line" style="margin-right: 8px;"></i>
+            <span>公告观看统计 TOP10</span>
+          </div>
+        </template>
+        <div class="charts-container" style="display: flex; gap: 24px;">
+          <div id="announcementViewBarChart" style="flex: 1; height: 300px;"></div>
+          <div id="announcementViewPieChart" style="flex: 1; height: 300px;"></div>
+        </div>
+      </el-card>
+    </div>
+
     <div class="form-container">
       <el-form :model="form" class="form-vertical" label-position="top">
         <el-form-item label="标题" class="form-item">
@@ -62,12 +78,16 @@ import dayjs from 'dayjs'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 import { getToken } from '@/utils/tokenManager'
+import * as echarts from 'echarts'
 
 export default {
   name: 'AnnouncementManage',
   data() {
     return {
       announcements: [],
+      // 图表实例
+      barChart: null,
+      pieChart: null,
       form: {
         title: '',
         content: ''
@@ -79,10 +99,19 @@ export default {
   mounted() {
     this.fetchAnnouncements()
     this.initVditor()
+    // 加载统计数据并初始化图表
+    this.fetchAnnouncementViewStats()
   },
   beforeUnmount() {
     if (this.vditor) {
       this.vditor.destroy()
+    }
+    // 销毁图表实例
+    if (this.barChart) {
+      this.barChart.dispose()
+    }
+    if (this.pieChart) {
+      this.pieChart.dispose()
     }
   },
   methods: {
@@ -276,6 +305,144 @@ export default {
         .replace(/\n/g, ' ')
         .trim()
       return text.length > 50 ? text.substring(0, 50) + '...' : text
+    },
+
+    // 获取公告观看统计
+    async fetchAnnouncementViewStats() {
+      try {
+        const res = await request.get('/admin/announcement/stats/views')
+        const announcements = res.data.data || []
+
+        // 等待DOM更新后初始化图表
+        this.$nextTick(() => {
+          this.initAnnouncementViewCharts(announcements)
+        })
+      } catch (err) {
+        console.error('获取公告观看统计失败:', err)
+      }
+    },
+
+    // 初始化公告观看统计图表
+    initAnnouncementViewCharts(announcements) {
+      if (!announcements || announcements.length === 0) {
+        return
+      }
+
+      // 处理标题，超过15个字符截断
+      const truncateTitle = (title) => {
+        return title.length > 15 ? title.substring(0, 15) + '...' : title
+      }
+
+      const titles = announcements.map(a => truncateTitle(a.title))
+      const viewCounts = announcements.map(a => a.view_count)
+
+      // 初始化柱状图
+      const barChartDom = document.getElementById('announcementViewBarChart')
+      if (barChartDom) {
+        this.barChart = echarts.init(barChartDom)
+        const barOption = {
+          title: {
+            text: '观看量排行',
+            left: 'center',
+            textStyle: { fontSize: 14 }
+          },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            formatter: (params) => {
+              const index = params[0].dataIndex
+              return `${announcements[index].title}<br/>观看量: ${params[0].value}`
+            }
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: titles,
+            axisLabel: {
+              interval: 0,
+              rotate: 45,
+              fontSize: 10
+            }
+          },
+          yAxis: {
+            type: 'value',
+            name: '观看量'
+          },
+          series: [{
+            data: viewCounts,
+            type: 'bar',
+            itemStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#f093fb' },
+                { offset: 0.5, color: '#f5576c' },
+                { offset: 1, color: '#f5576c' }
+              ])
+            },
+            emphasis: {
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: '#fa709a' },
+                  { offset: 0.7, color: '#fee140' },
+                  { offset: 1, color: '#fa709a' }
+                ])
+              }
+            }
+          }]
+        }
+        this.barChart.setOption(barOption)
+      }
+
+      // 初始化饼图
+      const pieChartDom = document.getElementById('announcementViewPieChart')
+      if (pieChartDom) {
+        this.pieChart = echarts.init(pieChartDom)
+        const pieData = announcements.map(a => ({
+          value: a.view_count,
+          name: truncateTitle(a.title),
+          fullTitle: a.title
+        }))
+
+        const pieOption = {
+          title: {
+            text: '观看占比',
+            left: 'center',
+            textStyle: { fontSize: 14 }
+          },
+          tooltip: {
+            trigger: 'item',
+            formatter: (params) => {
+              return `${params.data.fullTitle}<br/>观看量: ${params.value} (${params.percent}%)`
+            }
+          },
+          legend: {
+            orient: 'vertical',
+            left: 'left',
+            top: 'middle',
+            textStyle: { fontSize: 10 }
+          },
+          series: [{
+            type: 'pie',
+            radius: '60%',
+            data: pieData,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            },
+            label: {
+              fontSize: 10
+            }
+          }]
+        }
+        this.pieChart.setOption(pieOption)
+      }
     }
   }
 }

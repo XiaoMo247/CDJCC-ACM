@@ -69,6 +69,12 @@ func DownloadFile(c *gin.Context) {
 		return
 	}
 
+	// 增加下载计数
+	if err := service.IncrementFileDownloadCount(uint(id)); err != nil {
+		// 记录错误但不影响下载流程
+		fmt.Printf("更新下载计数失败: %v\n", err)
+	}
+
 	// 读取文件内容
 	data, err := os.ReadFile(file.Path)
 	if err != nil {
@@ -101,4 +107,14 @@ func DeleteFile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
+}
+
+// GetFileDownloadStats 获取文件下载统计（前10）
+func GetFileDownloadStats(c *gin.Context) {
+	files, err := service.GetTopDownloadFiles(10)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "获取统计数据失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": files})
 }

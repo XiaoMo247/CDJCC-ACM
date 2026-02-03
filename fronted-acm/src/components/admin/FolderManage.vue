@@ -2,6 +2,22 @@
   <div class="admin-card folder-manage">
     <h1><i class="fas fa-folder-open"></i> 文件资源管理</h1>
 
+    <!-- 统计图表区域 -->
+    <div class="stats-section" style="margin-bottom: 24px;">
+      <el-card shadow="hover">
+        <template #header>
+          <div style="display: flex; align-items: center;">
+            <i class="fas fa-chart-bar" style="margin-right: 8px;"></i>
+            <span>文件下载统计 TOP10</span>
+          </div>
+        </template>
+        <div class="charts-container" style="display: flex; gap: 24px;">
+          <div id="fileDownloadBarChart" style="flex: 1; height: 300px;"></div>
+          <div id="fileDownloadPieChart" style="flex: 1; height: 300px;"></div>
+        </div>
+      </el-card>
+    </div>
+
     <div class="folder-layout">
       <aside class="folder-sidebar">
         <div class="sidebar-header">
@@ -209,6 +225,7 @@
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/utils/request'
 import { getToken } from '@/utils/tokenManager'
+import * as echarts from 'echarts'
 
 export default {
   name: 'FolderManage',
@@ -235,6 +252,10 @@ export default {
       moveDialogVisible: false,
       moveSubmitting: false,
       moveTargetId: null,
+
+      // 图表实例
+      barChart: null,
+      pieChart: null,
       moveSources: []
     }
   },
@@ -276,6 +297,17 @@ export default {
   async mounted() {
     await this.refreshTree()
     await this.setCurrentFolder(0)
+    // 加载统计数据并初始化图表
+    await this.fetchFileDownloadStats()
+  },
+  beforeUnmount() {
+    // 销毁图表实例
+    if (this.barChart) {
+      this.barChart.dispose()
+    }
+    if (this.pieChart) {
+      this.pieChart.dispose()
+    }
   },
   methods: {
     async refreshTree() {
@@ -626,6 +658,144 @@ export default {
       const i = Math.floor(Math.log(bytes) / Math.log(k))
       const size = (bytes / Math.pow(k, i)).toFixed(2)
       return `${size} ${sizes[i]}`
+    },
+
+    // 获取文件下载统计
+    async fetchFileDownloadStats() {
+      try {
+        const res = await request.get('/admin/files/stats/downloads')
+        const files = res.data.data || []
+
+        // 等待DOM更新后初始化图表
+        this.$nextTick(() => {
+          this.initFileDownloadCharts(files)
+        })
+      } catch (err) {
+        console.error('获取文件下载统计失败:', err)
+      }
+    },
+
+    // 初始化文件下载统计图表
+    initFileDownloadCharts(files) {
+      if (!files || files.length === 0) {
+        return
+      }
+
+      // 处理文件名，超过20个字符截断
+      const truncateName = (name) => {
+        return name.length > 20 ? name.substring(0, 20) + '...' : name
+      }
+
+      const fileNames = files.map(f => truncateName(f.name))
+      const downloadCounts = files.map(f => f.download_count)
+
+      // 初始化柱状图
+      const barChartDom = document.getElementById('fileDownloadBarChart')
+      if (barChartDom) {
+        this.barChart = echarts.init(barChartDom)
+        const barOption = {
+          title: {
+            text: '下载量排行',
+            left: 'center',
+            textStyle: { fontSize: 14 }
+          },
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            formatter: (params) => {
+              const index = params[0].dataIndex
+              return `${files[index].name}<br/>下载量: ${params[0].value}`
+            }
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: fileNames,
+            axisLabel: {
+              interval: 0,
+              rotate: 45,
+              fontSize: 10
+            }
+          },
+          yAxis: {
+            type: 'value',
+            name: '下载量'
+          },
+          series: [{
+            data: downloadCounts,
+            type: 'bar',
+            itemStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#83bff6' },
+                { offset: 0.5, color: '#188df0' },
+                { offset: 1, color: '#188df0' }
+              ])
+            },
+            emphasis: {
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: '#2378f7' },
+                  { offset: 0.7, color: '#2378f7' },
+                  { offset: 1, color: '#83bff6' }
+                ])
+              }
+            }
+          }]
+        }
+        this.barChart.setOption(barOption)
+      }
+
+      // 初始化饼图
+      const pieChartDom = document.getElementById('fileDownloadPieChart')
+      if (pieChartDom) {
+        this.pieChart = echarts.init(pieChartDom)
+        const pieData = files.map((f, index) => ({
+          value: f.download_count,
+          name: truncateName(f.name),
+          fullName: f.name
+        }))
+
+        const pieOption = {
+          title: {
+            text: '下载占比',
+            left: 'center',
+            textStyle: { fontSize: 14 }
+          },
+          tooltip: {
+            trigger: 'item',
+            formatter: (params) => {
+              return `${params.data.fullName}<br/>下载量: ${params.value} (${params.percent}%)`
+            }
+          },
+          legend: {
+            orient: 'vertical',
+            left: 'left',
+            top: 'middle',
+            textStyle: { fontSize: 10 }
+          },
+          series: [{
+            type: 'pie',
+            radius: '60%',
+            data: pieData,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            },
+            label: {
+              fontSize: 10
+            }
+          }]
+        }
+        this.pieChart.setOption(pieOption)
+      }
     }
   }
 }

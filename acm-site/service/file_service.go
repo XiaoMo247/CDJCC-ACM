@@ -64,6 +64,18 @@ func GetFileByID(id uint) (*model.File, error) {
 	return &file, err
 }
 
+// IncrementFileDownloadCount 增加文件下载计数
+func IncrementFileDownloadCount(id uint) error {
+	return database.DB.Model(&model.File{}).Where("id = ?", id).UpdateColumn("download_count", database.DB.Raw("download_count + 1")).Error
+}
+
+// GetTopDownloadFiles 获取下载量最高的前N个文件
+func GetTopDownloadFiles(limit int) ([]model.File, error) {
+	var files []model.File
+	err := database.DB.Order("download_count DESC").Limit(limit).Find(&files).Error
+	return files, err
+}
+
 func saveFile(file *multipart.FileHeader, path string) error {
 	src, err := file.Open()
 	if err != nil {

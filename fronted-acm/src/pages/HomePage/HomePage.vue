@@ -109,11 +109,25 @@ export default {
       try {
         const res = await request.get('/slider/list')
         if (res.data && res.data.data) {
-          sliders.value = res.data.data.map(slider => ({
-            url: slider.image,
-            title: slider.title,
-            description: slider.content,
-          }))
+          sliders.value = res.data.data.map(slider => {
+            // 优先使用ImageObj的URL，否则使用旧的Image字段
+            let imageUrl = slider.image
+            if (slider.image_obj && slider.image_obj.url) {
+              imageUrl = slider.image_obj.url
+            }
+
+            // 如果是相对路径，拼接后端API地址
+            if (imageUrl && !imageUrl.startsWith('http')) {
+              const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+              imageUrl = baseURL.replace('/api', '') + imageUrl
+            }
+
+            return {
+              url: imageUrl,
+              title: slider.title,
+              description: slider.content,
+            }
+          })
         }
       } catch (err) {
         console.error('获取轮播图失败:', err)
