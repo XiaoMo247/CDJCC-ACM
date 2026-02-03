@@ -28,7 +28,8 @@ export default {
 
 <style>
 #app {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden; /* 禁止App层级滚动 */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -56,6 +57,7 @@ export default {
   padding-top: 72px; /* 与 NavBar 高度一致 */
   padding-bottom: 40px; /* 留出 Footer 的空间 */
   box-sizing: border-box;
+  overflow: hidden; /* 禁止main-content层级滚动，让内部组件自己处理 */
 }
 
 </style>

@@ -97,9 +97,11 @@
   <style scoped>
   .member-dashboard {
     display: flex;
-    height: 100vh;
+    height: 100%; /* 使用100%适配.main-content的内容区域 */
+    max-height: 100%; /* 确保不会超出 */
     background-color: #f8fafc;
     position: relative;
+    overflow: hidden; /* 禁止Dashboard层级滚动 */
   }
   
   /* 侧边栏样式 - 保留原配色 */
@@ -115,6 +117,15 @@
     position: fixed;
     height: 100%;
     color: #1e293b;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+  }
+
+  /* 隐藏侧边栏滚动条 */
+  .sidebar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
   }
   
   .sidebar-title {
@@ -165,7 +176,16 @@
     background-color: #f8fafc;
     transition: margin-left 0.3s ease;
     margin-left: 240px;
-    min-height: 100vh;
+    height: 100%; /* 使用100%而不是min-height */
+    max-height: 100%; /* 确保高度不超过父容器 */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+  }
+
+  /* 隐藏滚动条但保留滚动功能 */
+  .content::-webkit-scrollbar {
+    width: 0;
+    height: 0;
   }
   
   /* 移动端菜单按钮 */

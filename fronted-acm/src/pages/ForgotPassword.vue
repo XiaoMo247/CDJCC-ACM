@@ -27,7 +27,7 @@ export default {
 .forgot-password-page {
   background: url(../assets/forgot.jpg) no-repeat center center;
   background-size: cover;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 72px - 60px); /* NavBar 72px + Footer 60px */
   display: flex;
   align-items: center;
   justify-content: center;

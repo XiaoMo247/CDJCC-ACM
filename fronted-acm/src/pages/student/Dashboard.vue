@@ -117,7 +117,8 @@ export default {
 <style scoped>
 .student-dashboard {
   display: flex;
-  height: 100vh;
+  height: 100%; /* 使用100%适配.main-content的内容区域 */
+  max-height: 100%; /* 确保不会超出 */
   background-color: #f8fafc;
   overflow: hidden;
   position: relative;
@@ -133,6 +134,15 @@ export default {
   transition: transform 0.3s ease;
   z-index: 100;
   position: relative;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+/* 隐藏侧边栏滚动条 */
+.sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .sidebar.hidden {
@@ -203,6 +213,16 @@ export default {
   overflow-y: auto;
   background-color: #f8fafc;
   transition: margin-left 0.3s ease;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+  height: 100%; /* 确保高度不超过父容器 */
+  max-height: 100%; /* 确保高度不超过父容器 */
+}
+
+/* 隐藏滚动条但保留滚动功能 */
+.content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .content.sidebar-hidden {

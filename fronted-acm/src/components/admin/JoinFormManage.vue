@@ -201,6 +201,18 @@ export default {
 </script>
 
 <style scoped>
+h1 {
+  font-size: 24px;
+  color: #303133;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+h1 i {
+  margin-right: 10px;
+  color: #409eff;
+}
+
 .admin-card h2 {
   font-size: 18px;
   font-weight: bold;

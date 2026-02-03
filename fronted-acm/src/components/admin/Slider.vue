@@ -258,8 +258,6 @@ export default {
 <style scoped>
 .admin-card {
   padding: 24px;
-  background: #fff;
-  border-radius: 8px;
 }
 
 h1 {
@@ -270,7 +268,7 @@ h1 {
 }
 
 h1 i {
-  margin-right: 8px;
+  margin-right: 10px;
   color: #409eff;
 }
 

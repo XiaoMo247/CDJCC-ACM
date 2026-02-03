@@ -3,11 +3,11 @@
     <h1><i class="fas fa-bullhorn"></i>公告管理</h1>
 
     <div class="form-container">
-      <el-form :model="form" class="form-vertical">
+      <el-form :model="form" class="form-vertical" label-position="top">
         <el-form-item label="标题" class="form-item">
           <el-input v-model="form.title" placeholder="请输入公告标题" size="large" clearable />
         </el-form-item>
-        <el-form-item label="内容（支持Markdown）" class="form-item">
+        <el-form-item label="内容（支持Markdown）" class="form-item editor-item">
           <div id="vditor" style="border: 1px solid #dcdfe6; border-radius: 4px;"></div>
         </el-form-item>
         <div class="form-button-group">
@@ -91,7 +91,15 @@ export default {
         height: 500,
         placeholder: '请输入公告内容（支持Markdown格式）...',
         theme: 'classic',
-        mode: 'wysiwyg', // 所见即所得模式
+        mode: 'sv', // 分栏编辑模式（支持实时预览）
+        preview: {
+          delay: 100,
+          mode: 'both', // 编辑器和预览同时显示
+          hljs: {
+            lineNumber: true, // 代码块显示行号
+            style: 'github'
+          }
+        },
         toolbar: [
           'emoji',
           'headings',
@@ -111,13 +119,33 @@ export default {
           'table',
           '|',
           'upload',
+          {
+            hotkey: '',
+            name: 'insert-image-url',
+            tipPosition: 'n',
+            tip: '插入网络图片',
+            className: 'right',
+            icon: '<svg><use xlink:href="#vditor-icon-image"></use></svg>',
+            click: () => {
+              const url = prompt('请输入图片URL:')
+              if (url) {
+                this.vditor.insertValue(`![图片](${url})`)
+              }
+            }
+          },
           '|',
           'undo',
           'redo',
           '|',
           'edit-mode',
-          'preview',
-          'fullscreen'
+          {
+            name: 'more',
+            toolbar: [
+              'fullscreen',
+              'both',
+              'preview'
+            ]
+          }
         ],
         upload: {
           url: `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/admin/image/upload`,
@@ -256,8 +284,6 @@ export default {
 <style scoped>
 .admin-card {
   padding: 24px;
-  background: #fff;
-  border-radius: 8px;
 }
 
 h1 {
@@ -268,7 +294,7 @@ h1 {
 }
 
 h1 i {
-  margin-right: 8px;
+  margin-right: 10px;
   color: #409eff;
 }
 
@@ -285,6 +311,22 @@ h1 i {
 
 .form-item {
   margin-bottom: 20px;
+}
+
+/* 编辑器表单项特殊样式 */
+.editor-item {
+  width: 100%;
+}
+
+.editor-item :deep(.el-form-item__label) {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+.editor-item :deep(.el-form-item__content) {
+  width: 100%;
+  max-width: 100%;
 }
 
 .form-button-group {
@@ -318,6 +360,8 @@ h1 i {
 /* Vditor样式覆盖 */
 :deep(.vditor) {
   border-radius: 4px;
+  width: 100%;
+  max-width: 100%;
 }
 
 :deep(.vditor-toolbar) {
@@ -327,5 +371,17 @@ h1 i {
 
 :deep(.vditor-content) {
   background-color: #fff;
+}
+
+/* 确保编辑器铺满表单容器 */
+#vditor {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+.form-item :deep(.el-form-item__content) {
+  width: 100%;
+  max-width: 100%;
 }
 </style>

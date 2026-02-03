@@ -78,7 +78,7 @@ export default {
 
 <style scoped>
 .login-page {
-  min-height: calc(100vh - 64px); /* 如果 NavBar 高度为 64px，可根据实际值调整 */
+  min-height: calc(100vh - 72px - 60px); /* NavBar 72px + Footer 60px */
   display: flex;
   align-items: center;
   justify-content: center;

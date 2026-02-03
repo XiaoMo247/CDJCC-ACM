@@ -162,9 +162,11 @@ export default {
 <style scoped>
 .admin-dashboard {
   display: flex;
-  height: 100vh;
+  height: 100%; /* 使用100%适配.main-content的内容区域 */
+  max-height: 100%; /* 确保不会超出 */
   background-color: #f8fafc;
   position: relative;
+  overflow: hidden; /* 禁止Dashboard层级滚动 */
 }
 
 .sidebar {
@@ -176,6 +178,15 @@ export default {
   flex-direction: column;
   transition: transform 0.3s ease;
   z-index: 100;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+/* 隐藏侧边栏滚动条 */
+.sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .sidebar-title {
@@ -231,6 +242,16 @@ export default {
   padding: 24px;
   overflow-y: auto;
   background-color: #f8fafc;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+  height: 100%; /* 确保高度不超过父容器 */
+  max-height: 100%; /* 确保高度不超过父容器 */
+}
+
+/* 隐藏滚动条但保留滚动功能 */
+.content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .mobile-navbar {
@@ -282,6 +303,7 @@ export default {
 
 .mobile-padding {
   padding-top: 80px;
+  padding-bottom: 80px; /* 为底部Footer留出空间 */
 }
 
 /* 响应式 */

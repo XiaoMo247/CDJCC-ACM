@@ -27,8 +27,10 @@ func main() {
 	database.InitDB()
 
 	r := gin.Default()
-	// 只信任本机代理，避免 Gin “trust all proxies” 的安全警告刷屏
+	// 只信任本机代理，避免 Gin "trust all proxies" 的安全警告刷屏
 	_ = r.SetTrustedProxies([]string{"127.0.0.1"})
+	// 设置文件上传大小限制为10MB
+	r.MaxMultipartMemory = 10 << 20 // 10MB
 	r.Static("/uploads", "./uploads")
 	r.Use(middleware.CorsMiddleware())
 	router.RouterInit(r)

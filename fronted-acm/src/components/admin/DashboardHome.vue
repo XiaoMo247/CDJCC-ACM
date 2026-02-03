@@ -305,14 +305,14 @@ export default {
 }
 
 h1 {
-  font-size: 28px;
-  color: #333;
-  margin-bottom: 30px;
+  font-size: 24px;
+  color: #303133;
+  margin-bottom: 24px;
   font-weight: 600;
 }
 
 h1 i {
-  margin-right: 12px;
+  margin-right: 10px;
   color: #409eff;
 }
 
